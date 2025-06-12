@@ -1,0 +1,1609 @@
+//frontend\utils\api.js
+
+// Configure API URL based on environment
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+// Helper function for consistent error handling
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = 
+      errorData.detail?.map?.(error => error.msg).join(", ") ||
+      errorData.detail ||
+      errorData.message ||
+      "Request failed";
+    throw new Error(errorMessage);
+  }
+  return response.json();
+};
+
+export async function registerUser(userData) {
+  const response = await fetch(`${API_URL}/api/register`, {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+  });
+
+  return response.json();
+}
+
+export async function loginUser(userData) {
+  const response = await fetch(`${API_URL}/api/login`, {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+  });
+
+  return response.json();
+}
+
+
+export async function sendPasswordResetEmail(email) {
+  try {
+    const response = await fetch(`${API_URL}/api/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw error;
+  }
+}
+
+export async function resetPassword({ token, password }) {
+  try {
+    const response = await fetch(
+      `${API_URL}/api/reset-password?token=${encodeURIComponent(token)}&new_password=${encodeURIComponent(password)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    throw error;
+  }
+}
+
+
+export async function createPet(petData) {
+  try {
+    const response = await fetch(`${API_URL}/api/pets/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(petData),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error creating pet:", error);
+    throw error;
+  }
+}
+
+
+export async function uploadPetImage(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+      const response = await fetch(`${API_URL}/api/pets/upload-image`, {
+          method: "POST",
+          body: formData,
+      });
+      return await response.json();
+  } catch (error) {
+      return Promise.reject(error);
+  }
+}
+
+export async function verifyPetImage(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+      const response = await fetch(`${API_URL}/api/pets/verify-pet-image`, {
+          method: "POST",
+          body: formData,
+      });
+      
+      // Always parse the response as JSON
+      const data = await response.json();
+      
+      // The backend now always returns 200, so we just return the data
+      return data;
+      
+  } catch (error) {
+      // Network errors or failed JSON parsing
+      console.error("Verification request failed:", error);
+      return {
+          is_valid: false,
+          message: "Could not connect to verification service",
+          error: true
+      };
+  }
+}
+
+
+export const fetchPetDashboard = async (token) => {
+  try {
+    const userId = sessionStorage.getItem("user_id");
+    if (!userId) throw new Error("User ID not available");
+    
+    const response = await fetch(
+      `${API_URL}/api/pets/dashboard?user_id=${userId}`,
+      {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
+      }
+    );
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching pet dashboard:", error);
+    throw error;
+  }
+};
+
+
+
+export const getImageUrl = (imagePath) => {
+  if (!imagePath) return "/placeholder.jpg";
+  
+  // Handle full URLs (if stored in DB)
+  if (imagePath.startsWith('http')) return imagePath;
+  
+  // Handle cases where imagePath is in the new format (pet_id/filename)
+  if (imagePath.includes('/')) {
+    const [petId, filename] = imagePath.split('/');
+    // For both development and production
+    return `/uploads/pet_images/${petId}/${filename}`;
+  }
+
+  // Handle old format (timestamp filenames) - backward compatibility
+  if (API_URL.includes('localhost') || API_URL.includes('127.0.0.1')) {
+    return `${API_URL}/uploads/pet_images/${imagePath}`;
+  }
+  
+  // Production - old format
+  return `/uploads/pet_images/${imagePath}`;
+};
+
+// Add admin approval status to fetchPetDetails response handling
+export async function fetchPetDetails(id) {
+  try {
+    const token = sessionStorage.getItem('auth_token');
+    const response = await fetch(`${API_URL}/api/pets/${id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch pet details');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching pet details:', error);
+    throw error;
+  }
+}
+
+
+
+// Update in frontend/utils/api.js
+export async function deletePet(petId, token) {
+  try {
+    const userId = sessionStorage.getItem("user_id");
+    if (!userId) throw new Error("User ID not available");
+    
+    const response = await fetch(`${API_URL}/api/pets/${petId}?user_id=${userId}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error deleting pet:", error);
+    throw error;
+  }
+}
+export async function updatePetStatus(petId, status) {
+  const response = await fetch(`${API_URL}/api/pets/${petId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status }),
+  });
+  return handleResponse(response);
+}
+
+export async function togglePublishPet(petId, publishStatus) {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/api/pets/${petId}/publish`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        publish: publishStatus
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to update publish status");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error toggling publish status:", error);
+    throw error;
+  }
+}
+
+// Add this function (similar to togglePublishPet but more specific)
+export async function unpublishPet(petId) {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/api/pets/${petId}/publish`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        publish: false // Explicitly set to false
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to unpublish pet");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error unpublishing pet:", error);
+    throw error;
+  }
+}
+
+
+// Update pet details
+export const updatePetDetails = async (petId, petData) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/api/pets/${petId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(petData)
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error updating pet:", error);
+    throw error;
+  }
+};
+
+
+
+
+
+
+// utils/api.js
+export async function getAddress(token, user_id) {
+  try {
+    const response = await fetch(`${API_URL}/api/user/${user_id}/address`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (response.status === 404) {
+      return null; // No address exists
+    }
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch address');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching address:', error);
+    throw error;
+  }
+}
+
+export async function updateAddress(token, user_id, addressData) {
+  try {
+    const response = await fetch(`${API_URL}/api/user/${user_id}/address`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(addressData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to update address');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating address:', error);
+    throw error;
+  }
+}
+
+
+
+// Add to your existing api.js
+export async function getUserProfile(token, user_id) {
+  try {
+    const response = await fetch(`${API_URL}/api/user/${user_id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch user profile');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    throw error;
+  }
+}
+
+export async function uploadProfilePicture(token, file) {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch(`${API_URL}/api/user/upload-picture`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to upload profile picture');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error uploading profile picture:', error);
+    throw error;
+  }
+}
+
+export async function updateUserProfile(token, user_id, updateData) {
+  try {
+    const response = await fetch(`${API_URL}/api/user/${user_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to update profile');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw error;
+  }
+}
+
+// Notification API functions
+export async function getNotificationSettings(token, user_id) {
+  try {
+    const response = await fetch(`${API_URL}/api/user/${user_id}/notifications`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch notification settings');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching notification settings:', error);
+    throw error;
+  }
+}
+
+export async function updateNotificationSettings(token, user_id, settings) {
+  try {
+    const response = await fetch(`${API_URL}/api/user/${user_id}/notifications`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(settings),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to update notification settings');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating notification settings:', error);
+    throw error;
+  }
+}
+
+
+
+// utils/api.js
+export async function getUserPrivacySettings(token, user_id) {
+  const response = await fetch(`${API_URL}/api/user/${user_id}/privacy-settings`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return handleResponse(response);
+}
+
+export async function changeUserPassword(token, user_id, password_data) {
+  const response = await fetch(`${API_URL}/api/user/${user_id}/change-password`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(password_data)
+  });
+  return handleResponse(response);
+}
+
+
+
+// frontend/utils/api.js
+export async function deleteUserAccount(token, user_id) {
+  try {
+    const response = await fetch(`${API_URL}/api/user/${user_id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to delete account');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    throw error;
+  }
+}
+
+// Add to your existing api.js
+export async function getUnreadNotificationCount(token, user_id) {
+  const response = await fetch(`${API_URL}/api/notifications/unread-count/${user_id}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return handleResponse(response);
+}
+
+export async function getUserNotifications(token, user_id) {
+  const response = await fetch(`${API_URL}/api/notifications/user/${user_id}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return handleResponse(response);
+}
+
+// frontend/utils/api.js
+
+export async function checkNotificationSettings(token, user_id) {
+  const response = await fetch(`${API_URL}/api/notifications/check-settings/${user_id}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return handleResponse(response);
+}
+
+
+export async function markNotificationAsRead(token, notificationId) {
+  const response = await fetch(`${API_URL}/api/notifications/${notificationId}/read`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  return handleResponse(response);
+}
+
+export async function markAllNotificationsAsRead(token, userId) {
+  const response = await fetch(`${API_URL}/api/notifications/mark-all-read/${userId}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to mark all as read');
+  }
+  
+  return response.json();
+}
+
+
+
+
+
+export async function updatePetImage(petId, file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+    const token = sessionStorage.getItem('auth_token');
+    const response = await fetch(`${API_URL}/api/pets/${petId}/update-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    console.log('Image update response:', response);  // Debug log
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Image update error:', errorData);  // Debug log
+      throw new Error(errorData.detail || 'Failed to update pet image');
+    }
+
+    const result = await response.json();
+    console.log('Image update result:', result);  // Debug log
+    return result;
+  } catch (error) {
+    console.error('Error updating pet image:', error);  // Debug log
+    throw error;
+  }
+}
+
+export async function addAdditionalImage(petId, file, imageType) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('image_type', imageType);
+  
+  try {
+    const token = sessionStorage.getItem('auth_token');
+    const response = await fetch(`${API_URL}/api/pets/${petId}/add-additional-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      // Return the error message in a consistent format
+      throw new Error(
+        errorData.detail || 
+        errorData.message || 
+        'Failed to add additional image'
+      );
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding additional image:', error);
+    throw error;
+  }
+}
+
+
+export async function removeAdditionalImage(petId, index) {
+  try {
+    const token = sessionStorage.getItem('auth_token');
+    const response = await fetch(`${API_URL}/api/pets/${petId}/remove-additional-image?index=${index}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Error removing additional image:', error);
+    throw error;
+  }
+}
+
+
+// frontend/utils/api.js
+
+// Add these functions to your existing api.js
+
+export async function generatePetFingerprint(petId) {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/api/pets/${petId}/generate-fingerprint`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to generate fingerprint");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error generating fingerprint:", error);
+    throw error;
+  }
+}
+
+
+export const getPetFlyerData = async (petId) => {
+  try {
+    const token = sessionStorage.getItem('auth_token');  // Add auth if needed
+    const response = await fetch(`${API_URL}/api/pets/${petId}/flyer-data`, {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch pet flyer data');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching pet flyer data:', error);
+    throw error;
+  }
+};
+
+export const generateFlyerImage = async (htmlElement) => {
+  const html2canvas = (await import('html2canvas')).default;
+  return await html2canvas(htmlElement, {
+    scale: 2,
+    logging: false,
+    useCORS: true
+  });
+};
+
+
+// // frontend/utils/api.js
+// export async function findSimilarPets(petId, threshold = 0.65, limit = 10) {
+//   try {
+//     const token = sessionStorage.getItem("auth_token");
+//     const response = await fetch(
+//       `${API_URL}/api/pets/${petId}/find-similar?threshold=${threshold}&limit=${limit}`,
+//       {
+//         method: "GET",
+//         headers: {
+//           "Authorization": `Bearer ${token}`,
+//         },
+// export async function findSimilarPets(petId, distanceFilter = "no limit", threshold = 0.65, limit = 10) {
+//   try {
+//     const token = sessionStorage.getItem("auth_token");
+//     const response = await fetch(
+//       `${API_URL}/api/pets/${petId}/find-similar?threshold=${threshold}&limit=${limit}&max_distance=${distanceFilter}`,
+//       {
+//         method: "GET",
+//         headers: {
+//           "Authorization": `Bearer ${token}`,
+//         },
+
+
+export async function findSimilarPets(petId, distanceFilter = "no limit", threshold = 0.65) {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(
+      `${API_URL}/api/pets/${petId}/find-similar?threshold=${threshold}&max_distance=${distanceFilter}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to find similar pets");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error finding similar pets:", error);
+    throw error;
+  }
+}
+
+
+// frontend/utils/api.js
+export async function checkFingerprintExists(petId) {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(
+      `${API_URL}/api/pets/${petId}/check-fingerprint`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to check fingerprint status");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error checking fingerprint:", error);
+    throw error;
+  }
+}
+
+
+
+
+
+
+
+
+export const sendMessage = async (receiverId, text) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const senderId = sessionStorage.getItem("user_id");
+    
+    if (!token || !senderId) {
+      throw new Error("Authentication data missing");
+    }
+
+    // First get or create conversation
+    const convResponse = await fetch(`${API_URL}/api/messages/start-conversation`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        user1_id: senderId,
+        user2_id: receiverId
+      })
+    });
+
+    if (!convResponse.ok) {
+      const errorData = await convResponse.json();
+      throw new Error(errorData.detail || "Failed to start conversation");
+    }
+
+    const { conversation_id } = await convResponse.json();
+
+    // Then send message
+    const response = await fetch(`${API_URL}/api/messages/send`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        conversation_id,
+        sender_id: senderId,
+        text: text
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to send message");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error sending message:", error);
+    throw error;
+  }
+};
+
+export const getConversation = async (receiverId) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const userId = sessionStorage.getItem("user_id");
+    
+    if (!token || !userId) {
+      throw new Error("Authentication data missing");
+    }
+
+    // First get conversation ID
+    const convResponse = await fetch(`${API_URL}/api/messages/start-conversation`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        user1_id: userId,
+        user2_id: receiverId
+      })
+    });
+
+    if (!convResponse.ok) {
+      const errorData = await convResponse.json();
+      throw new Error(errorData.detail || "Failed to get conversation");
+    }
+
+    const { conversation_id } = await convResponse.json();
+
+    // Then get messages
+    const response = await fetch(`${API_URL}/api/messages/conversation/${conversation_id}?user_id=${userId}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to fetch messages");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching conversation:", error);
+    throw error;
+  }
+};
+
+// Keep these exactly the same - they don't need changes
+export const uploadMessageImage = async (file) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    if (!token) throw new Error("No authentication token found");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(`${API_URL}/api/messages/upload-image`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to upload image");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw error;
+  }
+};
+
+export const sendMessageWithImage = async (receiverId, text, imageUrl) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const userId = sessionStorage.getItem("user_id");
+    
+    if (!token || !userId) {
+      throw new Error("Authentication data missing");
+    }
+
+    // First get or create conversation
+    const convResponse = await fetch(`${API_URL}/api/messages/start-conversation`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        user1_id: userId,
+        user2_id: receiverId
+      })
+    });
+
+    if (!convResponse.ok) {
+      const errorData = await convResponse.json();
+      throw new Error(errorData.detail || "Failed to start conversation");
+    }
+
+    const { conversation_id } = await convResponse.json();
+
+    // Then send message with image
+    const response = await fetch(`${API_URL}/api/messages/send-with-image`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        conversation_id,
+        sender_id: userId,
+        text: text,
+        image_url: imageUrl
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to send message");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error sending message:", error);
+    throw error;
+  }
+};
+
+
+// export const getUserConversations = async () => {
+//   try {
+//     const token = sessionStorage.getItem('auth_token');
+//     const userId = sessionStorage.getItem('user_id');
+    
+//     if (!token || !userId) {
+//       throw new Error('Authentication required');
+//     }
+
+//     const response = await fetch(
+//       `${API_URL}/api/messages/conversations?current_user_id=${userId}`, 
+//       {
+//         headers: {
+//           'Authorization': `Bearer ${token}`
+//         }
+//       }
+//     );
+
+//     if (!response.ok) {
+//       const error = await response.json();
+//       throw new Error(error.detail || 'Failed to load conversations');
+//     }
+
+//     return await response.json();
+//   } catch (err) {
+//     console.error('Conversation load error:', err);
+//     throw err;
+//   }
+// };
+
+export const getUserConversations = async (otherUserId = null) => {
+  try {
+    const token = sessionStorage.getItem('auth_token');
+    const userId = sessionStorage.getItem('user_id');
+    
+    if (!token || !userId) {
+      throw new Error('Authentication required');
+    }
+
+    // Build URL with optional other_user_id parameter
+    let url = `${API_URL}/api/messages/conversations?current_user_id=${userId}`;
+    if (otherUserId !== null) {
+      url += `&other_user_id=${otherUserId}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to load conversations');
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error('Conversation load error:', err);
+    throw err;
+  }
+};
+
+
+// export const getConversations = async (userId) => {
+//   try {
+//     const token = sessionStorage.getItem("auth_token");
+//     if (!token) {
+//       throw new Error("No authentication token found");
+//     }
+//     if (!userId) {
+//       throw new Error("User ID is required");
+//     }
+
+//     const response = await fetch(`${API_URL}/api/messages/conversations/${userId}`, {
+//       method: "GET",
+//       headers: {
+//         "Authorization": `Bearer ${token}`,
+//         "Content-Type": "application/json"
+//       }
+//     });
+
+//     if (!response.ok) {
+//       let errorData;
+//       try {
+//         errorData = await response.json();
+//       } catch (e) {
+//         throw new Error(`HTTP error! status: ${response.status}`);
+//       }
+      
+//       // Handle different error response formats
+//       const errorMessage = errorData.detail?.error || 
+//                          errorData.detail?.message ||
+//                          errorData.detail ||
+//                          errorData.message ||
+//                          "Failed to fetch conversations";
+      
+//       throw new Error(errorMessage);
+//     }
+
+//     return await response.json();
+//   } catch (error) {
+//     console.error("API Error:", error);
+//     throw new Error(error.message || "Network request failed");
+//   }
+// };
+
+
+
+export const fetchRehomePets = async (filters = {}) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const currentUserId = parseInt(sessionStorage.getItem("user_id")) || null;
+
+    // Sanitize filters: remove default "all" or empty values
+    const params = new URLSearchParams();
+    
+    // Add current user ID to exclude their own pets
+    if (currentUserId) {
+      params.append('user_id', currentUserId);
+    }
+    
+    // Add other filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== "all") {
+        params.append(key, value);
+      }
+    });
+
+    const response = await fetch(`${API_URL}/api/pets/rehome/?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching rehome pets:", error);
+    throw error;
+  }
+};
+
+
+export const submitAdoptionApplication = async (formData) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${API_URL}/api/pets/adoption-application`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        ...formData,
+        user_id: Number(formData.user_id) // Ensure it's a number
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage = errorData.detail || 
+                         errorData.message || 
+                         'Failed to submit application';
+      throw new Error(errorMessage);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Application error:", error);
+    throw new Error(error.message || "Failed to submit application");
+  }
+};
+
+export const getUserApplications = async () => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/api/pets/my-adoption-applications`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch applications');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
+  }
+};
+
+
+
+
+// frontend/utils/api.js
+export const checkAdoptionStatus = async (petId, userId) => {
+  try {
+    const response = await fetch(`${API_URL}/api/pets/pet/${petId}/adoption-status?user_id=${userId}`);
+    if (!response.ok) {
+      throw new Error('Failed to check adoption status');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Check status error:", error);
+    throw error;
+  }
+};
+
+// frontend/utils/api.js
+export const adoptPet = async (petId, userId) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${API_URL}/api/pets/pet/${petId}/adopt?user_id=${userId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ user_id: userId })
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      let errorMsg = 'Failed to submit adoption';
+      if (typeof data.message === 'string') {
+        errorMsg = data.message;
+      } else if (typeof data.detail === 'string') {
+        errorMsg = data.detail;
+      } else if (typeof data.detail === 'object') {
+        errorMsg = JSON.stringify(data.detail);
+      }
+      throw new Error(errorMsg);
+    }
+    
+    
+    return data;
+  } catch (error) {
+    console.error("Adoption error:", error);
+    throw new Error(
+      typeof error.message === 'string' ? error.message : JSON.stringify(error.message)
+    );
+  }
+  
+};
+
+
+
+
+export const getUserAdoptions = async (userId, role, status = null) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const params = new URLSearchParams({ user_id: userId, role });
+    
+    if (status) {
+      params.append('status', status);
+    }
+
+    const response = await fetch(`${API_URL}/api/pets/adoptions/?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching adoptions:", error);
+    throw error;
+  }
+};
+
+export const updateAdoptionStatus = async (adoptionId, status) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/api/pets/adoptions/${adoptionId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ status })
+    });
+    
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error updating adoption status:", error);
+    throw error;
+  }
+};
+
+export const getAdminStats = async (timeRange = 'all') => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/admin/stats?time_range=${timeRange}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching admin stats:", error);
+    throw error;
+  }
+};
+
+
+
+
+
+export const getAdminDashboardStats = async (timeRange = 'all') => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/admin/dashboard-stats?time_range=${timeRange}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching admin stats:", error);
+    throw error;
+  }
+};
+
+export const getAdminRecentActivity = async () => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/admin/recent-activity`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching recent activity:", error);
+    throw error;
+  }
+};
+
+export const getPetsForManagement = async (status = "pending", page = 1, limit = 10) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(
+      `${API_URL}/admin/pet-management?status=${status}&page=${page}&limit=${limit}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching pets for management:", error);
+    throw error;
+  }
+};
+
+export const managePet = async (petId, action) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(
+      `${API_URL}/admin/pet-management/${petId}?action=${action}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error managing pet:", error);
+    throw error;
+  }
+};
+
+
+export const getAdoptionForms = async (status = null, page = 1, limit = 10, search = '') => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const url = `${API_URL}/admin/adoption-forms?page=${page}&limit=${limit}${
+      status ? `&status=${status}` : ''
+    }${search ? `&search=${encodeURIComponent(search)}` : ''}`;
+    
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching adoption forms:", error);
+    throw error;
+  }
+};
+
+export const getAdminUsers = async (page = 1, limit = 10, search = '') => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const url = `${API_URL}/admin/users?page=${page}&limit=${limit}${
+      search ? `&search=${encodeURIComponent(search)}` : ''
+    }`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+export const updateUserStatus = async (userId, action) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/admin/users/${userId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ action })
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error updating user status:", error);
+    throw error;
+  }
+};
+
+export const getPetHealthRecords = async (page = 1, limit = 10, search = '') => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const url = `${API_URL}/admin/pet-health?page=${page}&limit=${limit}${
+      search ? `&search=${encodeURIComponent(search)}` : ''
+    }`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching pet health records:", error);
+    throw error;
+  }
+};
+
+
+export const createAdminAnnouncement = async (title, message) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(`${API_URL}/admin/announcements`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: title,
+        message: message,
+        send_as_notification: true  // Kept this as true since you always want notifications
+      })
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error creating announcement:", error);
+    throw error;
+  }
+};
+
+// utils/api.js
+export const getUniqueAnnouncements = async (days = 7, limit = 20) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const response = await fetch(
+      `${API_URL}/admin/announcements/unique?days=${days}&limit=${limit}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching unique announcements:", error);
+    throw error;
+  }
+};
+
+export const getLoginLogs = async (page = 1, limit = 10, filters = {}) => {
+  try {
+    const token = sessionStorage.getItem("auth_token");
+    const params = new URLSearchParams({
+      page,
+      limit,
+      ...filters
+    });
+    
+    const response = await fetch(`${API_URL}/admin/security/logs?${params}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching login logs:", error);
+    throw error;
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// frontend/utils/api.js
+export async function requestPasswordReset(email) {
+  const response = await fetch(`${API_URL}/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  return handleResponse(response);
+}
+
+export async function submitPasswordReset(token, newPassword) {
+  const response = await fetch(`${API_URL}/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, new_password: newPassword })
+  });
+  return handleResponse(response);
+}
+
+
+export async function clearAdditionalImages(petId) {
+  try {
+    const token = sessionStorage.getItem('auth_token');
+    const response = await fetch(`${API_URL}/api/pets/${petId}/clear-additional-images`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to clear additional images');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error clearing additional images:', error);
+    throw error;
+  }
+}
