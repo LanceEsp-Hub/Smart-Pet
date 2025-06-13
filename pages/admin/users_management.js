@@ -263,6 +263,7 @@
 import { useState, useEffect } from 'react';
 import { getAdminUsers, updateUserStatus } from '../../utils/api';
 import AdminSidebar from '../../components/AdminSidebar';
+import Image from 'next/image';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -389,7 +390,7 @@ export default function UserManagement() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {user.profile_picture ? (
-                            <img 
+                            <Image 
                               className="h-10 w-10 rounded-full object-cover" 
                               src={user.profile_picture} 
                               alt={user.name}
