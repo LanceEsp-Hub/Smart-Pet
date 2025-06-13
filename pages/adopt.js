@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from 'next/image';
 
 
 export default function Home() {
@@ -27,7 +28,15 @@ export default function Home() {
             <p class="mt-4 text-lg text-gray-700">Petco Love Care champions pet health by facilitating access to affordable pet care, free pet vaccines, cancer resources, and other veterinary support.</p>
           </div>
           <div class="md:w-1/2 p-6 flex justify-center">
-            <img src="https://via.placeholder.com/500" alt="Pet care service" class="rounded-lg shadow-lg w-full max-w-md"></img>
+            <Image 
+                  src="https://via.placeholder.com/500" 
+              alt="Pet care service" 
+  width={500}  // Required
+  height={300} // Required
+  priority     // Optional (if above-the-fold)
+      class="rounded-lg shadow-lg w-full max-w-md"
+/>
+           
           </div>
         </section>
   
@@ -47,7 +56,14 @@ export default function Home() {
             <button class="bg-purple-700 text-white px-6 py-3 rounded-full mt-4">Let's go!</button>
           </div>
           <div class="md:w-1/2 p-6 flex justify-center">
-            <img src="https://via.placeholder.com/500" alt="Adoptable pet" class="rounded-lg shadow-lg w-full max-w-md"></img>
+             <Image 
+                  src="https://via.placeholder.com/500" 
+              alt="Pet care service" 
+  width={500}  // Required
+  height={300} // Required
+  priority     // Optional (if above-the-fold)
+      class="rounded-lg shadow-lg w-full max-w-md"
+/>
           </div>
         </section>
       </div>
