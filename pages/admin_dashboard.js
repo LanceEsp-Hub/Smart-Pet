@@ -441,7 +441,7 @@ export default function AdminDashboardRedirect() {
   
   useEffect(() => {
     router.replace('/admin/dashboard');
-  }, []);
+  }, [router]);
 
   return null;
 }
