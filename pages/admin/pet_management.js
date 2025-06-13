@@ -40,7 +40,7 @@ export default function PetManagement() {
 
   useEffect(() => {
     fetchPets();
-  }, [statusFilter, pagination.page]);
+  }, [fetchPets, statusFilter, pagination.page]);
 
   const handleAction = async (petId, action) => {
     try {
