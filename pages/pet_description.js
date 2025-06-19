@@ -60,7 +60,7 @@ export default function PetDescription() {
 
     return () => {
       if (model) {
-        tf.disposeVariables();
+        model.dispose();
       }
     };
   }, []);
