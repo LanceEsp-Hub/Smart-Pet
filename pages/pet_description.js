@@ -42,28 +42,30 @@ export default function PetDescription() {
     }
   }, [router]);
 
-  useEffect(() => {
-    const loadModel = async () => {
-      try {
-        await tf.ready();
-        const loadedModel = await mobilenet.load();
-        setModel(loadedModel);
-      } catch (error) {
-        console.error("Failed to load pet detection model:", error);
-        toast.error("Pet verification feature is currently unavailable");
-      } finally {
-        setIsModelLoading(false);
-      }
-    };
+ useEffect(() => {
+  let loadedModel; // ✅ declare it outside the async function
 
-    loadModel();
+  const loadModel = async () => {
+    try {
+      await tf.ready();
+      loadedModel = await mobilenet.load();
+      setModel(loadedModel);
+    } catch (error) {
+      console.error("Failed to load pet detection model:", error);
+      toast.error("Pet verification feature is currently unavailable");
+    } finally {
+      setIsModelLoading(false);
+    }
+  };
 
-    return () => {
-      if (model) {
-        model.dispose();
-      }
-    };
-  }, []);
+  loadModel();
+
+  return () => {
+    if (loadedModel) {
+      loadedModel.dispose();
+    }
+  };
+}, []);
 
   useEffect(() => {
     const savedDate = localStorage.getItem('petDate');
