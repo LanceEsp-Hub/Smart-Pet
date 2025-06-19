@@ -260,18 +260,25 @@ const AnnouncementManager = () => {
     }
   }, [viewMode, daysBack, limit]);
 
-  const fetchUniqueAnnouncements = async () => {
-    try {
-      setLoadingAnnouncements(true);
-      const data = await getUniqueAnnouncements(daysBack, limit);
-      setAnnouncements(data);
-      setError('');
-    } catch (err) {
-      setError(err.message || 'Failed to load announcements');
-    } finally {
-      setLoadingAnnouncements(false);
-    }
-  };
+  const fetchUniqueAnnouncements = useCallback(async () => {
+  try {
+    setLoadingAnnouncements(true);
+    const data = await getUniqueAnnouncements(daysBack, limit);
+    setAnnouncements(data);
+    setError('');
+  } catch (err) {
+    setError(err.message || 'Failed to load announcements');
+  } finally {
+    setLoadingAnnouncements(false);
+  }
+}, [daysBack, limit]); // Add dependencies here
+
+useEffect(() => {
+  if (viewMode === 'view') {
+    fetchUniqueAnnouncements();
+  }
+}, [viewMode, daysBack, limit, fetchUniqueAnnouncements]); // Add fetchUniqueAnnouncements to dependencies
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
