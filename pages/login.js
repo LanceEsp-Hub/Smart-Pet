@@ -503,7 +503,9 @@ export default function Page() {
                         <button type="submit">Register</button>
                         <span>or use your account</span>
                         <div className="social-container">
-                            <a href="http://localhost:8000/auth/google" className="social">
+                            // <a href="http://localhost:8000/auth/google" className="social">
+  <a href="https://smart-back-fkf8.onrender.com/auth/google" className="social">
+
                                 <i className="lni lni-google"></i>
                             </a>
                         </div>
@@ -518,7 +520,9 @@ export default function Page() {
                         <button type="submit">Login</button>
                         <span>or use your account</span>
                         <div className="social-container">
-                            <a href="http://localhost:8000/auth/google" className="social">
+                            // <a href="http://localhost:8000/auth/google" className="social">
+                              <a href="https://smart-back-fkf8.onrender.com/auth/google" className="social">
+
                                 <i className="lni lni-google"></i>
                             </a>
                         </div>
