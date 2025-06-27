@@ -493,63 +493,59 @@ export default function Page() {
           }
         }
       `}</style>
-            <div className="container" id="container">
-                <div className="form-container registration-container">
-                    <form onSubmit={handleRegister}>
-                        <h1>Register Here</h1>
-                        <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-                        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                        <button type="submit">Register</button>
-                        <span>or use your account</span>
-                        <div className="social-container">
-                            // <a href="http://localhost:8000/auth/google" className="social">
-  <a href="https://smart-back-fkf8.onrender.com/auth/google" className="social">
-
-                                <i className="lni lni-google"></i>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-
-                <div className="form-container login-container">
-                    <form onSubmit={handleLogin}>
-                        <h1>Login Here</h1>
-                        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                        <button type="submit">Login</button>
-                        <span>or use your account</span>
-                        <div className="social-container">
-                            // <a href="http://localhost:8000/auth/google" className="social">
-                              <a href="https://smart-back-fkf8.onrender.com/auth/google" className="social">
-
-                                <i className="lni lni-google"></i>
-                            </a>
-                        </div>
-                        <Suspense fallback={<div>Loading...</div>}>
-                            <Link href="/forgot-password" className="text-sm text-gray-600 hover:text-purple-700">
-                                Forgot Password?
-                            </Link>
-                        </Suspense>
-                    </form>
-                </div>
-
-                <div className="overlay-container">
-                    <div className="overlay">
-                        <div className="overlay-panel overlay-left">
-                            <h1 className="title">Hello <br /> FRIENDS</h1>
-                            <p>If you have an account, login here and have fun</p>
-                            <button className="ghost" id="login">Login</button>
-                        </div>
-                        <div className="overlay-panel overlay-right">
-                            <h1 className="title">Start your <br /> journey now</h1>
-                            <p>If you don't have an account yet, join us and start your journey.</p>
-                            <button className="ghost" id="register">Register</button>
-                        </div>
-                    </div>
-                </div>
+<div className="container" id="container">
+    <div className="form-container registration-container">
+        <form onSubmit={handleRegister}>
+            <h1>Register Here</h1>
+            <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <button type="submit">Register</button>
+            <span>or use your account</span>
+            <div className="social-container">
+                <a href="https://smart-back-fkf8.onrender.com/auth/google" className="social">
+                    <i className="lni lni-google"></i>
+                </a>
             </div>
-            <p>{message}</p>
-        </>
-    );
+        </form>
+    </div>
+
+    <div className="form-container login-container">
+        <form onSubmit={handleLogin}>
+            <h1>Login Here</h1>
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <button type="submit">Login</button>
+            <span>or use your account</span>
+            <div className="social-container">
+                <a href="https://smart-back-fkf8.onrender.com/auth/google" className="social">
+                    <i className="lni lni-google"></i>
+                </a>
+            </div>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Link href="/forgot-password" className="text-sm text-gray-600 hover:text-purple-700">
+                    Forgot Password?
+                </Link>
+            </Suspense>
+        </form>
+    </div>
+
+    <div className="overlay-container">
+        <div className="overlay">
+            <div className="overlay-panel overlay-left">
+                <h1 className="title">Hello <br /> FRIENDS</h1>
+                <p>If you have an account, login here and have fun</p>
+                <button className="ghost" id="login">Login</button>
+            </div>
+            <div className="overlay-panel overlay-right">
+                <h1 className="title">Start your <br /> journey now</h1>
+                <p>If you don't have an account yet, join us and start your journey.</p>
+                <button className="ghost" id="register">Register</button>
+            </div>
+        </div>
+    </div>
+</div>
+<p>{message}</p>
+</>
+);
 }
