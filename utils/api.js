@@ -1,4 +1,4 @@
-//frontend\utils\api.js
+//frontend\utils\api.jsa
 // Configure API URL based on environment
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
