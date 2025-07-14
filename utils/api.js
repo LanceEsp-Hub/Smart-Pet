@@ -3,41 +3,105 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 // Helper function for consistent error handling
+// const handleResponse = async (response) => {
+//   if (!response.ok) {
+//     const errorData = await response.json().catch(() => ({}));
+//     const errorMessage = 
+//       errorData.detail?.map?.(error => error.msg).join(", ") ||
+//       errorData.detail ||
+//       errorData.message ||
+//       "Request failed";
+//     throw new Error(errorMessage);
+//   }
+//   return response.json();
+// };
+
 const handleResponse = async (response) => {
+  const data = await response.json().catch(() => ({}));
+  
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
     const errorMessage = 
-      errorData.detail?.map?.(error => error.msg).join(", ") ||
-      errorData.detail ||
-      errorData.message ||
-      "Request failed";
+      data.detail?.map?.(error => error.msg).join(", ") ||
+      data.detail ||
+      data.message ||
+      `Request failed with status ${response.status}`;
+    
+    console.error("API Error:", {
+      status: response.status,
+      message: errorMessage,
+      data: data
+    });
+    
     throw new Error(errorMessage);
   }
-  return response.json();
+  
+  return data;
 };
 
+// export async function registerUser(userData) {
+//   const response = await fetch(`${API_URL}/api/register`, {
+//       method: "POST",
+//       headers: {
+//           "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(userData),
+//   });
+
+//   return response.json();
+// }
 export async function registerUser(userData) {
-  const response = await fetch(`${API_URL}/api/register`, {
+  try {
+    console.log("Registering user:", { email: userData.email, name: userData.name });
+    
+    const response = await fetch(`${API_URL}/api/register`, {
       method: "POST",
       headers: {
-          "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
-  });
-
-  return response.json();
+    });
+    
+    const result = await handleResponse(response);
+    console.log("Registration successful:", result);
+    return result;
+  } catch (error) {
+    console.error("Error registering user:", error);
+    throw error;
+  }
 }
 
+
+// export async function loginUser(userData) {
+//   const response = await fetch(`${API_URL}/api/login`, {
+//       method: "POST",
+//       headers: {
+//           "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(userData),
+//   });
+
+//   return response.json();
+// }
+
 export async function loginUser(userData) {
-  const response = await fetch(`${API_URL}/api/login`, {
+  try {
+    console.log("Logging in user:", { email: userData.email });
+    
+    const response = await fetch(`${API_URL}/api/login`, {
       method: "POST",
       headers: {
-          "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
-  });
-
-  return response.json();
+    });
+    
+    const result = await handleResponse(response);
+    console.log("Login successful:", result);
+    return result;
+  } catch (error) {
+    console.error("Error logging in user:", error);
+    throw error;
+  }
 }
 
 
