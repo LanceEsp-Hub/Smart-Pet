@@ -51,21 +51,26 @@ const handleResponse = async (response) => {
 // }
 export async function registerUser(userData) {
   try {
-    console.log("Registering user:", { email: userData.email, name: userData.name });
+    console.log("Registering user:", userData);
     
-    const response = await fetch(`${API_URL}/api/register`, {
+    const response = await fetch(`${API_URL}/api/register`, {  // Single /api
       method: "POST",
+      credentials: 'include',  // For cookies/sessions if needed
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
       body: JSON.stringify(userData),
     });
     
-    const result = await handleResponse(response);
-    console.log("Registration successful:", result);
-    return result;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Registration failed");
+    }
+    
+    return await response.json();
   } catch (error) {
-    console.error("Error registering user:", error);
+    console.error("Registration error:", error);
     throw error;
   }
 }
