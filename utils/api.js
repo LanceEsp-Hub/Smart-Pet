@@ -2,19 +2,7 @@
 //frontend\utils\api.js
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
-// Helper function for consistent error handling
-// const handleResponse = async (response) => {
-//   if (!response.ok) {
-//     const errorData = await response.json().catch(() => ({}));
-//     const errorMessage = 
-//       errorData.detail?.map?.(error => error.msg).join(", ") ||
-//       errorData.detail ||
-//       errorData.message ||
-//       "Request failed";
-//     throw new Error(errorMessage);
-//   }
-//   return response.json();
-// };
+
 
 const handleResponse = async (response) => {
   const data = await response.json().catch(() => ({}));
