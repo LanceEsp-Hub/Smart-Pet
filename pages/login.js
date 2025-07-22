@@ -15,8 +15,6 @@ const ForgotPassword = lazy(() => import("./forgot-password"));
 
 const SECRET_KEY = "asdasdasd";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 
 const encryptData = (data) => {
   return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
