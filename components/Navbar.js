@@ -1162,3 +1162,278 @@ export default function Navbar() {
           alert(error.message);
         }
       };
+
+   
+    return (
+        <div className="bg-white">
+            {/* Top Navigation */}
+            <div className="border-b">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <div className="flex justify-center items-center py-2 text-sm text-gray-600">
+                        <div className="flex items-center space-x-4">
+                            <Link href="/">Smartpet Love</Link>
+                            <span>|</span>
+                            <Link href="/adopt">Smartpet Love Adopt</Link>
+                            <span>|</span>
+                            <Link href="/care">Smartpet Love Care</Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Navigation */}
+            <nav className="border-b">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <div className="flex justify-between items-center py-4">
+                        {/* Logo */}
+                        <div className="flex items-center">
+                            <img
+                                src="/logo.png"
+                                alt="Smartpet Love Lost"
+                                className="h-19 w-auto"
+                            />
+                        </div>
+
+                        {/* Navigation Links */}
+                        <div className="hidden md:flex items-center space-x-8">
+                            <Link href="/lost-pet-tips" className="text-gray-700 hover:text-purple-700">
+                                Lost Pet Tips
+                            </Link>
+                            <Link href="/found-pet-tips" className="text-gray-700 hover:text-purple-700">
+                                Found Pet Tips
+                            </Link>
+                            <Link href="/how-to-help" className="text-gray-700 hover:text-purple-700">
+                                How to Help
+                            </Link>
+                            <Link href="/about" className="text-gray-700 hover:text-purple-700">
+                                About
+                            </Link>
+                        </div>
+
+                        {/* Icons */}
+                        <div className="flex items-center space-x-4 relative">
+                            {/* Notification Icon with Dropdown */}
+                            <div className="relative">
+                                <div className="flex items-center">
+                                    <Bell 
+                                        className="h-6 w-6 text-gray-600 cursor-pointer hover:text-purple-700" 
+                                        onClick={toggleNotifications}
+                                    />
+                                    {unreadCount > 0 && (
+                                        <span className="ml-1 h-5 w-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+                                            {unreadCount}
+                                        </span>
+                                    )}
+                                </div>
+                                {isNotificationsOpen && (
+                                    <div 
+                                        className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="p-3 border-b flex justify-between items-center">
+                                            <h3 className="font-medium text-sm">Notifications</h3>
+                                            <div className="flex space-x-2">
+                                                <button 
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        try {
+                                                            await markAllAsRead();
+                                                        } catch (error) {
+                                                            alert(error.message);
+                                                        }
+                                                    }}
+                                                    className="text-xs text-blue-500 hover:text-blue-700"
+                                                >
+                                                    Mark All Read
+                                                </button>
+                                                <button 
+                                                    onClick={() => setIsNotificationsOpen(false)}
+                                                    className="text-xs text-gray-500 hover:text-gray-700"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="max-h-60 overflow-y-auto">
+                                            {loadingNotifications ? (
+                                                <div className="p-4 text-center">
+                                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-700 mx-auto"></div>
+                                                </div>
+                                            ) : notificationError ? (
+                                                <div className="p-3 text-center text-sm text-red-500">
+                                                    {notificationError}
+                                                </div>
+                                            ) : notifications?.length > 0 ? (
+                                                notifications.map((notification) => (
+                                                    <div 
+                                                        key={notification?.id} 
+                                                        className={`p-3 border-b ${!notification?.is_read ? 'bg-blue-50' : ''}`}
+                                                    >
+                                                        <div className="flex justify-between">
+                                                            <div>
+                                                                <p className="font-medium text-sm">{notification?.title || "Notification"}</p>
+                                                                <p className="text-xs text-gray-600">{notification?.message || ""}</p>
+                                                                <p className="text-xs text-gray-400 mt-1">
+                                                                    {formatNotificationDate(notification?.created_at)}
+                                                                </p>
+                                                            </div>
+                                                            {!notification?.is_read && (
+                                                                <button
+                                                                    onClick={async (e) => {
+                                                                        e.stopPropagation();
+                                                                        try {
+                                                                            await markAsRead(notification.id);
+                                                                        } catch (error) {
+                                                                            alert(error.message);
+                                                                        }
+                                                                    }}
+                                                                    className="text-xs text-blue-500 hover:text-blue-700 ml-2 whitespace-nowrap"
+                                                                >
+                                                                    Mark Read
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="p-3 text-center text-sm text-gray-500">
+                                                    No notifications
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="p-2 border-t text-center">
+                                            <Link 
+                                                href="/notifications" 
+                                                className="text-xs text-blue-500 hover:underline"
+                                                onClick={() => setIsNotificationsOpen(false)}
+                                            >
+                                                View All
+                                            </Link>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            
+
+{/* Message Icon with Unread Count */}
+<div className="relative">
+  <MessageSquare 
+    className="h-6 w-6 text-gray-600 cursor-pointer hover:text-purple-700 transition-colors duration-200" 
+    onClick={() => router.push('/conversations')}
+  />
+  {unreadCount > 0 && (
+    <span className="absolute -top-2 -right-2 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+    </span>
+  )}
+</div>
+
+
+
+
+
+                            
+
+                            {/* User Icon with Dropdown */}
+                            <div className="relative">
+                                <User
+                                    className="h-6 w-6 text-gray-600 cursor-pointer hover:text-purple-700"
+                                    onClick={toggleDropdown}
+                                />
+                                {isDropdownOpen && (
+                                    <div 
+                                        className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        {/* Display User Info */}
+                                        <div className="p-4">
+                                            <p className="text-sm font-semibold">
+                                                {userData?.name || "User"}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                {userData?.email || ""}
+                                            </p>
+                                        </div>
+                                        <hr />
+                                        <Link
+                                            href="/pet_dashboard"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsDropdownOpen(false);
+                                            }}
+                                        >
+                                            Pet Dashboard
+                                        </Link>
+                                        <Link
+                                            href="/settings/account_information"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsDropdownOpen(false);
+                                            }}
+                                        >
+                                            Account Settings
+                                        </Link>
+                                        <Link
+                                            href="/adoption_application"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsDropdownOpen(false);
+                                            }}
+                                        >
+                                            Adoption Form
+                                        </Link>
+                                        <Link
+                                            href="/rehome_pets"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsDropdownOpen(false);
+                                            }}
+                                        >
+                                             Rehome Pets
+                                        </Link>
+                                                                                <Link
+                                            href="/adopted_pets"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsDropdownOpen(false);
+                                            }}
+                                        >
+                                             Adopted Pets
+                                        </Link>
+                                        {/* <a
+// href={userRole === "user" ? "/pet_dashboard" : "/pet_dashboard"}      
+href="pet_dashboard"
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleDashboardNavigation(e);
+                                                setIsDropdownOpen(false);
+                                            }}
+                                        >
+                                            Pet Dashboard
+                                        </a> */}
+                                        <button
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleLogout();
+                                            }}
+                                        >
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    );
+}
