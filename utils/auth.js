@@ -1,4 +1,4 @@
-// frontend/utils/auth.js
+// utils/auth.js
 import CryptoJS from 'crypto-js';
 
 const SECRET_KEY = "asdasdasd"; 
