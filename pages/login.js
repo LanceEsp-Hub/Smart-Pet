@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { useState, useEffect, lazy, Suspense } from "react";
 import Head from "next/head";
 import { loginUser, registerUser } from "../utils/api";
@@ -12,6 +14,9 @@ import CryptoJS from "crypto-js";
 const ForgotPassword = lazy(() => import("./forgot-password"));
 
 const SECRET_KEY = "asdasdasd";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 
 const encryptData = (data) => {
   return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
