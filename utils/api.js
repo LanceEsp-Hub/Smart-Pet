@@ -1802,48 +1802,25 @@ export async function verifyPetImage(file) {
 }
 
 
-// export const fetchPetDashboard = async (token) => {
-//   try {
-//     const userId = sessionStorage.getItem("user_id");
-//     if (!userId) throw new Error("User ID not available");
+export const fetchPetDashboard = async (token) => {
+  try {
+    const userId = sessionStorage.getItem("user_id");
+    if (!userId) throw new Error("User ID not available");
     
-//     const response = await fetch(
-//       `${API_URL}/api/pets/dashboard?user_id=${userId}`,
-//       {
-//         method: 'GET',
-//         headers: { 'Authorization': `Bearer ${token}` },
-//       }
-//     );
-//     return handleResponse(response);
-//   } catch (error) {
-//     console.error("Error fetching pet dashboard:", error);
-//     throw error;
-//   }
-// };
-
-export const fetchPetDashboard = async () => {
-  const token = sessionStorage.getItem("auth_token");
-  const encryptedId = sessionStorage.getItem("user_id");
-  
-  if (!token || !encryptedId) {
-    throw new Error("Authentication required");
+    const response = await fetch(
+      `${API_URL}/api/pets/dashboard?user_id=${userId}`,
+      {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
+      }
+    );
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error fetching pet dashboard:", error);
+    throw error;
   }
-
-  const userId = decryptData(encryptedId);
-  const response = await fetch(
-    `${API_URL}/api/pets/dashboard?user_id=${userId}`,
-    {
-      headers: { 'Authorization': `Bearer ${token}` }
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.detail || "Failed to fetch pets");
-  }
-
-  return response.json();
 };
+
 
 
 export const getImageUrl = (imagePath) => {
