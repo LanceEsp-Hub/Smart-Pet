@@ -137,39 +137,35 @@ export default function Page() {
 //   };
 
 
-  const handleLogin = async (e) => {
+ const handleLogin = async (e) => {
   e.preventDefault();
   try {
     const response = await loginUser({ email, password });
     console.log("Login Response:", response);
 
     if (response.access_token) {
-      // Store the encrypted user ID
+      // Store session data
       const encryptedUserId = encryptData(response.user_id.toString());
       sessionStorage.setItem("auth_token", response.access_token);
       sessionStorage.setItem("user_id", encryptedUserId);
       sessionStorage.setItem("user", JSON.stringify(response.user));
       sessionStorage.setItem("roles", encryptData(response.roles || "user"));
 
-      console.log("Stored session:", {
+      console.log("Session storage set:", {
         token: response.access_token,
+        userId: response.user_id,
         encryptedUserId,
-        user: response.user,
-        roles: response.roles
+        user: response.user
       });
 
-      // Redirect based on role
-      if (response.roles === "admin") {
-        router.push("/admin_dashboard");
-      } else {
-        router.push("/pet_dashboard");
-      }
+      // Immediate redirect to prevent race conditions
+      window.location.href = "/pet_dashboard";
     } else {
-      throw new Error(response.detail || "Login failed");
+      throw new Error(response.detail || "Login failed - no token received");
     }
   } catch (error) {
-    console.error("Login error:", error);
-    toast.error(error.message || "An error occurred during login");
+    console.error("Login failed:", error);
+    toast.error(error.message || "Login failed");
   }
 };
 
