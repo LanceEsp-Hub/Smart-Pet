@@ -1822,50 +1822,28 @@ export async function verifyPetImage(file) {
 // };
 
 export const fetchPetDashboard = async (token) => {
-  try {
-    const encryptedUserId = sessionStorage.getItem("user_id");
-    if (!encryptedUserId) throw new Error("User ID not available");
-    
-    // Decrypt the user ID for the API call
-    const userId = decryptData(encryptedUserId);
-    if (!userId) throw new Error("Invalid user ID");
-
-    const response = await fetch(
-      `${API_URL}/api/pets/dashboard?user_id=${userId}`,
-      {
-        method: 'GET',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-      }
-    );
-
-    // Add response logging for debugging
-    console.log("Dashboard API Response:", {
-      status: response.status,
-      url: response.url
-    });
-
-    const data = await handleResponse(response);
-    
-    // Verify the response contains pets data
-    if (!data.pets) {
-      console.warn("Unexpected response format - missing pets array");
-      // Handle alternative response formats
-      return {
-        pets: data.data?.pets || data.items || []
-      };
+  // 1. Get encrypted user ID
+  const encryptedId = sessionStorage.getItem("user_id");
+  if (!encryptedId) throw new Error("No user ID found");
+  
+  // 2. Decrypt it
+  const userId = decryptData(encryptedId);
+  
+  // 3. Make the API call
+  const response = await fetch(
+    `${API_URL}/api/pets/dashboard?user_id=${userId}`,
+    {
+      headers: { 'Authorization': `Bearer ${token}` }
     }
-
-    return data;
-  } catch (error) {
-    console.error("Error fetching pet dashboard:", {
-      message: error.message,
-      stack: error.stack
-    });
-    throw error;
+  );
+  
+  // 4. Handle response
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || "Request failed");
   }
+  
+  return response.json();
 };
 
 
