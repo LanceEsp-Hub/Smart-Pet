@@ -670,52 +670,268 @@
 //     );
 // }
 
+// "use client";
+
+// import Link from "next/link";
+// import { useRouter } from "next/router";
+// import { Bell, MessageSquare, User } from "react-feather";
+// import { useState, useEffect } from "react";
+// import CryptoJS from "crypto-js";
+// import { useSearchParams } from "next/navigation";
+// import { markAllNotificationsAsRead } from '../utils/api';  // Add this import
+
+// const SECRET_KEY = "asdasdasd";
+
+// const encryptData = (data) => {
+//   return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+// };
+
+// const decryptData = (encryptedData) => {
+//   const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+//   return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+// };
+
+// const markNotificationAsRead = async (token, notificationId) => {
+//   const response = await fetch(
+//     `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/${notificationId}/read`,
+//     {
+//       method: 'PATCH',
+//       headers: {
+//         'Authorization': `Bearer ${token}`,
+//         'Content-Type': 'application/json'
+//       }
+//     }
+//   );
+  
+//   if (!response.ok) {
+//     const errorData = await response.json();
+//     throw new Error(errorData.detail || 'Failed to mark notification as read');
+//   }
+  
+//   return await response.json();
+// };
+
+// export default function Navbar() {
+//     const router = useRouter();
+//     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+//     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+//     const [hasNewMessages, setHasNewMessages] = useState(false);
+//     const [isAuthenticated, setIsAuthenticated] = useState(false);
+//     const [userData, setUserData] = useState(null);
+//     const [userRole, setUserRole] = useState(null);
+//     const searchParams = useSearchParams();
+//     const [unreadCount, setUnreadCount] = useState(0);
+//     const [notifications, setNotifications] = useState([]);
+//     const [loadingNotifications, setLoadingNotifications] = useState(false);
+//     const [notificationError, setNotificationError] = useState(null);
+
+//     const fetchNotifications = async () => {
+//       try {
+//         setLoadingNotifications(true);
+//         setNotificationError(null);
+        
+//         const token = sessionStorage.getItem("auth_token");
+//         const userId = sessionStorage.getItem("user_id");
+        
+//         if (!token || !userId) {
+//           throw new Error("Authentication required");
+//         }
+
+//         // Fetch unread count
+//         const countResponse = await fetch(
+//           `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/unread-count/${userId}`,
+//           {
+//             headers: {
+//               'Authorization': `Bearer ${token}`
+//             }
+//           }
+//         );
+        
+//         if (!countResponse.ok) {
+//           throw new Error("Failed to fetch notification count");
+//         }
+        
+//         const countData = await countResponse.json();
+//         setUnreadCount(countData?.unread_count || 0);
+        
+//         // Fetch recent notifications
+//         const notifResponse = await fetch(
+//           `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/user/${userId}`,
+//           {
+//             headers: {
+//               'Authorization': `Bearer ${token}`
+//             }
+//           }
+//         );
+        
+//         if (!notifResponse.ok) {
+//           throw new Error("Failed to fetch notifications");
+//         }
+        
+//         const notifData = await notifResponse.json();
+//         setNotifications(notifData?.notifications || []);
+        
+//       } catch (error) {
+//         console.error("Error fetching notifications:", error);
+//         setNotificationError(error.message);
+//         setUnreadCount(0);
+//         setNotifications([]);
+//       } finally {
+//         setLoadingNotifications(false);
+//       }
+//     };
+
+//     useEffect(() => {
+//        try {
+//          const token = searchParams.get("token");
+//          const userId = searchParams.get("user_id");
+//          const user = searchParams.get("user");
+//          const roles = searchParams.get("roles");
+   
+//          if (token && userId && user && roles) {
+//            sessionStorage.setItem("auth_token", token);
+//            sessionStorage.setItem("user_id", userId);
+//            sessionStorage.setItem("user", user);
+//            sessionStorage.setItem("roles", encryptData(roles));
+//            setUserRole(roles);
+//          }
+   
+//          const storedToken = sessionStorage.getItem("auth_token");
+//          const storedUserData = sessionStorage.getItem("user");
+//          const storedUserId = sessionStorage.getItem("user_id");
+//          const encryptedRoles = sessionStorage.getItem("roles");
+   
+//          if (!storedToken || !storedUserData || !storedUserId || !encryptedRoles) {
+//            setIsAuthenticated(false);
+//            router.push("/login");
+//            return;
+//          }
+   
+//          const storedRoles = decryptData(encryptedRoles);
+//          setUserRole(storedRoles);
+   
+//          if (storedRoles === "user" || storedRoles === "admin") {
+//            setIsAuthenticated(true);
+//            setUserData(JSON.parse(storedUserData));
+//            fetchNotifications();
+//          } else {
+//            setIsAuthenticated(false);
+//            router.push("/login");
+//          }
+//        } catch (error) {
+//          console.error("Error during authentication check:", error);
+//          setIsAuthenticated(false);
+//          router.push("/login");
+//        }
+//      }, [router, searchParams]);
+   
+//     if (!isAuthenticated) {
+//         return null;
+//     }
+
+//     const toggleDropdown = (e) => {
+//         if (e) e.stopPropagation();
+//         setIsDropdownOpen(!isDropdownOpen);
+//     };
+
+//     const toggleNotifications = (e) => {
+//         if (e) e.stopPropagation();
+//         setIsNotificationsOpen(!isNotificationsOpen);
+//         if (!isNotificationsOpen) {
+//           fetchNotifications();
+//         }
+//     };
+
+//     const handleDashboardNavigation = (e) => {
+//         e.preventDefault();
+//         const dashboardUrl = userRole === "admin" ? "/admin_dashboard" : "/admin_dashboard";
+//         router.push(dashboardUrl);
+//     };
+
+//     const handleLogout = () => {
+//         sessionStorage.removeItem("auth_token");
+//         sessionStorage.removeItem("user_id");
+//         sessionStorage.removeItem("roles");
+//         sessionStorage.removeItem("user");
+
+//         localStorage.clear();
+//         sessionStorage.clear();
+
+//         setIsAuthenticated(false);
+//         router.push("/login");
+//     };
+
+//     const formatNotificationDate = (dateString) => {
+//       try {
+//         if (!dateString) return "Just now";
+//         const date = new Date(dateString);
+//         return date.toLocaleString();
+//       } catch {
+//         return "Just now";
+//       }
+//     };
+
+//     const markAsRead = async (notificationId) => {
+//         try {
+//           const token = sessionStorage.getItem('auth_token');
+//           if (!token) {
+//             throw new Error('Authentication token not found');
+//           }
+      
+//           await markNotificationAsRead(token, notificationId);
+          
+//           // Update local state
+//           setNotifications(prevNotifications => 
+//             prevNotifications.map(notif => 
+//               notif.id === notificationId ? { ...notif, is_read: true } : notif
+//             )
+//           );
+          
+//           // Update unread count
+//           setUnreadCount(prev => Math.max(0, prev - 1));
+          
+//         } catch (error) {
+//           console.error('Error marking notification as read:', error);
+//           throw error;
+//         }
+//       };
+    
+//       // components/Navbar.js
+//       const markAllAsRead = async () => {
+//         try {
+//           const token = sessionStorage.getItem('auth_token');
+//           const userId = sessionStorage.getItem('user_id');
+          
+//           await markAllNotificationsAsRead(token, userId);
+          
+//           // Update UI
+//           setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+//           setUnreadCount(0);
+          
+//         } catch (error) {
+//           console.error('Mark all failed:', error);
+//           alert(error.message);
+//         }
+//       };
+
 "use client";
 
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Bell, MessageSquare, User } from "react-feather";
 import { useState, useEffect } from "react";
-import CryptoJS from "crypto-js";
 import { useSearchParams } from "next/navigation";
-import { markAllNotificationsAsRead } from '../utils/api';  // Add this import
-
-const SECRET_KEY = "asdasdasd";
-
-const encryptData = (data) => {
-  return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
-};
-
-const decryptData = (encryptedData) => {
-  const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
-  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-};
-
-const markNotificationAsRead = async (token, notificationId) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/${notificationId}/read`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    }
-  );
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || 'Failed to mark notification as read');
-  }
-  
-  return await response.json();
-};
+import { 
+  markAllNotificationsAsRead, 
+  getUserNotifications,
+  markNotificationAsRead 
+} from '../utils/api';
+import { encryptData, decryptData, getDecryptedUserId } from '../utils/auth';
 
 export default function Navbar() {
     const router = useRouter();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-    const [hasNewMessages, setHasNewMessages] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userData, setUserData] = useState(null);
     const [userRole, setUserRole] = useState(null);
@@ -726,105 +942,75 @@ export default function Navbar() {
     const [notificationError, setNotificationError] = useState(null);
 
     const fetchNotifications = async () => {
-      try {
-        setLoadingNotifications(true);
-        setNotificationError(null);
-        
-        const token = sessionStorage.getItem("auth_token");
-        const userId = sessionStorage.getItem("user_id");
-        
-        if (!token || !userId) {
-          throw new Error("Authentication required");
-        }
+        try {
+            setLoadingNotifications(true);
+            setNotificationError(null);
+            
+            const token = sessionStorage.getItem("auth_token");
+            const userId = getDecryptedUserId();
+            
+            if (!token || !userId) {
+                throw new Error("Authentication required");
+            }
 
-        // Fetch unread count
-        const countResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/unread-count/${userId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-        
-        if (!countResponse.ok) {
-          throw new Error("Failed to fetch notification count");
+            const response = await getUserNotifications(token, userId);
+            setNotifications(response.notifications || []);
+            setUnreadCount(response.unread_count || 0);
+            
+        } catch (error) {
+            console.error("Error in fetchNotifications:", error);
+            setNotificationError(error.message);
+            setUnreadCount(0);
+            setNotifications([]);
+        } finally {
+            setLoadingNotifications(false);
         }
-        
-        const countData = await countResponse.json();
-        setUnreadCount(countData?.unread_count || 0);
-        
-        // Fetch recent notifications
-        const notifResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/user/${userId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-        
-        if (!notifResponse.ok) {
-          throw new Error("Failed to fetch notifications");
-        }
-        
-        const notifData = await notifResponse.json();
-        setNotifications(notifData?.notifications || []);
-        
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-        setNotificationError(error.message);
-        setUnreadCount(0);
-        setNotifications([]);
-      } finally {
-        setLoadingNotifications(false);
-      }
     };
 
     useEffect(() => {
-       try {
-         const token = searchParams.get("token");
-         const userId = searchParams.get("user_id");
-         const user = searchParams.get("user");
-         const roles = searchParams.get("roles");
-   
-         if (token && userId && user && roles) {
-           sessionStorage.setItem("auth_token", token);
-           sessionStorage.setItem("user_id", userId);
-           sessionStorage.setItem("user", user);
-           sessionStorage.setItem("roles", encryptData(roles));
-           setUserRole(roles);
-         }
-   
-         const storedToken = sessionStorage.getItem("auth_token");
-         const storedUserData = sessionStorage.getItem("user");
-         const storedUserId = sessionStorage.getItem("user_id");
-         const encryptedRoles = sessionStorage.getItem("roles");
-   
-         if (!storedToken || !storedUserData || !storedUserId || !encryptedRoles) {
-           setIsAuthenticated(false);
-           router.push("/login");
-           return;
-         }
-   
-         const storedRoles = decryptData(encryptedRoles);
-         setUserRole(storedRoles);
-   
-         if (storedRoles === "user" || storedRoles === "admin") {
-           setIsAuthenticated(true);
-           setUserData(JSON.parse(storedUserData));
-           fetchNotifications();
-         } else {
-           setIsAuthenticated(false);
-           router.push("/login");
-         }
-       } catch (error) {
-         console.error("Error during authentication check:", error);
-         setIsAuthenticated(false);
-         router.push("/login");
-       }
-     }, [router, searchParams]);
-   
+        try {
+            const token = searchParams.get("token");
+            const encryptedUserId = searchParams.get("user_id");
+            const user = searchParams.get("user");
+            const encryptedRoles = searchParams.get("roles");
+
+            if (token && encryptedUserId && user && encryptedRoles) {
+                sessionStorage.setItem("auth_token", token);
+                sessionStorage.setItem("user_id", encryptedUserId);
+                sessionStorage.setItem("user", user);
+                sessionStorage.setItem("roles", encryptedRoles);
+                setUserRole(decryptData(encryptedRoles));
+            }
+
+            const storedToken = sessionStorage.getItem("auth_token");
+            const storedUserData = sessionStorage.getItem("user");
+            const storedUserId = sessionStorage.getItem("user_id");
+            const storedRoles = sessionStorage.getItem("roles");
+
+            if (!storedToken || !storedUserData || !storedUserId || !storedRoles) {
+                setIsAuthenticated(false);
+                router.push("/login");
+                return;
+            }
+
+            const roles = decryptData(storedRoles);
+            setUserRole(roles);
+
+            if (roles === "user" || roles === "admin") {
+                setIsAuthenticated(true);
+                setUserData(JSON.parse(storedUserData));
+                fetchNotifications();
+            } else {
+                setIsAuthenticated(false);
+                router.push("/login");
+            }
+        } catch (error) {
+            console.error("Error during authentication check:", error);
+            setIsAuthenticated(false);
+            router.push("/login");
+        }
+    }, [router, searchParams]);
+
     if (!isAuthenticated) {
         return null;
     }
@@ -838,81 +1024,62 @@ export default function Navbar() {
         if (e) e.stopPropagation();
         setIsNotificationsOpen(!isNotificationsOpen);
         if (!isNotificationsOpen) {
-          fetchNotifications();
+            fetchNotifications();
         }
     };
 
     const handleDashboardNavigation = (e) => {
         e.preventDefault();
-        const dashboardUrl = userRole === "admin" ? "/admin_dashboard" : "/admin_dashboard";
+        const dashboardUrl = userRole === "admin" ? "/admin_dashboard" : "/pet_dashboard";
         router.push(dashboardUrl);
     };
 
     const handleLogout = () => {
-        sessionStorage.removeItem("auth_token");
-        sessionStorage.removeItem("user_id");
-        sessionStorage.removeItem("roles");
-        sessionStorage.removeItem("user");
-
-        localStorage.clear();
         sessionStorage.clear();
-
         setIsAuthenticated(false);
         router.push("/login");
     };
 
     const formatNotificationDate = (dateString) => {
-      try {
-        if (!dateString) return "Just now";
-        const date = new Date(dateString);
-        return date.toLocaleString();
-      } catch {
-        return "Just now";
-      }
+        try {
+            if (!dateString) return "Just now";
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        } catch {
+            return "Just now";
+        }
     };
 
     const markAsRead = async (notificationId) => {
         try {
-          const token = sessionStorage.getItem('auth_token');
-          if (!token) {
-            throw new Error('Authentication token not found');
-          }
-      
-          await markNotificationAsRead(token, notificationId);
-          
-          // Update local state
-          setNotifications(prevNotifications => 
-            prevNotifications.map(notif => 
-              notif.id === notificationId ? { ...notif, is_read: true } : notif
-            )
-          );
-          
-          // Update unread count
-          setUnreadCount(prev => Math.max(0, prev - 1));
-          
+            const token = sessionStorage.getItem('auth_token');
+            await markNotificationAsRead(token, notificationId);
+            
+            setNotifications(prev => 
+                prev.map(notif => 
+                    notif.id === notificationId ? { ...notif, is_read: true } : notif
+                )
+            );
+            setUnreadCount(prev => Math.max(0, prev - 1));
+            
         } catch (error) {
-          console.error('Error marking notification as read:', error);
-          throw error;
+            console.error('Error marking notification as read:', error);
         }
-      };
-    
-      // components/Navbar.js
-      const markAllAsRead = async () => {
+    };
+
+    const markAllAsRead = async () => {
         try {
-          const token = sessionStorage.getItem('auth_token');
-          const userId = sessionStorage.getItem('user_id');
-          
-          await markAllNotificationsAsRead(token, userId);
-          
-          // Update UI
-          setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-          setUnreadCount(0);
-          
+            const token = sessionStorage.getItem('auth_token');
+            const userId = getDecryptedUserId();
+            await markAllNotificationsAsRead(token, userId);
+            
+            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+            setUnreadCount(0);
+            
         } catch (error) {
-          console.error('Mark all failed:', error);
-          alert(error.message);
+            console.error('Mark all failed:', error);
         }
-      };
+    };
 
     return (
         <div className="bg-white">
