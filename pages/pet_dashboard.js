@@ -272,125 +272,8 @@
 
 
 
-//////////////////////////////////////WORKING CODE IN COMMENT
-// //frontend\pages\pet_dashboard.js
-// "use client";
-
-// import { MessageSquare, User, ChevronRight } from "lucide-react";
-// import Link from "next/link";
-// import { useEffect, useState } from "react";
-// import { useRouter, useSearchParams } from "next/navigation";
-// import Navbar from "../components/Navbar";
-// import Footer from "../components/Footer";
-// import CryptoJS from "crypto-js";
-// import { fetchPetDashboard } from "../utils/api";
-
-// const SECRET_KEY = "asdasdasd";
-
-// const encryptData = (data) => {
-//   return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
-// };
-
-// const decryptData = (encryptedData) => {
-//   const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
-//   return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-// };
-
-// const getPetImageUrl = (imageName) => {
-//   if (!imageName) return "https://via.placeholder.com/100";
-//   return `http://localhost:8000/uploads/pet_images/${imageName}?t=${Date.now()}`;
-// };
-
-// export default function Dashboard() {
-//   const router = useRouter();
-//   const searchParams = useSearchParams();
-//   const [isAuthenticated, setIsAuthenticated] = useState(false);
-//   const [userData, setUserData] = useState(null);
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [pets, setPets] = useState([]);
-
-//   const handlePetCardClick = (e) => {
-//     // Find the closest card element (in case children are clicked)
-//     const card = e.currentTarget;
-    
-//     // Get all the data attributes
-//     const petData = {
-//       id: card.dataset.id,
-//       name: card.dataset.name,
-//       type: card.dataset.type,
-//       gender: card.dataset.gender,
-//       description: card.dataset.description,
-//       date: card.dataset.date,
-//       address: card.dataset.address,
-//       status: card.dataset.status,
-//       image: card.dataset.image
-//     };
-  
-//     // Navigate to pet profile page with the ID
-//     router.push(`/pet_profile/${petData.id}`);
-//   };
-
-//   useEffect(() => {
-//     const authenticate = () => {
-//       try {
-//         const urlParams = new URLSearchParams(window.location.search);
-//         const token = urlParams.get('token') || searchParams.get('token');
-//         const userId = urlParams.get('user_id') || searchParams.get('user_id');
-//         const user = urlParams.get('user') || searchParams.get('user');
-//         const roles = urlParams.get('roles') || searchParams.get('roles');
-  
-//         if (token && userId && user) {
-//           sessionStorage.setItem("auth_token", token);
-//           sessionStorage.setItem("user_id", userId);
-//           sessionStorage.setItem("user", user);
-//           sessionStorage.setItem("roles", roles ? encryptData(roles) : encryptData("user"));
-//           window.history.replaceState({}, '', window.location.pathname);
-//         }
-  
-//         const storedToken = sessionStorage.getItem("auth_token");
-//         const storedUserData = sessionStorage.getItem("user");
-//         const storedUserId = sessionStorage.getItem("user_id");
-//         const encryptedRoles = sessionStorage.getItem("roles");
-  
-//         if (!storedToken || !storedUserData || !storedUserId) {
-//           throw new Error("Missing authentication data");
-//         }
-  
-//         const storedRoles = decryptData(encryptedRoles);
-//         if (storedRoles === "admin") {
-//           router.push("/admin_dashboard");
-//           return;
-//         } else if (storedRoles === "user") {
-//           setIsAuthenticated(true);  
-//           fetchPetDashboard(storedToken)
-//             .then((data) => {
-//               setUserData(data.user);
-//               setPets(data.pets || []);
-//             })
-//             .catch((error) => {
-//               console.error("Dashboard load failed:", error);
-//             });
-//         } else {
-//           throw new Error("Invalid role");
-//         }
-//       } catch (error) {
-//         console.error("Authentication error:", error);
-//         router.push("/login");
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-  
-//     authenticate();
-//   }, [router, searchParams]);
-
-//   if (isLoading) {
-//     return <div className="flex justify-center items-center h-screen">Loading...</div>;
-//   }
-
-//   if (!isAuthenticated) {
-//     return null;
-//   }
+////////////////////////////////////WORKING CODE IN COMMENT
+//frontend\pages\pet_dashboard.js
 "use client";
 
 import { MessageSquare, User, ChevronRight } from "lucide-react";
@@ -399,23 +282,38 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import CryptoJS from "crypto-js";
 import { fetchPetDashboard } from "../utils/api";
-import { decryptData } from "../utils/auth";
+
+const SECRET_KEY = "asdasdasd";
+
+const encryptData = (data) => {
+  return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+};
+
+const decryptData = (encryptedData) => {
+  const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+};
 
 const getPetImageUrl = (imageName) => {
   if (!imageName) return "https://via.placeholder.com/100";
-  return `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/uploads/pet_images/${imageName}?t=${Date.now()}`;
+  return `http://localhost:8000/uploads/pet_images/${imageName}?t=${Date.now()}`;
 };
 
 export default function Dashboard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pets, setPets] = useState([]);
 
   const handlePetCardClick = (e) => {
+    // Find the closest card element (in case children are clicked)
     const card = e.currentTarget;
+    
+    // Get all the data attributes
     const petData = {
       id: card.dataset.id,
       name: card.dataset.name,
@@ -427,41 +325,72 @@ export default function Dashboard() {
       status: card.dataset.status,
       image: card.dataset.image
     };
+  
+    // Navigate to pet profile page with the ID
     router.push(`/pet_profile/${petData.id}`);
   };
 
   useEffect(() => {
-    const loadDashboard = async () => {
+    const authenticate = () => {
       try {
-        // 1. Check session data
-        const token = sessionStorage.getItem("auth_token");
-        const encryptedUserId = sessionStorage.getItem("user_id");
-        const storedUser = sessionStorage.getItem("user");
-
-        if (!token || !encryptedUserId || !storedUser) {
-          throw new Error("Please login first");
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token') || searchParams.get('token');
+        const userId = urlParams.get('user_id') || searchParams.get('user_id');
+        const user = urlParams.get('user') || searchParams.get('user');
+        const roles = urlParams.get('roles') || searchParams.get('roles');
+  
+        if (token && userId && user) {
+          sessionStorage.setItem("auth_token", token);
+          sessionStorage.setItem("user_id", userId);
+          sessionStorage.setItem("user", user);
+          sessionStorage.setItem("roles", roles ? encryptData(roles) : encryptData("user"));
+          window.history.replaceState({}, '', window.location.pathname);
         }
-
-        // 2. Decrypt user ID (silently fails if invalid)
-        const userId = decryptData(encryptedUserId);
-
-        // 3. Fetch data
-        const data = await fetchPetDashboard();
-        setUserData(JSON.parse(storedUser));
-        setPets(data.pets || []);
-        setIsAuthenticated(true);
-
+  
+        const storedToken = sessionStorage.getItem("auth_token");
+        const storedUserData = sessionStorage.getItem("user");
+        const storedUserId = sessionStorage.getItem("user_id");
+        const encryptedRoles = sessionStorage.getItem("roles");
+  
+        if (!storedToken || !storedUserData || !storedUserId) {
+          throw new Error("Missing authentication data");
+        }
+  
+        const storedRoles = decryptData(encryptedRoles);
+        if (storedRoles === "admin") {
+          router.push("/admin_dashboard");
+          return;
+        } else if (storedRoles === "user") {
+          setIsAuthenticated(true);  
+          fetchPetDashboard(storedToken)
+            .then((data) => {
+              setUserData(data.user);
+              setPets(data.pets || []);
+            })
+            .catch((error) => {
+              console.error("Dashboard load failed:", error);
+            });
+        } else {
+          throw new Error("Invalid role");
+        }
       } catch (error) {
-        console.error("Dashboard error:", error.message);
-        sessionStorage.clear();
+        console.error("Authentication error:", error);
         router.push("/login");
       } finally {
         setIsLoading(false);
       }
     };
+  
+    authenticate();
+  }, [router, searchParams]);
 
-    loadDashboard();
-  }, [router]);
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
   
   return (
     <div className="min-h-screen bg-white">
