@@ -391,7 +391,6 @@
 //   if (!isAuthenticated) {
 //     return null;
 //   }
-
 "use client";
 
 import { MessageSquare, User, ChevronRight } from "lucide-react";
@@ -401,7 +400,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { fetchPetDashboard } from "../utils/api";
-import { encryptData, decryptData, getDecryptedUserId } from "../utils/auth";
+import { decryptData } from "../utils/auth";
 
 const getPetImageUrl = (imageName) => {
   if (!imageName) return "https://via.placeholder.com/100";
@@ -410,7 +409,6 @@ const getPetImageUrl = (imageName) => {
 
 export default function Dashboard() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -433,55 +431,37 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-  const authenticate = async () => {
-    try {
-      // 1. Check for existing session data
-      const token = sessionStorage.getItem("auth_token");
-      const encryptedUserId = sessionStorage.getItem("user_id");
-      const storedUser = sessionStorage.getItem("user");
+    const loadDashboard = async () => {
+      try {
+        // 1. Check session data
+        const token = sessionStorage.getItem("auth_token");
+        const encryptedUserId = sessionStorage.getItem("user_id");
+        const storedUser = sessionStorage.getItem("user");
 
-      console.log("Session check:", { token, encryptedUserId, storedUser });
+        if (!token || !encryptedUserId || !storedUser) {
+          throw new Error("Please login first");
+        }
 
-      if (!token || !encryptedUserId || !storedUser) {
-        throw new Error("Missing authentication data");
+        // 2. Decrypt user ID (silently fails if invalid)
+        const userId = decryptData(encryptedUserId);
+
+        // 3. Fetch data
+        const data = await fetchPetDashboard();
+        setUserData(JSON.parse(storedUser));
+        setPets(data.pets || []);
+        setIsAuthenticated(true);
+
+      } catch (error) {
+        console.error("Dashboard error:", error.message);
+        sessionStorage.clear();
+        router.push("/login");
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      // 2. Decrypt the user ID
-      const userId = decryptData(encryptedUserId);
-      if (!userId) {
-        throw new Error("Invalid user ID format");
-      }
-
-      console.log("Attempting to fetch dashboard for user:", userId);
-
-      // 3. Make the API call
-      const data = await fetchPetDashboard(token);
-      console.log("Dashboard data received:", data);
-
-      // 4. Update state
-      setUserData(JSON.parse(storedUser));
-      setPets(data.pets || []);
-      setIsAuthenticated(true);
-
-    } catch (error) {
-      console.error("Authentication failed:", {
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Clear invalid session data
-      sessionStorage.removeItem("auth_token");
-      sessionStorage.removeItem("user_id");
-      sessionStorage.removeItem("user");
-      
-      router.push("/login");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  authenticate();
-}, [router]);
+    loadDashboard();
+  }, [router]);
   
   return (
     <div className="min-h-screen bg-white">
