@@ -239,6 +239,40 @@
 // }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////WORKING CODE IN COMMENT
 // //frontend\pages\pet_dashboard.js
 // "use client";
 
@@ -398,63 +432,40 @@ export default function Dashboard() {
     router.push(`/pet_profile/${petData.id}`);
   };
 
-  useEffect(() => {
-    const authenticate = async () => {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token') || searchParams.get('token');
-        const encryptedUserId = urlParams.get('user_id') || searchParams.get('user_id');
-        const user = urlParams.get('user') || searchParams.get('user');
-        const encryptedRoles = urlParams.get('roles') || searchParams.get('roles');
-
-        // Handle URL parameters
-        if (token && encryptedUserId && user) {
-          sessionStorage.setItem("auth_token", token);
-          sessionStorage.setItem("user_id", encryptedUserId);
-          sessionStorage.setItem("user", user);
-          sessionStorage.setItem("roles", encryptedRoles || encryptData("user"));
-          window.history.replaceState({}, '', window.location.pathname);
-        }
-
-        // Get stored data
-        const storedToken = sessionStorage.getItem("auth_token");
-        const storedUser = sessionStorage.getItem("user");
-        const encryptedStoredUserId = sessionStorage.getItem("user_id");
-        const encryptedStoredRoles = sessionStorage.getItem("roles");
-
-        if (!storedToken || !storedUser || !encryptedStoredUserId) {
-          throw new Error("Missing authentication data");
-        }
-
-        // Decrypt user ID and roles
-        const userId = decryptData(encryptedStoredUserId);
-        const roles = decryptData(encryptedStoredRoles);
-
-        if (!userId) {
-          throw new Error("Invalid user ID");
-        }
-
-        if (roles === "admin") {
-          router.push("/admin_dashboard");
-          return;
-        }
-
-        // Fetch dashboard data
-        const data = await fetchPetDashboard(storedToken);
-        setUserData(JSON.parse(storedUser));
-        setPets(data.pets || []);
-        setIsAuthenticated(true);
-
-      } catch (error) {
-        console.error("Authentication error:", error);
-        router.push("/login");
-      } finally {
-        setIsLoading(false);
+useEffect(() => {
+  const authenticate = async () => {
+    try {
+      const token = sessionStorage.getItem("auth_token");
+      const encryptedUserId = sessionStorage.getItem("user_id");
+      
+      if (!token || !encryptedUserId) {
+        throw new Error("Missing authentication data");
       }
-    };
 
-    authenticate();
-  }, [router, searchParams]);
+      // Decrypt user ID
+      const userId = decryptData(encryptedUserId);
+      if (!userId) {
+        throw new Error("Invalid user ID");
+      }
+
+      // Fetch dashboard data
+      const data = await fetchPetDashboard(token);
+      console.log("Dashboard data:", data);
+      
+      setUserData(JSON.parse(sessionStorage.getItem("user")));
+      setPets(data.pets || []);
+      setIsAuthenticated(true);
+
+    } catch (error) {
+      console.error("Authentication error:", error);
+      router.push("/login");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  authenticate();
+}, [router]);
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
