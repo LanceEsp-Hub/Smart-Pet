@@ -405,7 +405,7 @@ import { encryptData, decryptData, getDecryptedUserId } from "../utils/auth";
 
 const getPetImageUrl = (imageName) => {
   if (!imageName) return "https://via.placeholder.com/100";
-  return `http://localhost:8000/uploads/pet_images/${imageName}?t=${Date.now()}`;
+  return `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/uploads/pet_images/${imageName}?t=${Date.now()}`;
 };
 
 export default function Dashboard() {
@@ -432,49 +432,56 @@ export default function Dashboard() {
     router.push(`/pet_profile/${petData.id}`);
   };
 
-useEffect(() => {
-  const authenticate = async () => {
-    try {
-      const token = sessionStorage.getItem("auth_token");
-      const encryptedUserId = sessionStorage.getItem("user_id");
-      
-      if (!token || !encryptedUserId) {
-        throw new Error("Missing authentication data");
+  useEffect(() => {
+    const authenticate = async () => {
+      try {
+        // Handle URL parameters if coming from OAuth/login redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token') || searchParams.get('token');
+        const encryptedUserId = urlParams.get('user_id') || searchParams.get('user_id');
+        const user = urlParams.get('user') || searchParams.get('user');
+        const encryptedRoles = urlParams.get('roles') || searchParams.get('roles');
+
+        if (token && encryptedUserId && user) {
+          sessionStorage.setItem("auth_token", token);
+          sessionStorage.setItem("user_id", encryptedUserId);
+          sessionStorage.setItem("user", user);
+          sessionStorage.setItem("roles", encryptedRoles || encryptData("user"));
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+
+        // Get stored session data
+        const storedToken = sessionStorage.getItem("auth_token");
+        const encryptedStoredUserId = sessionStorage.getItem("user_id");
+        const storedUser = sessionStorage.getItem("user");
+        const encryptedStoredRoles = sessionStorage.getItem("roles");
+
+        if (!storedToken || !encryptedStoredUserId || !storedUser || !encryptedStoredRoles) {
+          throw new Error("Missing authentication data");
+        }
+
+        // Decrypt the user ID for the API call
+        const userId = decryptData(encryptedStoredUserId);
+        if (!userId) throw new Error("Invalid user ID");
+
+        // Fetch dashboard data using your working API call structure
+        const data = await fetchPetDashboard(storedToken);
+        
+        setUserData(JSON.parse(storedUser));
+        setPets(data.pets || []);
+        setIsAuthenticated(true);
+
+      } catch (error) {
+        console.error("Authentication error:", error);
+        router.push("/login");
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      // Decrypt user ID
-      const userId = decryptData(encryptedUserId);
-      if (!userId) {
-        throw new Error("Invalid user ID");
-      }
-
-      // Fetch dashboard data
-      const data = await fetchPetDashboard(token);
-      console.log("Dashboard data:", data);
-      
-      setUserData(JSON.parse(sessionStorage.getItem("user")));
-      setPets(data.pets || []);
-      setIsAuthenticated(true);
-
-    } catch (error) {
-      console.error("Authentication error:", error);
-      router.push("/login");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  authenticate();
-}, [router]);
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
+    authenticate();
+  }, [router, searchParams]);
+  
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
