@@ -1821,31 +1821,29 @@ export async function verifyPetImage(file) {
 //   }
 // };
 
-export const fetchPetDashboard = async (token) => {
-  // 1. Get encrypted user ID
+export const fetchPetDashboard = async () => {
+  const token = sessionStorage.getItem("auth_token");
   const encryptedId = sessionStorage.getItem("user_id");
-  if (!encryptedId) throw new Error("No user ID found");
   
-  // 2. Decrypt it
+  if (!token || !encryptedId) {
+    throw new Error("Authentication required");
+  }
+
   const userId = decryptData(encryptedId);
-  
-  // 3. Make the API call
   const response = await fetch(
     `${API_URL}/api/pets/dashboard?user_id=${userId}`,
     {
       headers: { 'Authorization': `Bearer ${token}` }
     }
   );
-  
-  // 4. Handle response
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.detail || "Request failed");
+    throw new Error(error.detail || "Failed to fetch pets");
   }
-  
+
   return response.json();
 };
-
 
 
 export const getImageUrl = (imagePath) => {
