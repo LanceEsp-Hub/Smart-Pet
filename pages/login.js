@@ -72,98 +72,74 @@ export default function Page() {
         };
     }, []);
 //this is working code
-//     const handleLogin = async (e) => {
-//       e.preventDefault();
-//       try {
-//           const response = await loginUser({ email, password });
-//           console.log("Login Response:", response); // Debugging
+    const handleLogin = async (e) => {
+      e.preventDefault();
+      try {
+          const response = await loginUser({ email, password });
+          console.log("Login Response:", response); // Debugging
   
-//           if (response.access_token) {
-//               setToken(response.access_token);
+          if (response.access_token) {
+              setToken(response.access_token);
   
-//               // Store the token in sessionStorage
-//               sessionStorage.setItem("auth_token", response.access_token);
+              // Store the token in sessionStorage
+              sessionStorage.setItem("auth_token", response.access_token);
   
-//               // Store user data in sessionStorage (if available)
-//               if (response.user) {
-//                   sessionStorage.setItem("user", JSON.stringify(response.user));
-//               }
+              // Store user data in sessionStorage (if available)
+              if (response.user) {
+                  sessionStorage.setItem("user", JSON.stringify(response.user));
+              }
   
-//               // Store the user's role in sessionStorage
-//               if (response.roles) {
-//                 const encryptedRoles = encryptData(response.roles); // Encrypt roles
-//                 sessionStorage.setItem("roles", encryptedRoles);
-//               }
+              // Store the user's role in sessionStorage
+              if (response.roles) {
+                const encryptedRoles = encryptData(response.roles); // Encrypt roles
+                sessionStorage.setItem("roles", encryptedRoles);
+              }
   
-//               // // Store the user's ID in sessionStorage
-//               // if (response.user_id) {
-//               //   const encryptedId = encryptData(response.user_id)
-//               //     sessionStorage.setItem("user_id", encryptedId);
-//               //     console.log("User ID stored in sessionStorage:", response.user_id); // Debugging
-//               // }
+              // // Store the user's ID in sessionStorage
+              // if (response.user_id) {
+              //   const encryptedId = encryptData(response.user_id)
+              //     sessionStorage.setItem("user_id", encryptedId);
+              //     console.log("User ID stored in sessionStorage:", response.user_id); // Debugging
+              // }
 
-//               // Store the user's ID in sessionStorage
-// if (response.user_id) {
-//   sessionStorage.setItem("user_id", response.user_id);
-//   console.log("User ID stored in sessionStorage:", response.user_id); // Debugging
-// }
+              // Store the user's ID in sessionStorage
+if (response.user_id) {
+  sessionStorage.setItem("user_id", response.user_id);
+  console.log("User ID stored in sessionStorage:", response.user_id); // Debugging
+}
   
-//               toast.success("Login successful! Redirecting...");
-//               const encryptedRoles = sessionStorage.getItem("roles");
-//               const roles = decryptData(encryptedRoles);
+              toast.success("Login successful! Redirecting...");
+              const encryptedRoles = sessionStorage.getItem("roles");
+              const roles = decryptData(encryptedRoles);
 
-//               // Role-based redirection
-//               if (roles === "admin") {
-//                   setTimeout(() => {
-//                     setIsAuthenticated(true);
-//                       router.push("/admin_dashboard"); // Redirect admin to /pet_status
-//                   }, 2000);
-//               } else if (roles === "user") {
-//                   setTimeout(() => {
-//                     setIsAuthenticated(true);
-//                       router.push("/pet_dashboard"); // Redirect user to /pet_dashboard
-//                   }, 2000);
-//               } else {
-//                   // Handle unknown roles
-//                   toast.error("Unknown role. Redirecting to login...");
-//                   setTimeout(() => {
-//                     setIsAuthenticated(false);
-//                       router.push("/login"); // Redirect to login for unknown roles
-//                   }, 2000);
-//               }
-//           } else {
-//               toast.error(response.detail || "Login failed");
-//           }
-//       } catch (error) {
-//           toast.error(error.message || "An error occurred during login");
-//       }
-//   };
+              // Role-based redirection
+              if (roles === "admin") {
+                  setTimeout(() => {
+                    setIsAuthenticated(true);
+                      router.push("/admin_dashboard"); // Redirect admin to /pet_status
+                  }, 2000);
+              } else if (roles === "user") {
+                  setTimeout(() => {
+                    setIsAuthenticated(true);
+                      router.push("/pet_dashboard"); // Redirect user to /pet_dashboard
+                  }, 2000);
+              } else {
+                  // Handle unknown roles
+                  toast.error("Unknown role. Redirecting to login...");
+                  setTimeout(() => {
+                    setIsAuthenticated(false);
+                      router.push("/login"); // Redirect to login for unknown roles
+                  }, 2000);
+              }
+          } else {
+              toast.error(response.detail || "Login failed");
+          }
+      } catch (error) {
+          toast.error(error.message || "An error occurred during login");
+      }
+  };
 
 
-// In your login component
-const handleLogin = async (email, password) => {
-  try {
-    const response = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await response.json();
-    
-    // Store session data
-    sessionStorage.setItem("auth_token", data.access_token);
-    sessionStorage.setItem("user_id", encryptData(data.user_id));
-    sessionStorage.setItem("user", JSON.stringify(data.user));
-    
-    // Redirect to dashboard
-    window.location.href = "/pet_dashboard";
-    
-  } catch (error) {
-    console.error("Login failed:", error);
-    alert(error.message || "Login failed");
-  }
-};
 
     const handleRegister = async (e) => {
         e.preventDefault();
