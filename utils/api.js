@@ -1799,21 +1799,68 @@ export async function verifyPetImage(file) {
 }
 
 
+// export const fetchPetDashboard = async (token) => {
+//   try {
+//     const userId = sessionStorage.getItem("user_id");
+//     if (!userId) throw new Error("User ID not available");
+    
+//     const response = await fetch(
+//       `${API_URL}/api/pets/dashboard?user_id=${userId}`,
+//       {
+//         method: 'GET',
+//         headers: { 'Authorization': `Bearer ${token}` },
+//       }
+//     );
+//     return handleResponse(response);
+//   } catch (error) {
+//     console.error("Error fetching pet dashboard:", error);
+//     throw error;
+//   }
+// };
+
 export const fetchPetDashboard = async (token) => {
   try {
-    const userId = sessionStorage.getItem("user_id");
-    if (!userId) throw new Error("User ID not available");
+    const encryptedUserId = sessionStorage.getItem("user_id");
+    if (!encryptedUserId) throw new Error("User ID not available");
     
+    // Decrypt the user ID for the API call
+    const userId = decryptData(encryptedUserId);
+    if (!userId) throw new Error("Invalid user ID");
+
     const response = await fetch(
       `${API_URL}/api/pets/dashboard?user_id=${userId}`,
       {
         method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
       }
     );
-    return handleResponse(response);
+
+    // Add response logging for debugging
+    console.log("Dashboard API Response:", {
+      status: response.status,
+      url: response.url
+    });
+
+    const data = await handleResponse(response);
+    
+    // Verify the response contains pets data
+    if (!data.pets) {
+      console.warn("Unexpected response format - missing pets array");
+      // Handle alternative response formats
+      return {
+        pets: data.data?.pets || data.items || []
+      };
+    }
+
+    return data;
   } catch (error) {
-    console.error("Error fetching pet dashboard:", error);
+    console.error("Error fetching pet dashboard:", {
+      message: error.message,
+      stack: error.stack
+    });
     throw error;
   }
 };
