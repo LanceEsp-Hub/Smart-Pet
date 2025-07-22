@@ -433,54 +433,55 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const authenticate = async () => {
-      try {
-        // Handle URL parameters if coming from OAuth/login redirect
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token') || searchParams.get('token');
-        const encryptedUserId = urlParams.get('user_id') || searchParams.get('user_id');
-        const user = urlParams.get('user') || searchParams.get('user');
-        const encryptedRoles = urlParams.get('roles') || searchParams.get('roles');
+  const authenticate = async () => {
+    try {
+      // 1. Check for existing session data
+      const token = sessionStorage.getItem("auth_token");
+      const encryptedUserId = sessionStorage.getItem("user_id");
+      const storedUser = sessionStorage.getItem("user");
 
-        if (token && encryptedUserId && user) {
-          sessionStorage.setItem("auth_token", token);
-          sessionStorage.setItem("user_id", encryptedUserId);
-          sessionStorage.setItem("user", user);
-          sessionStorage.setItem("roles", encryptedRoles || encryptData("user"));
-          window.history.replaceState({}, '', window.location.pathname);
-        }
+      console.log("Session check:", { token, encryptedUserId, storedUser });
 
-        // Get stored session data
-        const storedToken = sessionStorage.getItem("auth_token");
-        const encryptedStoredUserId = sessionStorage.getItem("user_id");
-        const storedUser = sessionStorage.getItem("user");
-        const encryptedStoredRoles = sessionStorage.getItem("roles");
-
-        if (!storedToken || !encryptedStoredUserId || !storedUser || !encryptedStoredRoles) {
-          throw new Error("Missing authentication data");
-        }
-
-        // Decrypt the user ID for the API call
-        const userId = decryptData(encryptedStoredUserId);
-        if (!userId) throw new Error("Invalid user ID");
-
-        // Fetch dashboard data using your working API call structure
-        const data = await fetchPetDashboard(storedToken);
-        
-        setUserData(JSON.parse(storedUser));
-        setPets(data.pets || []);
-        setIsAuthenticated(true);
-
-      } catch (error) {
-        console.error("Authentication error:", error);
-        router.push("/login");
-      } finally {
-        setIsLoading(false);
+      if (!token || !encryptedUserId || !storedUser) {
+        throw new Error("Missing authentication data");
       }
-    };
 
-    authenticate();
-  }, [router, searchParams]);
+      // 2. Decrypt the user ID
+      const userId = decryptData(encryptedUserId);
+      if (!userId) {
+        throw new Error("Invalid user ID format");
+      }
+
+      console.log("Attempting to fetch dashboard for user:", userId);
+
+      // 3. Make the API call
+      const data = await fetchPetDashboard(token);
+      console.log("Dashboard data received:", data);
+
+      // 4. Update state
+      setUserData(JSON.parse(storedUser));
+      setPets(data.pets || []);
+      setIsAuthenticated(true);
+
+    } catch (error) {
+      console.error("Authentication failed:", {
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Clear invalid session data
+      sessionStorage.removeItem("auth_token");
+      sessionStorage.removeItem("user_id");
+      sessionStorage.removeItem("user");
+      
+      router.push("/login");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  authenticate();
+}, [router]);
   
   return (
     <div className="min-h-screen bg-white">
