@@ -137,35 +137,28 @@ export default function Page() {
 //   };
 
 
- const handleLogin = async (e) => {
-  e.preventDefault();
+// In your login component
+const handleLogin = async (email, password) => {
   try {
-    const response = await loginUser({ email, password });
-    console.log("Login Response:", response);
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
 
-    if (response.access_token) {
-      // Store session data
-      const encryptedUserId = encryptData(response.user_id.toString());
-      sessionStorage.setItem("auth_token", response.access_token);
-      sessionStorage.setItem("user_id", encryptedUserId);
-      sessionStorage.setItem("user", JSON.stringify(response.user));
-      sessionStorage.setItem("roles", encryptData(response.roles || "user"));
-
-      console.log("Session storage set:", {
-        token: response.access_token,
-        userId: response.user_id,
-        encryptedUserId,
-        user: response.user
-      });
-
-      // Immediate redirect to prevent race conditions
-      window.location.href = "/pet_dashboard";
-    } else {
-      throw new Error(response.detail || "Login failed - no token received");
-    }
+    const data = await response.json();
+    
+    // Store session data
+    sessionStorage.setItem("auth_token", data.access_token);
+    sessionStorage.setItem("user_id", encryptData(data.user_id));
+    sessionStorage.setItem("user", JSON.stringify(data.user));
+    
+    // Redirect to dashboard
+    window.location.href = "/pet_dashboard";
+    
   } catch (error) {
     console.error("Login failed:", error);
-    toast.error(error.message || "Login failed");
+    alert(error.message || "Login failed");
   }
 };
 
