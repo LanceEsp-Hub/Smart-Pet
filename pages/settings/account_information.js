@@ -64,42 +64,33 @@ const AccountInformationPage = () => {
     setError(null)
   }
 
-  // const handleFileUpload = async (e) => {
-  //   try {
-  //     const token = sessionStorage.getItem("auth_token")
-  //     const file = e.target.files[0]
-
-  //     if (!file) return
-
-  //     // Show preview immediately
-  //     const reader = new FileReader()
-  //     reader.onload = (e) => {
-  //       setPreviewUrl(e.target.result)
-  //     }
-  //     reader.readAsDataURL(file)
-
-  //     // Upload to server
-  //     setIsSubmitting(true)
-  //     const uploadResult = await uploadProfilePicture(token, file)
-  //     setFormData({ ...formData, profile_picture: uploadResult.filename })
-  //     setSuccess("Profile picture uploaded successfully")
-  //   } catch (err) {
-  //     setError(err.message || "Failed to upload profile picture")
-  //   } finally {
-  //     setIsSubmitting(false)
-  //   }
-  // }
-
   const handleFileUpload = async (e) => {
-  const uploadResult = await uploadProfilePicture(token, file);
-  
-  // Update both the preview and form data
-  setPreviewUrl(uploadResult.url);
-  setFormData(prev => ({
-    ...prev,
-    profile_picture: uploadResult.filename  // Store filename only
-  }));
-};
+    try {
+      const token = sessionStorage.getItem("auth_token")
+      const file = e.target.files[0]
+
+      if (!file) return
+
+      // Show preview immediately
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPreviewUrl(e.target.result)
+      }
+      reader.readAsDataURL(file)
+
+      // Upload to server
+      setIsSubmitting(true)
+      const uploadResult = await uploadProfilePicture(token, file)
+      setFormData({ ...formData, profile_picture: uploadResult.filename })
+      setSuccess("Profile picture uploaded successfully")
+    } catch (err) {
+      setError(err.message || "Failed to upload profile picture")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault()
