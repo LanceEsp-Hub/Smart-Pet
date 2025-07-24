@@ -37,11 +37,15 @@ const AccountInformationPage = () => {
           name: response.name || "",
           email: response.email || "",
           phone_number: response.phone_number || "",
-          profile_picture: response.profile_picture || "",
+          // profile_picture: response.profile_picture || "",
+          profile_picture: response.profile_picture_filename // If you change the API
+
         })
 
         if (response.profile_picture) {
-          setPreviewUrl(`${API_URL}/uploads/profile_pictures/${response.profile_picture}`)
+          // setPreviewUrl(`${API_URL}/uploads/profile_pictures/${response.profile_picture}`)
+              setPreviewUrl(response.profile_picture);
+
         }
       } catch (err) {
         setError(err.message)
@@ -60,31 +64,42 @@ const AccountInformationPage = () => {
     setError(null)
   }
 
+  // const handleFileUpload = async (e) => {
+  //   try {
+  //     const token = sessionStorage.getItem("auth_token")
+  //     const file = e.target.files[0]
+
+  //     if (!file) return
+
+  //     // Show preview immediately
+  //     const reader = new FileReader()
+  //     reader.onload = (e) => {
+  //       setPreviewUrl(e.target.result)
+  //     }
+  //     reader.readAsDataURL(file)
+
+  //     // Upload to server
+  //     setIsSubmitting(true)
+  //     const uploadResult = await uploadProfilePicture(token, file)
+  //     setFormData({ ...formData, profile_picture: uploadResult.filename })
+  //     setSuccess("Profile picture uploaded successfully")
+  //   } catch (err) {
+  //     setError(err.message || "Failed to upload profile picture")
+  //   } finally {
+  //     setIsSubmitting(false)
+  //   }
+  // }
+
   const handleFileUpload = async (e) => {
-    try {
-      const token = sessionStorage.getItem("auth_token")
-      const file = e.target.files[0]
-
-      if (!file) return
-
-      // Show preview immediately
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setPreviewUrl(e.target.result)
-      }
-      reader.readAsDataURL(file)
-
-      // Upload to server
-      setIsSubmitting(true)
-      const uploadResult = await uploadProfilePicture(token, file)
-      setFormData({ ...formData, profile_picture: uploadResult.filename })
-      setSuccess("Profile picture uploaded successfully")
-    } catch (err) {
-      setError(err.message || "Failed to upload profile picture")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+  const uploadResult = await uploadProfilePicture(token, file);
+  
+  // Update both the preview and form data
+  setPreviewUrl(uploadResult.url);
+  setFormData(prev => ({
+    ...prev,
+    profile_picture: uploadResult.filename  // Store filename only
+  }));
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault()
