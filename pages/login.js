@@ -514,7 +514,7 @@ if (response.user_id) {
                         <button type="submit">Register</button>
                         <span>or use your account</span>
                         <div className="social-container text-[#1A237E]">
-                            <a href="https://smart-pet-backend-production.up.railway.app/auth/google" className="social">
+                            <a href="https://newback-production-a0cc.up.railway.app/auth/google" className="social">
                                 <i className="lni lni-google"></i>
                             </a>
                         </div>
@@ -529,7 +529,7 @@ if (response.user_id) {
                         <button type="submit">Login</button>
                         <span>or use your account</span>
                         <div className="social-container">
-                            <a href="https://smart-pet-backend-production.up.railway.app/auth/google" className="social">
+                            <a href="https://newback-production-a0cc.up.railway.app/auth/google" className="social">
                                 <i className="lni lni-google"></i>
                             </a>
                         </div>
