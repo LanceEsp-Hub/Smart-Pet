@@ -1759,6 +1759,370 @@ export async function createPet(petData) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function addDevice(unique_code) {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/pets/register-device', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        unique_code: unique_code
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      // Handle both error formats (detail object or message string)
+      const errorMessage = errorData.detail?.message || errorData.detail || 'Registration failed';
+      throw new Error(errorMessage);
+    }
+
+    const responseData = await response.json();
+    
+    // Return the full response data including status
+    return {
+      success: true,
+      message: responseData.message,
+      deviceData: responseData.data // Contains device_id, unique_code, and status
+    };
+
+  } catch (error) {
+    console.error('Device registration error:', error);
+    // Return error information in consistent format
+    throw new Error(error.message || 'Failed to register device');
+  }
+}
+
+export async function updateDeviceStatus(device_id, status) {
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/api/pets/update-device-status/${device_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        status: status
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail?.message || 'Status update failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Device status update error:', error);
+    throw error;
+  }
+}
+
+export async function getDevices(params = {}) {
+  try {
+    const queryParams = new URLSearchParams();
+    if (params.status) queryParams.append('status', params.status);
+    if (params.skip) queryParams.append('skip', params.skip);
+    if (params.limit) queryParams.append('limit', params.limit);
+
+    const response = await fetch(`http://127.0.0.1:8000/api/pets/devices?${queryParams.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail?.message || 'Failed to fetch devices');
+    }
+
+    const data = await response.json();
+    return data.data || []; // Return the array of devices
+  } catch (error) {
+    console.error('Fetch devices error:', error);
+    throw error;
+  }
+}
+
+export async function updateDeviceActiveStatus(device_id, is_active) {
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/api/pets/update-device-active/${device_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        is_active: is_active
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail?.message || 'Active status update failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Device active status update error:', error);
+    throw error;
+  }
+}
+
+export async function getDeviceLocations(device_id) {
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/api/pets/device-locations/${device_id}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail?.message || 'Failed to fetch locations');
+    }
+
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Fetch locations error:', error);
+    throw error;
+  }
+}
+
+
+
+export async function pairDeviceWithPet(unique_code, pet_id, user_id) {
+  try {
+    const response = await fetch(`${API_URL}/api/pets/pair-device`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        unique_code: unique_code,
+        pet_id: pet_id,
+        user_id: user_id,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      const errorMessage = errorData.detail?.message || errorData.detail || "Pairing failed"
+      throw new Error(errorMessage)
+    }
+
+    const responseData = await response.json()
+
+    return {
+      success: true,
+      message: responseData.message,
+      deviceData: responseData.data,
+    }
+  } catch (error) {
+    console.error("Device pairing error:", error)
+    throw new Error(error.message || "Failed to pair device")
+  }
+}
+
+export async function updatePairDeviceWithPet(unique_code, pet_id, user_id) {
+  try {
+    const response = await fetch(`${API_URL}/api/pets/update-pair-device`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        unique_code: unique_code,
+        pet_id: pet_id,
+        user_id: user_id,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      const errorMessage = errorData.detail?.message || errorData.detail || "Update pairing failed"
+      throw new Error(errorMessage)
+    }
+
+    const responseData = await response.json()
+
+    return {
+      success: true,
+      message: responseData.message,
+      deviceData: responseData.data,
+    }
+  } catch (error) {
+    console.error("Device update pairing error:", error)
+    throw new Error(error.message || "Failed to update device pairing")
+  }
+}
+
+export async function getPetDeviceInfo(pet_id) {
+  try {
+    const response = await fetch(`${API_URL}/api/pets/${pet_id}/device-info`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.detail?.message || "Failed to fetch device info")
+    }
+
+    const data = await response.json()
+    return data.data || null
+  } catch (error) {
+    console.error("Fetch device info error:", error)
+    throw error
+  }
+}
+
+export async function getPetCurrentLocation(pet_id) {
+  try {
+    const response = await fetch(`${API_URL}/api/pets/${pet_id}/current-location`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.detail?.message || "Failed to fetch current location")
+    }
+
+    const data = await response.json()
+    return data.data || null
+  } catch (error) {
+    console.error("Fetch current location error:", error)
+    throw error
+  }
+}
+
+export async function toggleDeviceActivation(pet_id, is_active) {
+  try {
+    const response = await fetch(`${API_URL}/api/pets/${pet_id}/device-activation`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        is_active: is_active,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      const errorMessage = errorData.detail?.message || errorData.detail || "Device activation failed"
+      throw new Error(errorMessage)
+    }
+
+    const responseData = await response.json()
+
+    return {
+      success: true,
+      message: responseData.message,
+      data: responseData.data,
+    }
+  } catch (error) {
+    console.error("Device activation error:", error)
+    throw new Error(error.message || "Failed to toggle device activation")
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export async function uploadPetImage(file) {
   const formData = new FormData();
   formData.append('file', file);
