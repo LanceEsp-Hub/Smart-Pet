@@ -1713,19 +1713,45 @@ export async function loginUser(userData) {
 }
 
 
+// export async function sendPasswordResetEmail(email) {
+//   try {
+//     const response = await fetch(`${API_URL}/api/forgot-password`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ email }),
+//     });
+//     return handleResponse(response);
+//   } catch (error) {
+//     console.error("Error sending password reset email:", error);
+//     throw error;
+//   }
+// }
+
 export async function sendPasswordResetEmail(email) {
-  try {
-    const response = await fetch(`${API_URL}/api/forgot-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    return handleResponse(response);
-  } catch (error) {
-    console.error("Error sending password reset email:", error);
-    throw error;
+  const response = await fetch(`${API_URL}/api/user/request-password-reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to send reset email");
   }
+  return response.json();
+
+
+
+export async function submitPasswordReset(token, newPassword) {
+  const response = await fetch(`${API_URL}/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, new_password: newPassword })
+  });
+  return handleResponse(response);
 }
+
+
 
 export async function resetPassword({ token, password }) {
   try {
@@ -3921,29 +3947,6 @@ export async function fetchSuccessStories() {
 //   });
 //   return handleResponse(response);
 // }
-
-export async function sendPasswordResetEmail(email) {
-  const response = await fetch(`${API_URL}/api/user/request-password-reset`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email })
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to send reset email");
-  }
-  return response.json();
-}
-
-export async function submitPasswordReset(token, newPassword) {
-  const response = await fetch(`${API_URL}/reset-password`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token, new_password: newPassword })
-  });
-  return handleResponse(response);
-}
 
 
 export async function clearAdditionalImages(petId) {
