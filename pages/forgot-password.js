@@ -24,10 +24,12 @@ export default function ForgotPassword() {
             const response = await sendPasswordResetEmail(email);
             setMessage("Password reset email sent. Please check your inbox.");
         } catch (error) {
-            console.error("Error:", error); // Debugging line
-            setMessage(error.message || "Failed to send password reset email.");
-        }
-    };
+          if (error.response?.status === 429) {
+            setMessage("Too many requests. Please try again in an hour.");
+          } else {
+            setMessage(error.message || "Failed to send reset email.");
+          }
+        };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
