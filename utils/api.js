@@ -3913,13 +3913,27 @@ export async function fetchSuccessStories() {
 
 
 // frontend/utils/api.js
-export async function requestPasswordReset(email) {
-  const response = await fetch(`${API_URL}/forgot-password`, {
+// export async function requestPasswordReset(email) {
+//   const response = await fetch(`${API_URL}/forgot-password`, {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify({ email })
+//   });
+//   return handleResponse(response);
+// }
+
+export async function sendPasswordResetEmail(email) {
+  const response = await fetch(`${API_URL}/api/user/request-password-reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email })
   });
-  return handleResponse(response);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to send reset email");
+  }
+  return response.json();
 }
 
 export async function submitPasswordReset(token, newPassword) {
