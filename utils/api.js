@@ -1740,6 +1740,8 @@ export async function sendPasswordResetEmail(email) {
   }
   return response.json();
 
+}
+
 
 
 export async function submitPasswordReset(token, newPassword) {
