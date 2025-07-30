@@ -1,5 +1,3 @@
-
-// larger bounds
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -263,55 +261,108 @@ export default function PetLocation() {
     }
   };
 
-  const getCurrentLocation = () => {
+  const getCurrentLocation = async () => {
     setIsLoading(true);
     setError("");
     setIsReadOnly(false);
-  
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            // Check if user's current location is within expanded Calapan bounds
-            if (!isWithinCalapanBounds(position.coords.latitude, position.coords.longitude)) {
-              setError("Your current location is outside the Calapan City area. Please select a location within the area manually.");
-              setIsLoading(false);
-              return;
-            }
+    toast.dismiss();
 
-            const coords = [position.coords.longitude, position.coords.latitude];
-            await reverseGeocode(coords);
-            setCoordinates({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude
-            });
-            setIsReadOnly(true);
-          } catch (err) {
-            setError("Could not determine address for this location. Please select manually from the map.");
-          } finally {
-            setIsLoading(false);
-            if (showMap && mapRef.current) {
-              mapRef.current.flyTo({
-                center: [position.coords.longitude, position.coords.latitude],
-                zoom: 16
-              });
-              placeMarker([position.coords.longitude, position.coords.latitude], mapRef.current);
-            }
-          }
-        },
-        (error) => {
-          setIsLoading(false);
-          if (error.code === error.PERMISSION_DENIED) {
-            setError("Location access was denied. Please select a location from the map within the Calapan City area.");
-          } else {
-            setError("Unable to retrieve your location. Please select from the map within the Calapan City area.");
-          }
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    } else {
+    // Basic environment checks
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      const msg = "Geolocation is not supported in this browser";
+      toast.error(msg);
+      setError(msg);
       setIsLoading(false);
-      setError("Geolocation is not supported by your browser. Please select from the map.");
+      return;
+    }
+
+    if (window.location.protocol !== 'https:') {
+      const msg = "Geolocation requires HTTPS for security";
+      toast.error(msg);
+      setError(msg);
+      setIsLoading(false);
+      return;
+    }
+
+    // Simple loading message
+    toast.loading("Detecting your location...", { duration: 8000 });
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    };
+
+    try {
+      const position = await new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          reject(new Error('TIMEOUT'));
+        }, options.timeout + 2000);
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            clearTimeout(timeoutId);
+            resolve(pos);
+          },
+          (err) => {
+            clearTimeout(timeoutId);
+            reject(err);
+          },
+          options
+        );
+      });
+
+      toast.dismiss();
+      toast.success("Location found!");
+
+      // Check if user's current location is within expanded Calapan bounds
+      if (!isWithinCalapanBounds(position.coords.latitude, position.coords.longitude)) {
+        setError("Your current location is outside the Calapan City area. Please select a location within the area manually.");
+        setIsLoading(false);
+        return;
+      }
+
+      const coords = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      };
+
+      setCoordinates(coords);
+
+      try {
+        await reverseGeocode([coords.longitude, coords.latitude]);
+      } catch (geocodeErr) {
+        setAddress(`Calapan Area - ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
+      }
+
+      if (showMap && mapRef.current) {
+        mapRef.current.flyTo({
+          center: [coords.longitude, coords.latitude],
+          zoom: 14
+        });
+        placeMarker([coords.longitude, coords.latitude], mapRef.current);
+      }
+
+    } catch (error) {
+      toast.dismiss();
+      
+      // Simplified error handling - just recommend map for any error
+      toast.error(
+        <div>
+          <p>Couldn't get your location automatically</p>
+          <button 
+            onClick={() => setShowMap(true)}
+            className="mt-2 px-3 py-1 text-sm bg-white text-red-600 rounded"
+          >
+            Select from map instead
+          </button>
+        </div>,
+        { duration: 5000 }
+      );
+
+      setError("LOCATION_UNAVAILABLE");
+    } finally {
+      setIsLoading(false);
     }
   };
 
