@@ -501,9 +501,6 @@ const getCurrentLocation = async () => {
     setIsLoading(false);
   }
 };
-
-
-
   
 
 
