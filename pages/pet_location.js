@@ -284,7 +284,175 @@ export default function PetLocation() {
 
 
 
-  const getCurrentLocation = async () => {
+//   const getCurrentLocation = async () => {
+//   setIsLoading(true);
+//   setError("");
+//   setIsReadOnly(false);
+//   toast.dismiss();
+
+//   // Enhanced environment checks
+//   if (typeof window === 'undefined' || !navigator.geolocation) {
+//     const msg = "Geolocation is not supported in this browser";
+//     toast.error(msg);
+//     setError(msg);
+//     setIsLoading(false);
+//     return;
+//   }
+
+//   if (window.location.protocol !== 'https:') {
+//     const msg = "Geolocation requires HTTPS for security";
+//     toast.error(msg);
+//     setError(msg);
+//     setIsLoading(false);
+//     return;
+//   }
+
+//   // Device detection
+//   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+//   const deviceType = isMobile ? "phone" : "computer";
+
+//   // Device-specific loading message
+//   toast.loading(
+//     <div>
+//       <p>Detecting your {deviceType}'s location...</p>
+//       {!isMobile && (
+//         <small className="block mt-1">
+//           On computers, ensure you're connected to WiFi
+//         </small>
+//       )}
+//     </div>,
+//     { duration: 8000 }
+//   );
+
+//   // Optimized options for each device type
+//   const options = {
+//     enableHighAccuracy: isMobile, // High accuracy only for mobile
+//     timeout: isMobile ? 10000 : 15000, // Longer timeout for laptops
+//     maximumAge: 0
+//   };
+
+//   try {
+//     const position = await new Promise((resolve, reject) => {
+//       const timeoutId = setTimeout(() => {
+//         reject(new Error('TIMEOUT'));
+//       }, options.timeout + 2000);
+
+//       // Remove Vercel cold start timeout (not needed for client-side geolocation)
+//       navigator.geolocation.getCurrentPosition(
+//         (pos) => {
+//           clearTimeout(timeoutId);
+//           resolve(pos);
+//         },
+//         (err) => {
+//           clearTimeout(timeoutId);
+//           reject(err);
+//         },
+//         options
+//       );
+//     });
+
+//     toast.dismiss();
+//     toast.success(
+//       <div>
+//         <p>Location found!</p>
+//         {position.coords.accuracy && (
+//           <small>Accuracy: ~{Math.round(position.coords.accuracy)} meters</small>
+//         )}
+//       </div>
+//     );
+
+//     const coords = {
+//       latitude: position.coords.latitude,
+//       longitude: position.coords.longitude,
+//       accuracy: position.coords.accuracy
+//     };
+
+//     setCoordinates(coords);
+
+//     // Reverse geocoding with better error handling
+//     try {
+//       await Promise.race([
+//         reverseGeocode([coords.longitude, coords.latitude]),
+//         new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 5000))
+//       ]);
+//     } catch (geocodeErr) {
+//       console.warn("Reverse geocode failed:", geocodeErr);
+//       setAddress(
+//         `Near: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` +
+//         (coords.accuracy ? ` (Accuracy: ~${Math.round(coords.accuracy)}m)` : "")
+//       );
+//     }
+
+//     // Update map if visible
+//     if (showMap && mapRef.current) {
+//       mapRef.current.flyTo({
+//         center: [coords.longitude, coords.latitude],
+//         zoom: coords.accuracy > 1000 ? 12 : 14
+//       });
+//       placeMarker([coords.longitude, coords.latitude], mapRef.current);
+//     }
+
+//   } catch (error) {
+//     toast.dismiss();
+//     let errorMessage = "Location service failed";
+//     let userMessage = "We couldn't access your location";
+//     let showMapOption = true;
+
+//     // Enhanced error handling
+//     if (error.code === 1) { // PERMISSION_DENIED
+//       errorMessage = "PERMISSION_DENIED";
+//       userMessage = (
+//         <div>
+//           <p>Location permission was denied</p>
+//           <button 
+//             onClick={() => window.location.reload()}
+//             className="mt-2 px-3 py-1 text-sm bg-white text-blue-600 rounded"
+//           >
+//             Refresh and try again
+//           </button>
+//         </div>
+//       );
+//     } 
+//     else if (error.code === 2) { // POSITION_UNAVAILABLE
+//       errorMessage = "POSITION_UNAVAILABLE";
+//       userMessage = !isMobile 
+//         ? "Couldn't determine location from network signals. Ensure you're connected to WiFi."
+//         : "Location services unavailable. Check your device's GPS/WiFi.";
+//     }
+//     else if (error.code === 3 || error.message === 'TIMEOUT') {
+//       errorMessage = "TIMEOUT";
+//       userMessage = "Location request timed out. Try again in an area with better signal.";
+//     }
+//     else if (error.message === 'GEOCODE_TIMEOUT') {
+//       errorMessage = "GEOCODE_TIMEOUT";
+//       showMapOption = false;
+//     }
+
+//     console.error("Geolocation error:", error);
+
+//     if (showMapOption) {
+//       toast.error(
+//         <div>
+//           <div>{userMessage}</div>
+//           <button 
+//             onClick={() => setShowMap(true)}
+//             className="mt-2 px-3 py-1 text-sm bg-white text-red-600 rounded"
+//           >
+//             Select from map instead
+//           </button>
+//         </div>,
+//         { duration: 8000 }
+//       );
+//     }
+
+//     setError(errorMessage);
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
+
+
+const getCurrentLocation = async () => {
   setIsLoading(true);
   setError("");
   setIsReadOnly(false);
@@ -451,6 +619,11 @@ export default function PetLocation() {
   }
 };
 
+
+
+
+
+  
 
 
   const handleUseCurrentLocation = () => {
