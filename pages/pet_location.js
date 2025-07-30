@@ -282,68 +282,69 @@ export default function PetLocation() {
   //   }
   // };
 
-//  const getCurrentLocation = async () => {
+
+
+//   const getCurrentLocation = async () => {
 //   setIsLoading(true);
 //   setError("");
 //   setIsReadOnly(false);
 //   toast.dismiss();
 
-//   // Check if we're running in a browser environment (important for Vercel)
+//   // Enhanced environment checks
 //   if (typeof window === 'undefined' || !navigator.geolocation) {
-//     const msg = "Geolocation is not available in this environment";
-//     console.error(msg);
+//     const msg = "Geolocation is not supported in this browser";
 //     toast.error(msg);
 //     setError(msg);
 //     setIsLoading(false);
 //     return;
 //   }
 
-//   // Check if we're on HTTPS (required for geolocation in most browsers)
 //   if (window.location.protocol !== 'https:') {
-//     const msg = "Geolocation requires HTTPS. You're currently on: " + window.location.protocol;
-//     console.error(msg);
-//     toast.error("Please use HTTPS for location services");
+//     const msg = "Geolocation requires HTTPS for security";
+//     toast.error(msg);
 //     setError(msg);
 //     setIsLoading(false);
 //     return;
 //   }
 
-//   // Show permission guidance specific to Vercel deployments
+//   // Device detection
+//   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+//   const deviceType = isMobile ? "phone" : "computer";
+
+//   // Device-specific loading message
 //   toast.loading(
 //     <div>
-//       <p>Waiting for location access...</p>
-//       <small>Check for a browser permission prompt</small>
+//       <p>Detecting your {deviceType}'s location...</p>
+//       {!isMobile && (
+//         <small className="block mt-1">
+//           On computers, ensure you're connected to WiFi
+//         </small>
+//       )}
 //     </div>,
 //     { duration: 8000 }
 //   );
 
+//   // Optimized options for each device type
 //   const options = {
-//     enableHighAccuracy: true,
-//     timeout: 10000,
+//     enableHighAccuracy: isMobile, // High accuracy only for mobile
+//     timeout: isMobile ? 10000 : 15000, // Longer timeout for laptops
 //     maximumAge: 0
 //   };
 
 //   try {
 //     const position = await new Promise((resolve, reject) => {
-//       // Primary timeout
 //       const timeoutId = setTimeout(() => {
 //         reject(new Error('TIMEOUT'));
 //       }, options.timeout + 2000);
 
-//       // Secondary timeout for Vercel cold starts
-//       const vercelTimeoutId = setTimeout(() => {
-//         reject(new Error('VERCEL_TIMEOUT'));
-//       }, 5000);
-
+//       // Remove Vercel cold start timeout (not needed for client-side geolocation)
 //       navigator.geolocation.getCurrentPosition(
 //         (pos) => {
 //           clearTimeout(timeoutId);
-//           clearTimeout(vercelTimeoutId);
 //           resolve(pos);
 //         },
 //         (err) => {
 //           clearTimeout(timeoutId);
-//           clearTimeout(vercelTimeoutId);
 //           reject(err);
 //         },
 //         options
@@ -351,31 +352,42 @@ export default function PetLocation() {
 //     });
 
 //     toast.dismiss();
-//     toast.success("Location obtained!");
+//     toast.success(
+//       <div>
+//         <p>Location found!</p>
+//         {position.coords.accuracy && (
+//           <small>Accuracy: ~{Math.round(position.coords.accuracy)} meters</small>
+//         )}
+//       </div>
+//     );
 
 //     const coords = {
 //       latitude: position.coords.latitude,
-//       longitude: position.coords.longitude
+//       longitude: position.coords.longitude,
+//       accuracy: position.coords.accuracy
 //     };
 
 //     setCoordinates(coords);
 
-//     // Try reverse geocoding (with Vercel-friendly timeout)
+//     // Reverse geocoding with better error handling
 //     try {
 //       await Promise.race([
 //         reverseGeocode([coords.longitude, coords.latitude]),
-//         new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 3000))
+//         new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 5000))
 //       ]);
 //     } catch (geocodeErr) {
-//       console.warn("Reverse geocode failed, using coordinates:", geocodeErr);
-//       setAddress(`Near: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
+//       console.warn("Reverse geocode failed:", geocodeErr);
+//       setAddress(
+//         `Near: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` +
+//         (coords.accuracy ? ` (Accuracy: ~${Math.round(coords.accuracy)}m)` : "")
+//       );
 //     }
 
 //     // Update map if visible
 //     if (showMap && mapRef.current) {
 //       mapRef.current.flyTo({
 //         center: [coords.longitude, coords.latitude],
-//         zoom: 14
+//         zoom: coords.accuracy > 1000 ? 12 : 14
 //       });
 //       placeMarker([coords.longitude, coords.latitude], mapRef.current);
 //     }
@@ -384,34 +396,44 @@ export default function PetLocation() {
 //     toast.dismiss();
 //     let errorMessage = "Location service failed";
 //     let userMessage = "We couldn't access your location";
+//     let showMapOption = true;
 
-//     // Special handling for Vercel-specific issues
-//     if (error.message === 'VERCEL_TIMEOUT') {
-//       errorMessage = "Vercel cold start delay detected";
-//       userMessage = "Location service is warming up. Please try again in a moment";
-//     } 
-//     // Standard geolocation errors
-//     else if (error.code === 1) {
+//     // Enhanced error handling
+//     if (error.code === 1) { // PERMISSION_DENIED
 //       errorMessage = "PERMISSION_DENIED";
-//       userMessage = "Please enable location permissions in your browser settings";
-//     } else if (error.code === 2) {
+//       userMessage = (
+//         <div>
+//           <p>Location permission was denied</p>
+//           <button 
+//             onClick={() => window.location.reload()}
+//             className="mt-2 px-3 py-1 text-sm bg-white text-blue-600 rounded"
+//           >
+//             Refresh and try again
+//           </button>
+//         </div>
+//       );
+//     } 
+//     else if (error.code === 2) { // POSITION_UNAVAILABLE
 //       errorMessage = "POSITION_UNAVAILABLE";
-//       userMessage = "Location services unavailable (check GPS/WiFi)";
-//     } else if (error.code === 3 || error.message === 'TIMEOUT') {
+//       userMessage = !isMobile 
+//         ? "Couldn't determine location from network signals. Ensure you're connected to WiFi."
+//         : "Location services unavailable. Check your device's GPS/WiFi.";
+//     }
+//     else if (error.code === 3 || error.message === 'TIMEOUT') {
 //       errorMessage = "TIMEOUT";
-//       userMessage = "Location request timed out. Try again in better signal area";
-//     } else if (error.message === 'GEOCODE_TIMEOUT') {
-//       errorMessage = "Reverse geocode timeout";
-//       // Don't show this as an error to user - we already have coords
+//       userMessage = "Location request timed out. Try again in an area with better signal.";
+//     }
+//     else if (error.message === 'GEOCODE_TIMEOUT') {
+//       errorMessage = "GEOCODE_TIMEOUT";
+//       showMapOption = false;
 //     }
 
-//     console.error("Geolocation error:", errorMessage, error);
+//     console.error("Geolocation error:", error);
 
-//     // Only show error toast if it's not a geocode timeout
-//     if (error.message !== 'GEOCODE_TIMEOUT') {
+//     if (showMapOption) {
 //       toast.error(
 //         <div>
-//           <p>{userMessage}</p>
+//           <div>{userMessage}</div>
 //           <button 
 //             onClick={() => setShowMap(true)}
 //             className="mt-2 px-3 py-1 text-sm bg-white text-red-600 rounded"
@@ -419,7 +441,7 @@ export default function PetLocation() {
 //             Select from map instead
 //           </button>
 //         </div>,
-//         { duration: 5000 }
+//         { duration: 8000 }
 //       );
 //     }
 
@@ -428,7 +450,7 @@ export default function PetLocation() {
 //     setIsLoading(false);
 //   }
 // };
-// //working codeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
 
 
   const getCurrentLocation = async () => {
@@ -437,7 +459,7 @@ export default function PetLocation() {
   setIsReadOnly(false);
   toast.dismiss();
 
-  // Enhanced environment checks
+  // 1. Environment Validation
   if (typeof window === 'undefined' || !navigator.geolocation) {
     const msg = "Geolocation is not supported in this browser";
     toast.error(msg);
@@ -446,45 +468,42 @@ export default function PetLocation() {
     return;
   }
 
-  if (window.location.protocol !== 'https:') {
-    const msg = "Geolocation requires HTTPS for security";
-    toast.error(msg);
-    setError(msg);
-    setIsLoading(false);
-    return;
-  }
-
-  // Device detection
+  // 2. Device Detection
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const deviceType = isMobile ? "phone" : "computer";
 
-  // Device-specific loading message
+  // 3. Device-Specific Configuration
+  const options = {
+    enableHighAccuracy: isMobile, // true for phones, false for laptops
+    timeout: isMobile ? 10000 : 20000, // Longer timeout for laptops
+    maximumAge: 0
+  };
+
+  // 4. User Feedback
   toast.loading(
     <div>
       <p>Detecting your {deviceType}'s location...</p>
       {!isMobile && (
-        <small className="block mt-1">
-          On computers, ensure you're connected to WiFi
-        </small>
+        <div className="mt-2 text-sm bg-blue-50 p-2 rounded">
+          <p className="font-medium">For computers:</p>
+          <ul className="list-disc pl-5">
+            <li>Must be connected to WiFi</li>
+            <li>Works best in urban areas</li>
+            <li>May be less accurate than phones</li>
+          </ul>
+        </div>
       )}
     </div>,
-    { duration: 8000 }
+    { duration: 10000 }
   );
 
-  // Optimized options for each device type
-  const options = {
-    enableHighAccuracy: isMobile, // High accuracy only for mobile
-    timeout: isMobile ? 10000 : 15000, // Longer timeout for laptops
-    maximumAge: 0
-  };
-
   try {
+    // 5. Get Location with Enhanced Error Handling
     const position = await new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         reject(new Error('TIMEOUT'));
-      }, options.timeout + 2000);
+      }, options.timeout + 3000);
 
-      // Remove Vercel cold start timeout (not needed for client-side geolocation)
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           clearTimeout(timeoutId);
@@ -492,12 +511,19 @@ export default function PetLocation() {
         },
         (err) => {
           clearTimeout(timeoutId);
+          
+          // Special handling for laptops
+          if (!isMobile && err.code === 2) {
+            err.message = 'LAPTOP_LOCATION_UNAVAILABLE';
+          }
+          
           reject(err);
         },
         options
       );
     });
 
+    // 6. Success Handling
     toast.dismiss();
     toast.success(
       <div>
@@ -516,7 +542,7 @@ export default function PetLocation() {
 
     setCoordinates(coords);
 
-    // Reverse geocoding with better error handling
+    // 7. Reverse Geocoding with Fallback
     try {
       await Promise.race([
         reverseGeocode([coords.longitude, coords.latitude]),
@@ -525,12 +551,12 @@ export default function PetLocation() {
     } catch (geocodeErr) {
       console.warn("Reverse geocode failed:", geocodeErr);
       setAddress(
-        `Near: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` +
+        `Coordinates: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` +
         (coords.accuracy ? ` (Accuracy: ~${Math.round(coords.accuracy)}m)` : "")
       );
     }
 
-    // Update map if visible
+    // 8. Update Map Display
     if (showMap && mapRef.current) {
       mapRef.current.flyTo({
         center: [coords.longitude, coords.latitude],
@@ -540,57 +566,65 @@ export default function PetLocation() {
     }
 
   } catch (error) {
+    // 9. Comprehensive Error Handling
     toast.dismiss();
     let errorMessage = "Location service failed";
     let userMessage = "We couldn't access your location";
     let showMapOption = true;
 
-    // Enhanced error handling
-    if (error.code === 1) { // PERMISSION_DENIED
-      errorMessage = "PERMISSION_DENIED";
+    if (error.message === 'LAPTOP_LOCATION_UNAVAILABLE') {
+      errorMessage = "NETWORK_LOCATION_UNAVAILABLE";
       userMessage = (
         <div>
-          <p>Location permission was denied</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-2 px-3 py-1 text-sm bg-white text-blue-600 rounded"
-          >
-            Refresh and try again
-          </button>
+          <p className="font-medium">Couldn't determine your computer's location</p>
+          <div className="mt-2 p-3 bg-red-50 rounded text-sm">
+            <p>This usually means:</p>
+            <ul className="list-disc pl-5 mt-1">
+              <li>You're not connected to WiFi</li>
+              <li>Your network blocks location services</li>
+              <li>You're in a rural area with few WiFi networks</li>
+            </ul>
+            <p className="mt-2">Try:</p>
+            <ol className="list-decimal pl-5">
+              <li>Connecting to a WiFi network</li>
+              <li>Moving to a different location</li>
+              <li>Using the map selection instead</li>
+            </ol>
+          </div>
         </div>
       );
-    } 
-    else if (error.code === 2) { // POSITION_UNAVAILABLE
-      errorMessage = "POSITION_UNAVAILABLE";
-      userMessage = !isMobile 
-        ? "Couldn't determine location from network signals. Ensure you're connected to WiFi."
-        : "Location services unavailable. Check your device's GPS/WiFi.";
+    }
+    else if (error.code === 1) {
+      errorMessage = "PERMISSION_DENIED";
+      userMessage = "Please enable location permissions in your browser settings";
     }
     else if (error.code === 3 || error.message === 'TIMEOUT') {
       errorMessage = "TIMEOUT";
-      userMessage = "Location request timed out. Try again in an area with better signal.";
-    }
-    else if (error.message === 'GEOCODE_TIMEOUT') {
-      errorMessage = "GEOCODE_TIMEOUT";
-      showMapOption = false;
+      userMessage = "Location request timed out. Please try again";
     }
 
     console.error("Geolocation error:", error);
 
-    if (showMapOption) {
-      toast.error(
-        <div>
-          <div>{userMessage}</div>
+    toast.error(
+      <div>
+        <div className="mb-2">{userMessage}</div>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => getCurrentLocation()} // Retry
+            className="px-3 py-1 text-sm bg-white text-blue-600 rounded border border-blue-200"
+          >
+            Try Again
+          </button>
           <button 
             onClick={() => setShowMap(true)}
-            className="mt-2 px-3 py-1 text-sm bg-white text-red-600 rounded"
+            className="px-3 py-1 text-sm bg-white text-red-600 rounded border border-red-200"
           >
-            Select from map instead
+            Use Map Instead
           </button>
-        </div>,
-        { duration: 8000 }
-      );
-    }
+        </div>
+      </div>,
+      { duration: 10000 }
+    );
 
     setError(errorMessage);
   } finally {
