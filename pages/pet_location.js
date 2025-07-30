@@ -237,50 +237,159 @@ export default function PetLocation() {
     }
   };
 
-  const getCurrentLocation = () => {
-    setIsLoading(true);
-    setError("");
-    setIsReadOnly(false);
+  // const getCurrentLocation = () => {
+  //   setIsLoading(true);
+  //   setError("");
+  //   setIsReadOnly(false);
   
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const coords = [position.coords.longitude, position.coords.latitude];
-            await reverseGeocode(coords);
-            setCoordinates({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude
-            });
-            setIsReadOnly(true);
-          } catch (err) {
-            setError("Could not determine address for this location. Please enter it manually.");
-          } finally {
-            setIsLoading(false);
-            if (showMap && mapRef.current) {
-              mapRef.current.flyTo({
-                center: [position.coords.longitude, position.coords.latitude],
-                zoom: 14
-              });
-              placeMarker([position.coords.longitude, position.coords.latitude], mapRef.current);
-            }
-          }
-        },
-        (error) => {
-          setIsLoading(false);
-          if (error.code === error.PERMISSION_DENIED) {
-            setError("Location access was denied. Please enable location permissions or enter address manually.");
-          } else {
-            setError("Unable to retrieve your location. Error: " + error.message);
-          }
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    } else {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       async (position) => {
+  //         try {
+  //           const coords = [position.coords.longitude, position.coords.latitude];
+  //           await reverseGeocode(coords);
+  //           setCoordinates({
+  //             latitude: position.coords.latitude,
+  //             longitude: position.coords.longitude
+  //           });
+  //           setIsReadOnly(true);
+  //         } catch (err) {
+  //           setError("Could not determine address for this location. Please enter it manually.");
+  //         } finally {
+  //           setIsLoading(false);
+  //           if (showMap && mapRef.current) {
+  //             mapRef.current.flyTo({
+  //               center: [position.coords.longitude, position.coords.latitude],
+  //               zoom: 14
+  //             });
+  //             placeMarker([position.coords.longitude, position.coords.latitude], mapRef.current);
+  //           }
+  //         }
+  //       },
+  //       (error) => {
+  //         setIsLoading(false);
+  //         if (error.code === error.PERMISSION_DENIED) {
+  //           setError("Location access was denied. Please enable location permissions or enter address manually.");
+  //         } else {
+  //           setError("Unable to retrieve your location. Error: " + error.message);
+  //         }
+  //       },
+  //       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  //     );
+  //   } else {
+  //     setIsLoading(false);
+  //     setError("Geolocation is not supported by your browser");
+  //   }
+  // };
+
+  const getCurrentLocation = () => {
+  console.log("[Geolocation] Attempting to get current location...");
+  setIsLoading(true);
+  setError("");
+  setIsReadOnly(false);
+
+  if (!navigator.geolocation) {
+    console.error("[Geolocation] API not supported by browser");
+    setIsLoading(false);
+    setError("Geolocation is not supported by your browser. Please enter the address manually.");
+    return;
+  }
+
+  // Show a loading message with more details
+  toast.loading("Requesting location access... Please allow permission in your browser.");
+
+  const options = {
+    enableHighAccuracy: true,
+    timeout: 15000, // 15 seconds timeout
+    maximumAge: 0 // Don't use cached position
+  };
+
+  const successHandler = async (position) => {
+    console.log("[Geolocation] Position obtained:", position);
+    toast.dismiss();
+    toast.success("Location obtained successfully!");
+
+    try {
+      const coords = [position.coords.longitude, position.coords.latitude];
+      console.log("[Geolocation] Coordinates:", coords);
+      
+      await reverseGeocode(coords);
+      
+      setCoordinates({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      });
+      
+      setIsReadOnly(true);
+      
+      // Update map if it's visible
+      if (showMap && mapRef.current) {
+        console.log("[Geolocation] Updating map view...");
+        mapRef.current.flyTo({
+          center: coords,
+          zoom: 14
+        });
+        placeMarker(coords, mapRef.current);
+      }
+    } catch (err) {
+      console.error("[Geolocation] Reverse geocode error:", err);
+      setError("Could not determine address for this location. Please enter it manually.");
+      setAddress(`Near coordinates: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+    } finally {
       setIsLoading(false);
-      setError("Geolocation is not supported by your browser");
     }
   };
+
+  const errorHandler = (error) => {
+    console.error("[Geolocation] Error:", error);
+    toast.dismiss();
+    
+    let errorMessage = "Unable to retrieve your location.";
+    
+    switch(error.code) {
+      case error.PERMISSION_DENIED:
+        errorMessage = "Location access was denied. Please enable location permissions in your browser settings or enter address manually.";
+        break;
+      case error.POSITION_UNAVAILABLE:
+        errorMessage = "Location information is unavailable. Please check your network connection or enter address manually.";
+        break;
+      case error.TIMEOUT:
+        errorMessage = "The request to get your location timed out. Please try again or enter address manually.";
+        break;
+      default:
+        errorMessage = "An error occurred while getting your location. Please enter address manually.";
+    }
+    
+    toast.error(errorMessage);
+    setError(errorMessage);
+    setIsLoading(false);
+  };
+
+  // Add timeout fallback
+  const timeoutFallback = setTimeout(() => {
+    if (!coordinates) {
+      console.warn("[Geolocation] Timeout reached without getting location");
+      toast.dismiss();
+      toast.error("Location request is taking too long. Please try again or enter manually.");
+      setError("Location request timed out. Please try again or enter address manually.");
+      setIsLoading(false);
+    }
+  }, 16000); // Slightly longer than the geolocation timeout
+
+  // Clear timeout when done
+  const wrappedSuccess = (position) => {
+    clearTimeout(timeoutFallback);
+    successHandler(position);
+  };
+
+  const wrappedError = (error) => {
+    clearTimeout(timeoutFallback);
+    errorHandler(error);
+  };
+
+  console.log("[Geolocation] Calling navigator.geolocation.getCurrentPosition...");
+  navigator.geolocation.getCurrentPosition(wrappedSuccess, wrappedError, options);
+};
 
   const handleUseCurrentLocation = () => {
     getCurrentLocation();
