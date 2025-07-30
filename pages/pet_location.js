@@ -282,113 +282,151 @@ export default function PetLocation() {
   //   }
   // };
 
-  const getCurrentLocation = () => {
-  console.log("[Geolocation] Attempting to get current location...");
+ const getCurrentLocation = async () => {
   setIsLoading(true);
   setError("");
   setIsReadOnly(false);
+  toast.dismiss();
 
-  if (!navigator.geolocation) {
-    console.error("[Geolocation] API not supported by browser");
+  // Check if we're running in a browser environment (important for Vercel)
+  if (typeof window === 'undefined' || !navigator.geolocation) {
+    const msg = "Geolocation is not available in this environment";
+    console.error(msg);
+    toast.error(msg);
+    setError(msg);
     setIsLoading(false);
-    setError("Geolocation is not supported by your browser. Please enter the address manually.");
     return;
   }
 
-  // Show a loading message with more details
-  toast.loading("Requesting location access... Please allow permission in your browser.");
+  // Check if we're on HTTPS (required for geolocation in most browsers)
+  if (window.location.protocol !== 'https:') {
+    const msg = "Geolocation requires HTTPS. You're currently on: " + window.location.protocol;
+    console.error(msg);
+    toast.error("Please use HTTPS for location services");
+    setError(msg);
+    setIsLoading(false);
+    return;
+  }
+
+  // Show permission guidance specific to Vercel deployments
+  toast.loading(
+    <div>
+      <p>Waiting for location access...</p>
+      <small>Check for a browser permission prompt</small>
+    </div>,
+    { duration: 8000 }
+  );
 
   const options = {
     enableHighAccuracy: true,
-    timeout: 15000, // 15 seconds timeout
-    maximumAge: 0 // Don't use cached position
+    timeout: 10000,
+    maximumAge: 0
   };
 
-  const successHandler = async (position) => {
-    console.log("[Geolocation] Position obtained:", position);
-    toast.dismiss();
-    toast.success("Location obtained successfully!");
+  try {
+    const position = await new Promise((resolve, reject) => {
+      // Primary timeout
+      const timeoutId = setTimeout(() => {
+        reject(new Error('TIMEOUT'));
+      }, options.timeout + 2000);
 
+      // Secondary timeout for Vercel cold starts
+      const vercelTimeoutId = setTimeout(() => {
+        reject(new Error('VERCEL_TIMEOUT'));
+      }, 5000);
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          clearTimeout(timeoutId);
+          clearTimeout(vercelTimeoutId);
+          resolve(pos);
+        },
+        (err) => {
+          clearTimeout(timeoutId);
+          clearTimeout(vercelTimeoutId);
+          reject(err);
+        },
+        options
+      );
+    });
+
+    toast.dismiss();
+    toast.success("Location obtained!");
+
+    const coords = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude
+    };
+
+    setCoordinates(coords);
+
+    // Try reverse geocoding (with Vercel-friendly timeout)
     try {
-      const coords = [position.coords.longitude, position.coords.latitude];
-      console.log("[Geolocation] Coordinates:", coords);
-      
-      await reverseGeocode(coords);
-      
-      setCoordinates({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
+      await Promise.race([
+        reverseGeocode([coords.longitude, coords.latitude]),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 3000))
+      ]);
+    } catch (geocodeErr) {
+      console.warn("Reverse geocode failed, using coordinates:", geocodeErr);
+      setAddress(`Near: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
+    }
+
+    // Update map if visible
+    if (showMap && mapRef.current) {
+      mapRef.current.flyTo({
+        center: [coords.longitude, coords.latitude],
+        zoom: 14
       });
-      
-      setIsReadOnly(true);
-      
-      // Update map if it's visible
-      if (showMap && mapRef.current) {
-        console.log("[Geolocation] Updating map view...");
-        mapRef.current.flyTo({
-          center: coords,
-          zoom: 14
-        });
-        placeMarker(coords, mapRef.current);
-      }
-    } catch (err) {
-      console.error("[Geolocation] Reverse geocode error:", err);
-      setError("Could not determine address for this location. Please enter it manually.");
-      setAddress(`Near coordinates: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
-    } finally {
-      setIsLoading(false);
+      placeMarker([coords.longitude, coords.latitude], mapRef.current);
     }
-  };
 
-  const errorHandler = (error) => {
-    console.error("[Geolocation] Error:", error);
+  } catch (error) {
     toast.dismiss();
-    
-    let errorMessage = "Unable to retrieve your location.";
-    
-    switch(error.code) {
-      case error.PERMISSION_DENIED:
-        errorMessage = "Location access was denied. Please enable location permissions in your browser settings or enter address manually.";
-        break;
-      case error.POSITION_UNAVAILABLE:
-        errorMessage = "Location information is unavailable. Please check your network connection or enter address manually.";
-        break;
-      case error.TIMEOUT:
-        errorMessage = "The request to get your location timed out. Please try again or enter address manually.";
-        break;
-      default:
-        errorMessage = "An error occurred while getting your location. Please enter address manually.";
+    let errorMessage = "Location service failed";
+    let userMessage = "We couldn't access your location";
+
+    // Special handling for Vercel-specific issues
+    if (error.message === 'VERCEL_TIMEOUT') {
+      errorMessage = "Vercel cold start delay detected";
+      userMessage = "Location service is warming up. Please try again in a moment";
+    } 
+    // Standard geolocation errors
+    else if (error.code === 1) {
+      errorMessage = "PERMISSION_DENIED";
+      userMessage = "Please enable location permissions in your browser settings";
+    } else if (error.code === 2) {
+      errorMessage = "POSITION_UNAVAILABLE";
+      userMessage = "Location services unavailable (check GPS/WiFi)";
+    } else if (error.code === 3 || error.message === 'TIMEOUT') {
+      errorMessage = "TIMEOUT";
+      userMessage = "Location request timed out. Try again in better signal area";
+    } else if (error.message === 'GEOCODE_TIMEOUT') {
+      errorMessage = "Reverse geocode timeout";
+      // Don't show this as an error to user - we already have coords
     }
-    
-    toast.error(errorMessage);
+
+    console.error("Geolocation error:", errorMessage, error);
+
+    // Only show error toast if it's not a geocode timeout
+    if (error.message !== 'GEOCODE_TIMEOUT') {
+      toast.error(
+        <div>
+          <p>{userMessage}</p>
+          <button 
+            onClick={() => setShowMap(true)}
+            className="mt-2 px-3 py-1 text-sm bg-white text-red-600 rounded"
+          >
+            Select from map instead
+          </button>
+        </div>,
+        { duration: 5000 }
+      );
+    }
+
     setError(errorMessage);
+  } finally {
     setIsLoading(false);
-  };
-
-  // Add timeout fallback
-  const timeoutFallback = setTimeout(() => {
-    if (!coordinates) {
-      console.warn("[Geolocation] Timeout reached without getting location");
-      toast.dismiss();
-      toast.error("Location request is taking too long. Please try again or enter manually.");
-      setError("Location request timed out. Please try again or enter address manually.");
-      setIsLoading(false);
-    }
-  }, 16000); // Slightly longer than the geolocation timeout
-
-  // Clear timeout when done
-  const wrappedSuccess = (position) => {
-    clearTimeout(timeoutFallback);
-    successHandler(position);
-  };
-
-  const wrappedError = (error) => {
-    clearTimeout(timeoutFallback);
-    errorHandler(error);
-  };
-
-  console.log("[Geolocation] Calling navigator.geolocation.getCurrentPosition...");
-  navigator.geolocation.getCurrentPosition(wrappedSuccess, wrappedError, options);
+  }
 };
 
   const handleUseCurrentLocation = () => {
