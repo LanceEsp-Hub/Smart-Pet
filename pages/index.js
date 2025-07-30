@@ -28,7 +28,7 @@ const SUCCESS_STORIES_BUCKET = "success-stories"
 const getPetImageUrl = (imageName) => {
   if (!imageName) return "https://via.placeholder.com/400x300?text=Pet+Love"
   // Handle success story images format
-  return `${SUPABASE_URL}/storage/v1/object/public/${SUCCESS_STORIES_BUCKET}/${imageName}`
+  return `${SUPABASE_URL}/storage/v1/object/public/${SUCCESS_STORIES_BUCKET}//${imageName}`
 }
 
 export default function SmartPetHomepage() {
