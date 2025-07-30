@@ -235,7 +235,7 @@ export default function PetLocation() {
       setError("Error fetching address");
       setAddress(`Near coordinates: ${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`);
     }
-//   };
+  };
 
 // const getCurrentLocation = async () => {
 //   setIsLoading(true);
