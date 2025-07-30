@@ -282,164 +282,15 @@ export default function PetLocation() {
   //   }
   // };
 
-//  const getCurrentLocation = async () => {
-//   setIsLoading(true);
-//   setError("");
-//   setIsReadOnly(false);
-//   toast.dismiss();
-
-//   // Check if we're running in a browser environment (important for Vercel)
-//   if (typeof window === 'undefined' || !navigator.geolocation) {
-//     const msg = "Geolocation is not available in this environment";
-//     console.error(msg);
-//     toast.error(msg);
-//     setError(msg);
-//     setIsLoading(false);
-//     return;
-//   }
-
-//   // Check if we're on HTTPS (required for geolocation in most browsers)
-//   if (window.location.protocol !== 'https:') {
-//     const msg = "Geolocation requires HTTPS. You're currently on: " + window.location.protocol;
-//     console.error(msg);
-//     toast.error("Please use HTTPS for location services");
-//     setError(msg);
-//     setIsLoading(false);
-//     return;
-//   }
-
-//   // Show permission guidance specific to Vercel deployments
-//   toast.loading(
-//     <div>
-//       <p>Waiting for location access...</p>
-//       <small>Check for a browser permission prompt</small>
-//     </div>,
-//     { duration: 8000 }
-//   );
-
-//   const options = {
-//     enableHighAccuracy: true,
-//     timeout: 10000,
-//     maximumAge: 0
-//   };
-
-//   try {
-//     const position = await new Promise((resolve, reject) => {
-//       // Primary timeout
-//       const timeoutId = setTimeout(() => {
-//         reject(new Error('TIMEOUT'));
-//       }, options.timeout + 2000);
-
-//       // Secondary timeout for Vercel cold starts
-//       const vercelTimeoutId = setTimeout(() => {
-//         reject(new Error('VERCEL_TIMEOUT'));
-//       }, 5000);
-
-//       navigator.geolocation.getCurrentPosition(
-//         (pos) => {
-//           clearTimeout(timeoutId);
-//           clearTimeout(vercelTimeoutId);
-//           resolve(pos);
-//         },
-//         (err) => {
-//           clearTimeout(timeoutId);
-//           clearTimeout(vercelTimeoutId);
-//           reject(err);
-//         },
-//         options
-//       );
-//     });
-
-//     toast.dismiss();
-//     toast.success("Location obtained!");
-
-//     const coords = {
-//       latitude: position.coords.latitude,
-//       longitude: position.coords.longitude
-//     };
-
-//     setCoordinates(coords);
-
-//     // Try reverse geocoding (with Vercel-friendly timeout)
-//     try {
-//       await Promise.race([
-//         reverseGeocode([coords.longitude, coords.latitude]),
-//         new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 3000))
-//       ]);
-//     } catch (geocodeErr) {
-//       console.warn("Reverse geocode failed, using coordinates:", geocodeErr);
-//       setAddress(`Near: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
-//     }
-
-//     // Update map if visible
-//     if (showMap && mapRef.current) {
-//       mapRef.current.flyTo({
-//         center: [coords.longitude, coords.latitude],
-//         zoom: 14
-//       });
-//       placeMarker([coords.longitude, coords.latitude], mapRef.current);
-//     }
-
-//   } catch (error) {
-//     toast.dismiss();
-//     let errorMessage = "Location service failed";
-//     let userMessage = "We couldn't access your location";
-
-//     // Special handling for Vercel-specific issues
-//     if (error.message === 'VERCEL_TIMEOUT') {
-//       errorMessage = "Vercel cold start delay detected";
-//       userMessage = "Location service is warming up. Please try again in a moment";
-//     } 
-//     // Standard geolocation errors
-//     else if (error.code === 1) {
-//       errorMessage = "PERMISSION_DENIED";
-//       userMessage = "Please enable location permissions in your browser settings";
-//     } else if (error.code === 2) {
-//       errorMessage = "POSITION_UNAVAILABLE";
-//       userMessage = "Location services unavailable (check GPS/WiFi)";
-//     } else if (error.code === 3 || error.message === 'TIMEOUT') {
-//       errorMessage = "TIMEOUT";
-//       userMessage = "Location request timed out. Try again in better signal area";
-//     } else if (error.message === 'GEOCODE_TIMEOUT') {
-//       errorMessage = "Reverse geocode timeout";
-//       // Don't show this as an error to user - we already have coords
-//     }
-
-//     console.error("Geolocation error:", errorMessage, error);
-
-//     // Only show error toast if it's not a geocode timeout
-//     if (error.message !== 'GEOCODE_TIMEOUT') {
-//       toast.error(
-//         <div>
-//           <p>{userMessage}</p>
-//           <button 
-//             onClick={() => setShowMap(true)}
-//             className="mt-2 px-3 py-1 text-sm bg-white text-red-600 rounded"
-//           >
-//             Select from map instead
-//           </button>
-//         </div>,
-//         { duration: 5000 }
-//       );
-//     }
-
-//     setError(errorMessage);
-//   } finally {
-//     setIsLoading(false);
-//   }
-// };
-//working codeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-
-
-const getCurrentLocation = async () => {
+ const getCurrentLocation = async () => {
   setIsLoading(true);
   setError("");
   setIsReadOnly(false);
   toast.dismiss();
 
-  // Enhanced environment check
+  // Check if we're running in a browser environment (important for Vercel)
   if (typeof window === 'undefined' || !navigator.geolocation) {
-    const msg = "Geolocation is not supported in this browser";
+    const msg = "Geolocation is not available in this environment";
     console.error(msg);
     toast.error(msg);
     setError(msg);
@@ -447,84 +298,52 @@ const getCurrentLocation = async () => {
     return;
   }
 
-  // Check HTTPS with better messaging
+  // Check if we're on HTTPS (required for geolocation in most browsers)
   if (window.location.protocol !== 'https:') {
-    const msg = "Geolocation requires HTTPS for security";
+    const msg = "Geolocation requires HTTPS. You're currently on: " + window.location.protocol;
     console.error(msg);
-    toast.error(
-      <div>
-        <p>{msg}</p>
-        <p className="text-sm">Current protocol: {window.location.protocol}</p>
-      </div>
-    );
+    toast.error("Please use HTTPS for location services");
     setError(msg);
     setIsLoading(false);
     return;
   }
 
-  // Detect device type for tailored messaging
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  const deviceType = isMobile ? "phone" : "computer";
-
-  // Device-specific guidance
+  // Show permission guidance specific to Vercel deployments
   toast.loading(
     <div>
-      <p>Detecting your {deviceType}'s location...</p>
-      {!isMobile && (
-        <small className="block mt-1">
-          On computers, ensure WiFi is on for better accuracy
-        </small>
-      )}
+      <p>Waiting for location access...</p>
+      <small>Check for a browser permission prompt</small>
     </div>,
     { duration: 8000 }
   );
 
-  // Adjust accuracy based on device
   const options = {
-    enableHighAccuracy: isMobile, // High accuracy only on mobile
-    timeout: 15000, // Longer timeout for laptops
+    enableHighAccuracy: true,
+    timeout: 10000,
     maximumAge: 0
   };
 
   try {
     const position = await new Promise((resolve, reject) => {
-      let timeoutId;
-      let permissionCheckId;
-
-      // Main timeout
-      timeoutId = setTimeout(() => {
+      // Primary timeout
+      const timeoutId = setTimeout(() => {
         reject(new Error('TIMEOUT'));
       }, options.timeout + 2000);
 
-      // Special laptop permission check
-      if (!isMobile) {
-        permissionCheckId = setTimeout(() => {
-          if (!document.hidden) {
-            toast(
-              <div>
-                <p>Don't see a permission prompt?</p>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="mt-1 px-2 py-1 text-xs bg-white text-blue-600 rounded"
-                >
-                  Refresh page to trigger it
-                </button>
-              </div>,
-              { duration: 5000 }
-            );
-          }
-        }, 3000);
-      }
+      // Secondary timeout for Vercel cold starts
+      const vercelTimeoutId = setTimeout(() => {
+        reject(new Error('VERCEL_TIMEOUT'));
+      }, 5000);
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           clearTimeout(timeoutId);
-          clearTimeout(permissionCheckId);
+          clearTimeout(vercelTimeoutId);
           resolve(pos);
         },
         (err) => {
           clearTimeout(timeoutId);
-          clearTimeout(permissionCheckId);
+          clearTimeout(vercelTimeoutId);
           reject(err);
         },
         options
@@ -532,156 +351,75 @@ const getCurrentLocation = async () => {
     });
 
     toast.dismiss();
-    toast.success(
-      <div>
-        <p>Location found!</p>
-        <p className="text-sm">
-          Accuracy: {position.coords.accuracy.toFixed(0)} meters
-        </p>
-      </div>
-    );
+    toast.success("Location obtained!");
 
     const coords = {
       latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-      accuracy: position.coords.accuracy
+      longitude: position.coords.longitude
     };
 
     setCoordinates(coords);
 
-    // Try reverse geocoding with laptop-specific fallback
+    // Try reverse geocoding (with Vercel-friendly timeout)
     try {
       await Promise.race([
         reverseGeocode([coords.longitude, coords.latitude]),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 5000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 3000))
       ]);
     } catch (geocodeErr) {
-      console.warn("Reverse geocode failed:", geocodeErr);
-      setAddress(
-        isMobile 
-          ? `Near coordinates: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`
-          : `Approximate location (accuracy: ${coords.accuracy.toFixed(0)}m)`
-      );
+      console.warn("Reverse geocode failed, using coordinates:", geocodeErr);
+      setAddress(`Near: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
     }
 
     // Update map if visible
     if (showMap && mapRef.current) {
       mapRef.current.flyTo({
         center: [coords.longitude, coords.latitude],
-        zoom: coords.accuracy > 1000 ? 12 : 14 // Adjust zoom based on accuracy
+        zoom: 14
       });
       placeMarker([coords.longitude, coords.latitude], mapRef.current);
-      
-      // Add accuracy circle for laptops
-      if (!isMobile && coords.accuracy > 50) {
-        if (mapRef.current.getSource('accuracy-circle')) {
-          mapRef.current.removeLayer('accuracy-circle');
-          mapRef.current.removeSource('accuracy-circle');
-        }
-        
-        mapRef.current.addSource('accuracy-circle', {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [coords.longitude, coords.latitude]
-            },
-            properties: {
-              radius: coords.accuracy
-            }
-          }
-        });
-        
-        mapRef.current.addLayer({
-          id: 'accuracy-circle',
-          type: 'circle',
-          source: 'accuracy-circle',
-          paint: {
-            'circle-radius': {
-              stops: [
-                [0, 0],
-                [20, ['get', 'radius']]
-              ],
-              base: 2
-            },
-            'circle-color': '#4285F4',
-            'circle-opacity': 0.2,
-            'circle-stroke-color': '#4285F4',
-            'circle-stroke-width': 1
-          }
-        });
-      }
     }
 
   } catch (error) {
     toast.dismiss();
-    let errorMessage = "Location detection failed";
-    let userMessage = "We couldn't determine your location";
-    let showMapOption = true;
+    let errorMessage = "Location service failed";
+    let userMessage = "We couldn't access your location";
 
-    // Enhanced error handling for laptops
-    if (!isMobile) {
-      if (error.code === 2) { // POSITION_UNAVAILABLE
-        errorMessage = "Network location services unavailable";
-        userMessage = (
-          <div>
-            <p>Your computer couldn't determine location from network signals</p>
-            <ul className="list-disc pl-5 text-sm mt-1">
-              <li>Ensure you're connected to WiFi</li>
-              <li>Try in a different location</li>
-              <li>Check browser location settings</li>
-            </ul>
-          </div>
-        );
-      } else if (error.code === 1) { // PERMISSION_DENIED
-        errorMessage = "Location permission denied";
-        userMessage = (
-          <div>
-            <p>You denied location access</p>
-            <button 
-              onClick={() => {
-                // Guide user to browser settings
-                if (navigator.permissions) {
-                  navigator.permissions.query({name: 'geolocation'})
-                    .then(permissionStatus => {
-                      console.log("Permission status:", permissionStatus.state);
-                    });
-                }
-                window.location.reload(); // Refresh to retrigger prompt
-              }}
-              className="mt-2 px-3 py-1 text-sm bg-white text-blue-600 rounded"
-            >
-              Refresh and try again
-            </button>
-          </div>
-        );
-      }
-    }
-
-    // Standard error handling
-    if (error.code === 3 || error.message === 'TIMEOUT') {
-      errorMessage = "Location request timed out";
-      userMessage = "Taking too long to get location. Try moving to an area with better signal";
+    // Special handling for Vercel-specific issues
+    if (error.message === 'VERCEL_TIMEOUT') {
+      errorMessage = "Vercel cold start delay detected";
+      userMessage = "Location service is warming up. Please try again in a moment";
+    } 
+    // Standard geolocation errors
+    else if (error.code === 1) {
+      errorMessage = "PERMISSION_DENIED";
+      userMessage = "Please enable location permissions in your browser settings";
+    } else if (error.code === 2) {
+      errorMessage = "POSITION_UNAVAILABLE";
+      userMessage = "Location services unavailable (check GPS/WiFi)";
+    } else if (error.code === 3 || error.message === 'TIMEOUT') {
+      errorMessage = "TIMEOUT";
+      userMessage = "Location request timed out. Try again in better signal area";
     } else if (error.message === 'GEOCODE_TIMEOUT') {
       errorMessage = "Reverse geocode timeout";
-      showMapOption = false;
+      // Don't show this as an error to user - we already have coords
     }
 
     console.error("Geolocation error:", errorMessage, error);
 
-    if (showMapOption) {
+    // Only show error toast if it's not a geocode timeout
+    if (error.message !== 'GEOCODE_TIMEOUT') {
       toast.error(
         <div>
-          <div className="mb-2">{userMessage}</div>
+          <p>{userMessage}</p>
           <button 
             onClick={() => setShowMap(true)}
-            className="mt-1 px-3 py-1 text-sm bg-white text-red-600 rounded"
+            className="mt-2 px-3 py-1 text-sm bg-white text-red-600 rounded"
           >
             Select from map instead
           </button>
         </div>,
-        { duration: 8000 }
+        { duration: 5000 }
       );
     }
 
@@ -690,7 +428,9 @@ const getCurrentLocation = async () => {
     setIsLoading(false);
   }
 };
-  
+//working codeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+
 
   const handleUseCurrentLocation = () => {
     getCurrentLocation();
