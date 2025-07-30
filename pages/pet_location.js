@@ -452,8 +452,7 @@ export default function PetLocation() {
 // };
 
 
-
-  const getCurrentLocation = async () => {
+const getCurrentLocation = async () => {
   setIsLoading(true);
   setError("");
   setIsReadOnly(false);
@@ -468,18 +467,47 @@ export default function PetLocation() {
     return;
   }
 
-  // 2. Device Detection
+  // 2. Check if HTTPS (required by some browsers)
+  const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+  if (!isSecure) {
+    const msg = "Location services require a secure connection (HTTPS)";
+    toast.error(msg);
+    setError(msg);
+    setIsLoading(false);
+    return;
+  }
+
+  // 3. Device Detection
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const deviceType = isMobile ? "phone" : "computer";
 
-  // 3. Device-Specific Configuration
+  // 4. Enhanced Device-Specific Configuration
   const options = {
-    enableHighAccuracy: isMobile, // true for phones, false for laptops
-    timeout: isMobile ? 10000 : 20000, // Longer timeout for laptops
-    maximumAge: 0
+    enableHighAccuracy: false, // Set to false for laptops to use network location
+    timeout: isMobile ? 15000 : 30000, // Even longer timeout for laptops
+    maximumAge: isMobile ? 0 : 300000 // Allow 5-minute-old location for laptops
   };
 
-  // 4. User Feedback
+  // 5. Check permissions first (if supported)
+  if (navigator.permissions) {
+    try {
+      const permission = await navigator.permissions.query({name: 'geolocation'});
+      if (permission.state === 'denied') {
+        const msg = "Location permission is denied. Please enable it in browser settings.";
+        toast.error(msg);
+        setError("PERMISSION_DENIED");
+        setIsLoading(false);
+        return;
+      }
+    } catch (permError) {
+      console.warn("Permission check failed:", permError);
+    }
+  }
+
+  // 6. User Feedback with Network Check
+  const networkInfo = navigator.connection ? 
+    `Network: ${navigator.connection.effectiveType || 'unknown'}` : '';
+    
   toast.loading(
     <div>
       <p>Detecting your {deviceType}'s location...</p>
@@ -487,49 +515,86 @@ export default function PetLocation() {
         <div className="mt-2 text-sm bg-blue-50 p-2 rounded">
           <p className="font-medium">For computers:</p>
           <ul className="list-disc pl-5">
-            <li>Must be connected to WiFi</li>
-            <li>Works best in urban areas</li>
-            <li>May be less accurate than phones</li>
+            <li>Must be connected to WiFi network</li>
+            <li>Works best with multiple nearby WiFi networks</li>
+            <li>Corporate networks may block location services</li>
+            <li>Accuracy typically 100m-1km</li>
           </ul>
+          {networkInfo && <p className="mt-1 text-xs text-gray-600">{networkInfo}</p>}
         </div>
       )}
     </div>,
-    { duration: 10000 }
+    { duration: 15000 }
   );
 
   try {
-    // 5. Get Location with Enhanced Error Handling
-    const position = await new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        reject(new Error('TIMEOUT'));
-      }, options.timeout + 3000);
+    // 7. Multiple Attempts with Fallback Strategy
+    let position;
+    const maxAttempts = isMobile ? 1 : 2;
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        // Adjust options for second attempt on laptops
+        const currentOptions = attempt === 2 ? {
+          ...options,
+          enableHighAccuracy: false,
+          maximumAge: 600000 // 10 minutes for second attempt
+        } : options;
 
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          clearTimeout(timeoutId);
-          resolve(pos);
-        },
-        (err) => {
-          clearTimeout(timeoutId);
-          
-          // Special handling for laptops
-          if (!isMobile && err.code === 2) {
-            err.message = 'LAPTOP_LOCATION_UNAVAILABLE';
-          }
-          
-          reject(err);
-        },
-        options
-      );
-    });
+        position = await new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            reject(new Error('TIMEOUT'));
+          }, currentOptions.timeout + 5000);
 
-    // 6. Success Handling
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              clearTimeout(timeoutId);
+              resolve(pos);
+            },
+            (err) => {
+              clearTimeout(timeoutId);
+              
+              // Enhanced error classification
+              if (!isMobile) {
+                if (err.code === 2) {
+                  err.message = 'LAPTOP_LOCATION_UNAVAILABLE';
+                } else if (err.code === 3) {
+                  err.message = 'LAPTOP_TIMEOUT';
+                }
+              }
+              
+              reject(err);
+            },
+            currentOptions
+          );
+        });
+
+        // Success - break out of retry loop
+        break;
+        
+      } catch (attemptError) {
+        if (attempt === maxAttempts) {
+          throw attemptError; // Last attempt failed
+        }
+        console.warn(`Attempt ${attempt} failed, trying again...`, attemptError);
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+      }
+    }
+
+    // 8. Success Handling
     toast.dismiss();
+    
+    const accuracyText = position.coords.accuracy ? 
+      `~${Math.round(position.coords.accuracy)}m` : 'unknown';
+    
     toast.success(
       <div>
-        <p>Location found!</p>
-        {position.coords.accuracy && (
-          <small>Accuracy: ~{Math.round(position.coords.accuracy)} meters</small>
+        <p>Location found! ({deviceType})</p>
+        <small>Accuracy: {accuracyText}</small>
+        {!isMobile && position.coords.accuracy > 1000 && (
+          <div className="text-xs text-orange-600 mt-1">
+            Large accuracy radius is normal for computers
+          </div>
         )}
       </div>
     );
@@ -542,61 +607,80 @@ export default function PetLocation() {
 
     setCoordinates(coords);
 
-    // 7. Reverse Geocoding with Fallback
+    // 9. Reverse Geocoding with Extended Timeout
     try {
       await Promise.race([
         reverseGeocode([coords.longitude, coords.latitude]),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 5000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('GEOCODE_TIMEOUT')), 8000))
       ]);
     } catch (geocodeErr) {
       console.warn("Reverse geocode failed:", geocodeErr);
       setAddress(
         `Coordinates: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` +
-        (coords.accuracy ? ` (Accuracy: ~${Math.round(coords.accuracy)}m)` : "")
+        (coords.accuracy ? ` (±${Math.round(coords.accuracy)}m)` : "")
       );
     }
 
-    // 8. Update Map Display
+    // 10. Update Map Display with Device-Appropriate Zoom
     if (showMap && mapRef.current) {
+      const zoom = isMobile ? 
+        (coords.accuracy > 1000 ? 12 : 15) : // Phone zoom levels
+        (coords.accuracy > 2000 ? 10 : 12);  // Laptop zoom levels (wider view)
+        
       mapRef.current.flyTo({
         center: [coords.longitude, coords.latitude],
-        zoom: coords.accuracy > 1000 ? 12 : 14
+        zoom: zoom
       });
       placeMarker([coords.longitude, coords.latitude], mapRef.current);
     }
 
   } catch (error) {
-    // 9. Comprehensive Error Handling
+    // 11. Enhanced Error Handling
     toast.dismiss();
     let errorMessage = "Location service failed";
     let userMessage = "We couldn't access your location";
-    let showMapOption = true;
 
     if (error.message === 'LAPTOP_LOCATION_UNAVAILABLE') {
       errorMessage = "NETWORK_LOCATION_UNAVAILABLE";
       userMessage = (
         <div>
-          <p className="font-medium">Couldn't determine your computer's location</p>
+          <p className="font-medium">Computer location unavailable</p>
           <div className="mt-2 p-3 bg-red-50 rounded text-sm">
-            <p>This usually means:</p>
+            <p className="font-medium">Common causes:</p>
             <ul className="list-disc pl-5 mt-1">
-              <li>You're not connected to WiFi</li>
-              <li>Your network blocks location services</li>
-              <li>You're in a rural area with few WiFi networks</li>
+              <li>Not connected to WiFi (ethernet won't work)</li>
+              <li>Corporate/school network blocking location</li>
+              <li>Rural area with few WiFi networks nearby</li>
+              <li>VPN interfering with location detection</li>
             </ul>
-            <p className="mt-2">Try:</p>
+            <p className="mt-2 font-medium">Solutions:</p>
             <ol className="list-decimal pl-5">
-              <li>Connecting to a WiFi network</li>
-              <li>Moving to a different location</li>
-              <li>Using the map selection instead</li>
+              <li>Connect to a different WiFi network</li>
+              <li>Disable VPN temporarily</li>
+              <li>Move to an area with more WiFi networks</li>
+              <li>Use the map to select your location manually</li>
             </ol>
           </div>
         </div>
       );
     }
+    else if (error.message === 'LAPTOP_TIMEOUT') {
+      errorMessage = "LAPTOP_TIMEOUT";
+      userMessage = (
+        <div>
+          <p>Location request timed out on your computer</p>
+          <p className="text-sm mt-1">Laptop location detection can be slow. Try again or use the map.</p>
+        </div>
+      );
+    }
     else if (error.code === 1) {
       errorMessage = "PERMISSION_DENIED";
-      userMessage = "Please enable location permissions in your browser settings";
+      userMessage = (
+        <div>
+          <p>Location permission denied</p>
+          <p className="text-sm mt-1">Please allow location access in your browser settings</p>
+        </div>
+      );
     }
     else if (error.code === 3 || error.message === 'TIMEOUT') {
       errorMessage = "TIMEOUT";
@@ -610,20 +694,20 @@ export default function PetLocation() {
         <div className="mb-2">{userMessage}</div>
         <div className="flex gap-2">
           <button 
-            onClick={() => getCurrentLocation()} // Retry
-            className="px-3 py-1 text-sm bg-white text-blue-600 rounded border border-blue-200"
+            onClick={() => getCurrentLocation()}
+            className="px-3 py-1 text-sm bg-white text-blue-600 rounded border border-blue-200 hover:bg-blue-50"
           >
             Try Again
           </button>
           <button 
             onClick={() => setShowMap(true)}
-            className="px-3 py-1 text-sm bg-white text-red-600 rounded border border-red-200"
+            className="px-3 py-1 text-sm bg-white text-red-600 rounded border border-red-200 hover:bg-red-50"
           >
             Use Map Instead
           </button>
         </div>
       </div>,
-      { duration: 10000 }
+      { duration: 15000 }
     );
 
     setError(errorMessage);
@@ -631,8 +715,6 @@ export default function PetLocation() {
     setIsLoading(false);
   }
 };
-
-
 
   const handleUseCurrentLocation = () => {
     getCurrentLocation();
