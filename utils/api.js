@@ -1835,7 +1835,7 @@ export async function createPet(petData) {
 
 export async function addDevice(unique_code) {
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/pets/register-device', {
+    const response = await fetch('${API_URL}/api/pets/register-device', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1871,7 +1871,7 @@ export async function addDevice(unique_code) {
 
 export async function updateDeviceStatus(device_id, status) {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/api/pets/update-device-status/${device_id}`, {
+    const response = await fetch(`${API_URL}/api/pets/update-device-status/${device_id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -1901,7 +1901,7 @@ export async function getDevices(params = {}) {
     if (params.skip) queryParams.append('skip', params.skip);
     if (params.limit) queryParams.append('limit', params.limit);
 
-    const response = await fetch(`http://127.0.0.1:8000/api/pets/devices?${queryParams.toString()}`, {
+    const response = await fetch(`${API_URL}/api/pets/devices?${queryParams.toString()}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
@@ -1923,7 +1923,7 @@ export async function getDevices(params = {}) {
 
 export async function updateDeviceActiveStatus(device_id, is_active) {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/api/pets/update-device-active/${device_id}`, {
+    const response = await fetch(`${API_URL}/api/pets/update-device-active/${device_id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -1948,7 +1948,7 @@ export async function updateDeviceActiveStatus(device_id, is_active) {
 
 export async function getDeviceLocations(device_id) {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/api/pets/device-locations/${device_id}`, {
+    const response = await fetch(`${API_URL}/api/pets/device-locations/${device_id}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
