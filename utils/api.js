@@ -1835,7 +1835,7 @@ export async function createPet(petData) {
 
 export async function addDevice(unique_code) {
   try {
-    const response = await fetch('${API_URL}/api/pets/register-device', {
+    const response = await fetch(`${API_URL}/api/pets/register-device`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
