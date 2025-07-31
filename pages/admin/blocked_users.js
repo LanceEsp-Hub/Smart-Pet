@@ -1,15 +1,10 @@
-// // Blocked users page
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { unblockUser } from "../../utils/api"
+import { useState, useEffect } from "react"
+import { getBlockedUsers, unblockUser } from "../../utils/api"
 import AdminSidebar from "../../components/AdminSidebar"
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
 
 export default function BlockedUsers() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
   const [blockedUsers, setBlockedUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -20,44 +15,23 @@ export default function BlockedUsers() {
     total: 0,
   })
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login")
-    }
-  }, [status, router])
-
-  const fetchBlockedUsers = useCallback(async () => {
+  const fetchBlockedUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/blocked-users`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch blocked users")
-      }
-
-      const data = await response.json()
+      const data = await getBlockedUsers(pagination.page, pagination.limit, searchTerm)
       setBlockedUsers(data.data)
       setPagination((prev) => ({ ...prev, total: data.total }))
       setError(null)
-    } catch (error) {
-      console.error("Error fetching blocked users:", error)
-      setError(error.message)
+    } catch (err) {
+      setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [session?.accessToken])
+  }
 
   useEffect(() => {
-    if (status === "authenticated" && session?.accessToken) {
-      fetchBlockedUsers()
-    }
-  }, [status, session?.accessToken, fetchBlockedUsers])
+    fetchBlockedUsers()
+  }, [pagination.page, searchTerm])
 
   const handleUnblock = async (blockId) => {
     if (!confirm("Are you sure you want to unblock this user relationship?")) return
@@ -74,10 +48,6 @@ export default function BlockedUsers() {
     e.preventDefault()
     setPagination((prev) => ({ ...prev, page: 1 }))
     fetchBlockedUsers()
-  }
-
-  if (status !== "authenticated" || !session?.user?.isAdmin) {
-    return null // Or you can return a simple loading state if preferred
   }
 
   return (
