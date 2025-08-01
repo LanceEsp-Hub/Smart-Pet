@@ -33,6 +33,15 @@ import {
   generateFingerprint, // Comment this out for now
 } from "../../utils/api"
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://fkpimtcxncgwtdsfyrjb.supabase.co"
+const PET_IMAGES_BUCKET = "pet-images"
+
+function getPetImageUrl(imageName) {
+  if (!imageName) return "https://via.placeholder.com/100"
+  // Handle the format "1/main.jpg" -> "https://fkpimtcxncgwtdsfyrjb.supabase.co/storage/v1/object/public/pet-images/1/main.jpg"
+  return `${SUPABASE_URL}/storage/v1/object/public/${PET_IMAGES_BUCKET}/${imageName}`
+}
+
 export default function EditPetDetails() {
   const router = useRouter()
   const { id } = router.query
@@ -761,7 +770,7 @@ export default function EditPetDetails() {
                         ) : pet.image ? (
                           <>
                             <img
-                              src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/uploads/pet_images/${pet.image}?t=${Date.now()}`}
+                              src={getPetImageUrl(pet.image)}
                               alt="Current pet photo"
                               className="text-black object-cover w-full h-full"
                               onError={(e) => {
@@ -817,7 +826,7 @@ export default function EditPetDetails() {
                         const isExisting = pet.additional_images?.includes(filename) && !imagesToDelete.includes(type)
                         const imageUrl = isNewImage
                           ? newAdditionalImages[type].previewUrl
-                          : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/uploads/pet_images/${pet.id}/${filename}?t=${Date.now()}`
+                          : getPetImageUrl(`${pet.id}/${filename}`)
 
                         return isNewImage || isExisting ? (
                           <div
@@ -1282,6 +1291,16 @@ export default function EditPetDetails() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
