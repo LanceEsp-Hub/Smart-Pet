@@ -1562,11 +1562,10 @@ export default function PetProfile() {
 }
 
 function getPetImageUrl(imageName) {
-  if (!imageName) return "https://via.placeholder.com/400"
-  return `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/uploads/pet_images/${imageName}?t=${Date.now()}`
+  if (!imageName) return "https://via.placeholder.com/100"
+  // Handle the format "1/main.jpg" -> "https://fkpimtcxncgwtdsfyrjb.supabase.co/storage/v1/object/public/pet-images/1/main.jpg"
+  return `${SUPABASE_URL}/storage/v1/object/public/${PET_IMAGES_BUCKET}/${imageName}`
 }
-
-
 
 
 
