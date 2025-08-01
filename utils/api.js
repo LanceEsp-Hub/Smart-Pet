@@ -2038,12 +2038,37 @@ export async function updatePairDeviceWithPet(unique_code, pet_id, user_id) {
   }
 }
 
+// export async function getPetDeviceInfo(pet_id) {
+//   try {
+//     const response = await fetch(`${API_URL}/api/pets/${pet_id}/device-info`, {
+//       method: "GET",
+//       headers: {
+//         Accept: "application/json",
+//       },
+//     })
+
+//     if (!response.ok) {
+//       const errorData = await response.json()
+//       throw new Error(errorData.detail?.message || "Failed to fetch device info")
+//     }
+
+//     const data = await response.json()
+//     return data.data || null
+//   } catch (error) {
+//     console.error("Fetch device info error:", error)
+//     throw error
+//   }
+// }
+
 export async function getPetDeviceInfo(pet_id) {
   try {
+    const token = localStorage.getItem('token')
+    
     const response = await fetch(`${API_URL}/api/pets/${pet_id}/device-info`, {
       method: "GET",
       headers: {
         Accept: "application/json",
+        Authorization: `Bearer ${token}`,
       },
     })
 
