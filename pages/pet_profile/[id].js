@@ -734,6 +734,10 @@ export default function PetProfile() {
     }
   }, [id, router])
 
+  // Add these constants after the imports
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://fkpimtcxncgwtdsfyrjb.supabase.co"
+const PET_IMAGES_BUCKET = "pet-images"
+
   const getDateLabel = () => {
     if (!pet) return ""
 
