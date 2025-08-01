@@ -685,7 +685,68 @@ export default function PetProfile() {
               )}
 
               {/* Device Info Display */}
-              {deviceInfo && (
+              // {deviceInfo && (
+              //   <div className="mb-6">
+              //     <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+              //       <MapPin size={18} className="mr-2 text-emerald-500" />
+              //       Paired Device
+              //     </h2>
+              //     <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
+              //       <div className="flex items-center justify-between">
+              //         <div>
+              //           <p className="font-medium text-emerald-800">Device: {deviceInfo.unique_code}</p>
+              //           <p className="text-sm text-emerald-600">
+              //             Status: {deviceInfo.is_active ? "Active" : "Inactive"} •
+              //             {deviceInfo.is_online ? " Online" : " Offline"}
+              //           </p>
+              //           {deviceInfo.paired_at && (
+              //             <p className="text-xs text-emerald-500 mt-1">
+              //               Paired: {new Date(deviceInfo.paired_at).toLocaleDateString()}
+              //             </p>
+              //           )}
+              //         </div>
+              //         <div className="flex space-x-2">
+              //           <button
+              //             onClick={handleUpdatePairing}
+              //             className="px-3 py-1 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition-colors"
+              //           >
+              //             Update
+              //           </button>
+
+              //           {/* Device Activation Controls for Safe at Home pets */}
+              //           {pet.status === "Safe at Home" && (
+              //             <div className="flex space-x-1">
+              //               <button
+              //                 onClick={() => handleToggleDeviceActivation(true)}
+              //                 disabled={deviceActivationLoading || deviceInfo.is_active}
+              //                 className={`px-2 py-1 text-xs rounded transition-colors ${
+              //                   deviceInfo.is_active
+              //                     ? "bg-green-100 text-green-800 cursor-not-allowed"
+              //                     : "bg-green-600 text-white hover:bg-green-700"
+              //                 } disabled:opacity-50`}
+              //               >
+              //                 {deviceActivationLoading && !deviceInfo.is_active ? "..." : "ON"}
+              //               </button>
+              //               <button
+              //                 onClick={() => handleToggleDeviceActivation(false)}
+              //                 disabled={deviceActivationLoading || !deviceInfo.is_active}
+              //                 className={`px-2 py-1 text-xs rounded transition-colors ${
+              //                   !deviceInfo.is_active
+              //                     ? "bg-red-100 text-red-800 cursor-not-allowed"
+              //                     : "bg-red-600 text-white hover:bg-red-700"
+              //                 } disabled:opacity-50`}
+              //               >
+              //                 {deviceActivationLoading && deviceInfo.is_active ? "..." : "OFF"}
+              //               </button>
+              //             </div>
+              //           )}
+              //         </div>
+              //       </div>
+              //     </div>
+              //   </div>
+              // )}
+
+              {deviceInfo ? (
                 <div className="mb-6">
                   <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
                     <MapPin size={18} className="mr-2 text-emerald-500" />
@@ -741,6 +802,26 @@ export default function PetProfile() {
                           </div>
                         )}
                       </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                    <MapPin size={18} className="mr-2 text-emerald-500" />
+                    Paired Device
+                  </h2>
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-600">No device paired with this pet</p>
+                      </div>
+                      <button
+                        onClick={() => setShowPairModal(true)}
+                        className="px-4 py-2 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition-colors"
+                      >
+                        Pair Device
+                      </button>
                     </div>
                   </div>
                 </div>
