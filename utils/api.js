@@ -1869,13 +1869,40 @@ export async function addDevice(unique_code) {
   }
 }
 
+// export async function updateDeviceStatus(device_id, status) {
+//   try {
+//     const response = await fetch(`${API_URL}/api/pets/update-device-status/${device_id}`, {
+//       method: 'PATCH',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Accept': 'application/json'
+//       },
+//       body: JSON.stringify({
+//         status: status
+//       }),
+//     });
+
+//     if (!response.ok) {
+//       const errorData = await response.json();
+//       throw new Error(errorData.detail?.message || 'Status update failed');
+//     }
+
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Device status update error:', error);
+//     throw error;
+//   }
+// }
 export async function updateDeviceStatus(device_id, status) {
   try {
+    const token = localStorage.getItem('token')
+    
     const response = await fetch(`${API_URL}/api/pets/update-device-status/${device_id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         status: status
