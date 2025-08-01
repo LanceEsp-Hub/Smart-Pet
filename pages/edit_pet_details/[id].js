@@ -121,6 +121,27 @@ export default function EditPetDetails() {
   //           reasonForAdoption: petData.health_info?.reason_for_adoption || "",
   //         },
   //       })
+ 
+
+  //       // Check if additional photos exist
+  //       const hasAdditionalPhotos = petData.additional_images && petData.additional_images.length > 0
+  //       if (!hasAdditionalPhotos) {
+  //         setShowAdditionalPhotosModal(true)
+  //       }
+
+  //       setLoading(false)
+  //     } catch (error) {
+  //       console.error("Failed to load pet:", error)
+  //       toast.error("Failed to load pet details")
+  //       router.push("/dashboard")
+  //     }
+  //   }
+
+  //   if (router.isReady) {
+  //     loadPet()
+  //   }
+  // }, [id, router, router.isReady])
+    // Load pet data
   useEffect(() => {
     const loadPet = async () => {
       if (!id) return
@@ -129,6 +150,13 @@ export default function EditPetDetails() {
         const petData = await fetchPetDetails(id)
         setPet(petData)
         console.log("Pet health info from backend:", petData.health_info); // Debug log
+        console.log("Raw good_with values:", {
+          children: petData.health_info?.good_with_children,
+          dogs: petData.health_info?.good_with_dogs,
+          cats: petData.health_info?.good_with_cats,
+          elderly: petData.health_info?.good_with_elderly,
+          strangers: petData.health_info?.good_with_strangers,
+        }); // Debug log
         
         setFormData({
           name: petData.name,
@@ -143,11 +171,11 @@ export default function EditPetDetails() {
             spayedNeutered: petData.health_info?.spayed_neutered || "",
             healthDetails: petData.health_info?.health_details || "",
             goodWith: {
-              children: Boolean(petData.health_info?.good_with_children) || false,
-              dogs: Boolean(petData.health_info?.good_with_dogs) || false,
-              cats: Boolean(petData.health_info?.good_with_cats) || false,
-              elderly: Boolean(petData.health_info?.good_with_elderly) || false,
-              strangers: Boolean(petData.health_info?.good_with_strangers) || false,
+              children: petData.health_info?.good_with_children === true || petData.health_info?.good_with_children === "true" || false,
+              dogs: petData.health_info?.good_with_dogs === true || petData.health_info?.good_with_dogs === "true" || false,
+              cats: petData.health_info?.good_with_cats === true || petData.health_info?.good_with_cats === "true" || false,
+              elderly: petData.health_info?.good_with_elderly === true || petData.health_info?.good_with_elderly === "true" || false,
+              strangers: petData.health_info?.good_with_strangers === true || petData.health_info?.good_with_strangers === "true" || false,
             },
             energyLevel: petData.health_info?.energy_level || "",
             temperamentPersonality: petData.health_info?.temperament_personality || "",
@@ -156,11 +184,11 @@ export default function EditPetDetails() {
         })
         
         console.log("Form data goodWith:", {
-          children: Boolean(petData.health_info?.good_with_children) || false,
-          dogs: Boolean(petData.health_info?.good_with_dogs) || false,
-          cats: Boolean(petData.health_info?.good_with_cats) || false,
-          elderly: Boolean(petData.health_info?.good_with_elderly) || false,
-          strangers: Boolean(petData.health_info?.good_with_strangers) || false,
+          children: petData.health_info?.good_with_children === true || petData.health_info?.good_with_children === "true" || false,
+          dogs: petData.health_info?.good_with_dogs === true || petData.health_info?.good_with_dogs === "true" || false,
+          cats: petData.health_info?.good_with_cats === true || petData.health_info?.good_with_cats === "true" || false,
+          elderly: petData.health_info?.good_with_elderly === true || petData.health_info?.good_with_elderly === "true" || false,
+          strangers: petData.health_info?.good_with_strangers === true || petData.health_info?.good_with_strangers === "true" || false,
         }); // Debug log
 
         // Check if additional photos exist
