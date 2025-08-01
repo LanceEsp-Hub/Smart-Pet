@@ -89,7 +89,38 @@ export default function EditPetDetails() {
 
   const statusOptions = ["Safe at Home", "Lost", "Pet I Found", "Reunited"]
 
-  // Load pet data
+  // // Load pet data
+  // useEffect(() => {
+  //   const loadPet = async () => {
+  //     if (!id) return
+
+  //     try {
+  //       const petData = await fetchPetDetails(id)
+  //       setPet(petData)
+  //       setFormData({
+  //         name: petData.name,
+  //         type: petData.type,
+  //         gender: petData.gender,
+  //         description: petData.description || "",
+  //         address: petData.address || "",
+  //         date: petData.date ? new Date(petData.date).toISOString().slice(0, 16) : "",
+  //         status: petData.status || "Safe at Home",
+  //         healthInfo: {
+  //           vaccinated: petData.health_info?.vaccinated || "",
+  //           spayedNeutered: petData.health_info?.spayed_neutered || "",
+  //           healthDetails: petData.health_info?.health_details || "",
+  //           goodWith: {
+  //             children: petData.health_info?.good_with_children || false,
+  //             dogs: petData.health_info?.good_with_dogs || false,
+  //             cats: petData.health_info?.good_with_cats || false,
+  //             elderly: petData.health_info?.good_with_elderly || false,
+  //             strangers: petData.health_info?.good_with_strangers || false,
+  //           },
+  //           energyLevel: petData.health_info?.energy_level || "",
+  //           temperamentPersonality: petData.health_info?.temperament_personality || "",
+  //           reasonForAdoption: petData.health_info?.reason_for_adoption || "",
+  //         },
+  //       })
   useEffect(() => {
     const loadPet = async () => {
       if (!id) return
@@ -97,6 +128,8 @@ export default function EditPetDetails() {
       try {
         const petData = await fetchPetDetails(id)
         setPet(petData)
+        console.log("Pet health info from backend:", petData.health_info); // Debug log
+        
         setFormData({
           name: petData.name,
           type: petData.type,
@@ -110,17 +143,25 @@ export default function EditPetDetails() {
             spayedNeutered: petData.health_info?.spayed_neutered || "",
             healthDetails: petData.health_info?.health_details || "",
             goodWith: {
-              children: petData.health_info?.good_with_children || false,
-              dogs: petData.health_info?.good_with_dogs || false,
-              cats: petData.health_info?.good_with_cats || false,
-              elderly: petData.health_info?.good_with_elderly || false,
-              strangers: petData.health_info?.good_with_strangers || false,
+              children: Boolean(petData.health_info?.good_with_children) || false,
+              dogs: Boolean(petData.health_info?.good_with_dogs) || false,
+              cats: Boolean(petData.health_info?.good_with_cats) || false,
+              elderly: Boolean(petData.health_info?.good_with_elderly) || false,
+              strangers: Boolean(petData.health_info?.good_with_strangers) || false,
             },
             energyLevel: petData.health_info?.energy_level || "",
             temperamentPersonality: petData.health_info?.temperament_personality || "",
             reasonForAdoption: petData.health_info?.reason_for_adoption || "",
           },
         })
+        
+        console.log("Form data goodWith:", {
+          children: Boolean(petData.health_info?.good_with_children) || false,
+          dogs: Boolean(petData.health_info?.good_with_dogs) || false,
+          cats: Boolean(petData.health_info?.good_with_cats) || false,
+          elderly: Boolean(petData.health_info?.good_with_elderly) || false,
+          strangers: Boolean(petData.health_info?.good_with_strangers) || false,
+        }); // Debug log
 
         // Check if additional photos exist
         const hasAdditionalPhotos = petData.additional_images && petData.additional_images.length > 0
