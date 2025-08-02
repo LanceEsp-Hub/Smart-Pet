@@ -143,6 +143,7 @@ export default function EditPetDetails() {
   // }, [id, router, router.isReady])
     // Load pet data
   // Load pet data
+  // Load pet data
   useEffect(() => {
     const loadPet = async () => {
       if (!id) return
@@ -150,14 +151,6 @@ export default function EditPetDetails() {
       try {
         const petData = await fetchPetDetails(id)
         setPet(petData)
-        console.log("Pet health info from backend:", petData.health_info); // Debug log
-        console.log("Raw good_with values:", {
-          children: petData.health_info?.good_with?.children,
-          dogs: petData.health_info?.good_with?.dogs,
-          cats: petData.health_info?.good_with?.cats,
-          elderly: petData.health_info?.good_with?.elderly,
-          strangers: petData.health_info?.good_with?.strangers,
-        }); // Debug log
         
         setFormData({
           name: petData.name,
@@ -183,14 +176,6 @@ export default function EditPetDetails() {
             reasonForAdoption: petData.health_info?.reason_for_adoption || "",
           },
         })
-        
-        console.log("Form data goodWith:", {
-          children: petData.health_info?.good_with?.children === true || petData.health_info?.good_with?.children === "true" || false,
-          dogs: petData.health_info?.good_with?.dogs === true || petData.health_info?.good_with?.dogs === "true" || false,
-          cats: petData.health_info?.good_with?.cats === true || petData.health_info?.good_with?.cats === "true" || false,
-          elderly: petData.health_info?.good_with?.elderly === true || petData.health_info?.good_with?.elderly === "true" || false,
-          strangers: petData.health_info?.good_with?.strangers === true || petData.health_info?.good_with?.strangers === "true" || false,
-        }); // Debug log
 
         // Check if additional photos exist
         const hasAdditionalPhotos = petData.additional_images && petData.additional_images.length > 0
