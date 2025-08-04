@@ -35,21 +35,50 @@ export default function RehomePets() {
     }
   }, [])
 
-  useEffect(() => {
-    const fetchRehomePetsData = async () => {
-      try {
-        setLoading(true)
-        const data = await fetchRehomePets(filters)
-        setPets(data)
-      } catch (error) {
-        toast.error(error.message)
-      } finally {
-        setLoading(false)
-      }
-    }
+  // useEffect(() => {
+  //   const fetchRehomePetsData = async () => {
+  //     try {
+  //       setLoading(true)
+  //       const data = await fetchRehomePets(filters)
+  //       setPets(data)
+  //     } catch (error) {
+  //       toast.error(error.message)
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   }
 
-    fetchRehomePetsData()
-  }, [filters])
+  //   fetchRehomePetsData()
+  // }, [filters])
+
+  useEffect(() => {
+  const fetchRehomePetsData = async () => {
+    try {
+      setLoading(true);
+      console.log("Fetching with filters:", filters);
+      const data = await fetchRehomePets(filters);
+      console.log("Received data:", data);
+      
+      // Verify data structure
+      if (data && data.length > 0) {
+        console.log("First pet structure:", {
+          id: data[0].id,
+          image: data[0].image,
+          health_info: data[0].health_info
+        });
+      }
+      
+      setPets(data || []); // Ensure we always set an array
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchRehomePetsData();
+}, [filters]);
 
   const handlePetClick = async (pet) => {
     setSelectedPet(pet)
@@ -236,141 +265,254 @@ const getImageUrl = (pet, filename = "main.jpg") => {
             </div>
           </div>
         </div>
-{!loading && (
-  <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-    <pre>{JSON.stringify(pets, null, 2)}</pre>
+
+        {/* Pets Grid */}
+        // {loading ? (
+        //   <div className="flex justify-center items-center h-64">
+        //     <div className="relative">
+        //       <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200"></div>
+        //       <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-600 border-t-transparent absolute top-0"></div>
+        //     </div>
+        //   </div>
+        // ) : pets.length > 0 ? (
+        //   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        //     {pets.map((pet) => (
+        //       <div
+        //         key={pet.id}
+        //         className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border border-gray-100"
+        //         onClick={() => handlePetClick(pet)}
+        //       >
+        //         <div className="relative h-56 bg-gradient-to-br from-purple-100 to-pink-100 overflow-hidden">
+        //           {pet.image ? (
+        //             <img
+        //               src={getImageUrl(pet) || "/placeholder.svg"}
+        //               alt={pet.name}
+        //               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+        //               onError={(e) => {
+        //                 e.target.onerror = null
+        //                 e.target.src = "/default-pet.jpg"
+        //               }}
+        //             />
+        //           ) : (
+        //             <div className="flex items-center justify-center h-full">
+        //               <img src="/default-pet.jpg" alt="Default pet" className="w-full h-full object-cover" />
+        //             </div>
+        //           )}
+
+        //           <div className="absolute top-3 right-3">
+        //             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/90 text-purple-700 backdrop-blur-sm capitalize shadow-lg">
+        //               {pet.type}
+        //             </span>
+        //           </div>
+
+        //           {pet.additional_images?.length > 0 && (
+        //             <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
+        //               +{pet.additional_images.length} photos
+        //             </div>
+        //           )}
+
+        //           <div className="absolute top-3 left-3">
+        //             <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors">
+        //               <Heart className="h-4 w-4 text-gray-600 hover:text-red-500 transition-colors" />
+        //             </button>
+        //           </div>
+        //         </div>
+
+        //         <div className="p-6">
+        //           <div className="flex justify-between items-start mb-3">
+        //             <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+        //               {pet.name}
+        //             </h3>
+        //           </div>
+
+        //           <div className="flex items-center text-sm text-gray-500 mb-4">
+        //             <span className="capitalize font-medium">{pet.gender}</span>
+        //             <span className="mx-2">•</span>
+        //             <MapPin className="h-4 w-4 mr-1" />
+        //             <span>{pet.location}</span>
+        //           </div>
+
+        //           <div className="flex flex-wrap gap-2 mb-4">
+        //             {pet.health_info?.vaccinated === "Yes" && (
+        //               <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+        //                 ✓ Vaccinated
+        //               </span>
+        //             )}
+        //             {pet.health_info?.spayed_neutered === "Yes" && (
+        //               <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+        //                 ✓ Fixed
+        //               </span>
+        //             )}
+        //             {pet.health_info?.energy_level && (
+        //               <span className="inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-lg border border-blue-200">
+        //                 {pet.health_info.energy_level} energy
+        //               </span>
+        //             )}
+        //           </div>
+
+        //           <div className="flex flex-wrap gap-1">
+        //             {pet.health_info?.good_with?.children && (
+        //               <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+        //                 ✓ Kids
+        //               </span>
+        //             )}
+        //             {pet.health_info?.good_with?.dogs && (
+        //               <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+        //                 ✓ Dogs
+        //               </span>
+        //             )}
+        //             {pet.health_info?.good_with?.cats && (
+        //               <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+        //                 ✓ Cats
+        //               </span>
+        //             )}
+        //           </div>
+        //         </div>
+        //       </div>
+        //     ))}
+        //   </div>
+        // ) : (
+        //   <div className="text-center py-16">
+        //     <div className="max-w-md mx-auto">
+        //       <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        //         <Search className="h-12 w-12 text-purple-400" />
+        //       </div>
+        //       <h3 className="text-2xl font-bold text-gray-900 mb-2">No pets found</h3>
+        //       <p className="text-gray-500 mb-6">Try adjusting your search or filter criteria to find more pets</p>
+        //       <button
+        //         onClick={() =>
+        //           handleFilterChange({
+        //             type: "",
+        //             gender: "",
+        //             location: "",
+        //             good_with: "",
+        //             energy_level: "",
+        //           })
+        //         }
+        //         className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all font-medium"
+        //       >
+        //         Reset All Filters
+        //       </button>
+        //     </div>
+        //   </div>
+        // )}
+{!loading && pets.length > 0 ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    {pets.map((pet) => {
+      // Debug individual pet
+      console.log(`Rendering pet ${pet.id}`, {
+        name: pet.name,
+        image: pet.image,
+        health: pet.health_info
+      });
+
+      return (
+        <div
+          key={pet.id}
+          className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border border-gray-100"
+          onClick={() => handlePetClick(pet)}
+        >
+          {/* Image Section */}
+          <div className="relative h-56 bg-gradient-to-br from-purple-100 to-pink-100 overflow-hidden">
+            <img
+              src={getImageUrl(pet)}
+              alt={pet.name}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/default-pet.jpg";
+                console.warn(`Failed to load image for pet ${pet.id}`);
+              }}
+            />
+
+            {/* Type Badge */}
+            <div className="absolute top-3 right-3">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/90 text-purple-700 backdrop-blur-sm capitalize shadow-lg">
+                {pet.type}
+              </span>
+            </div>
+
+            {/* Additional Images Badge */}
+            {pet.additional_images?.length > 0 && (
+              <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
+                +{pet.additional_images.length} photos
+              </div>
+            )}
+          </div>
+
+          {/* Info Section */}
+          <div className="p-6">
+            <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-3">
+              {pet.name}
+            </h3>
+
+            <div className="flex items-center text-sm text-gray-500 mb-4">
+              <span className="capitalize font-medium">{pet.gender}</span>
+              <span className="mx-2">•</span>
+              <MapPin className="h-4 w-4 mr-1" />
+              <span>{pet.location}</span>
+            </div>
+
+            {/* Health Info Section */}
+            {pet.health_info && (
+              <>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {pet.health_info.vaccinated === "Yes" && (
+                    <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+                      ✓ Vaccinated
+                    </span>
+                  )}
+                  {pet.health_info.spayed_neutered === "Yes" && (
+                    <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+                      ✓ Fixed
+                    </span>
+                  )}
+                  {pet.health_info.energy_level && (
+                    <span className="inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-lg border border-blue-200">
+                      {pet.health_info.energy_level} energy
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-1">
+                  {pet.health_info.good_with?.children && (
+                    <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+                      ✓ Kids
+                    </span>
+                  )}
+                  {pet.health_info.good_with?.dogs && (
+                    <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+                      ✓ Dogs
+                    </span>
+                  )}
+                  {pet.health_info.good_with?.cats && (
+                    <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
+                      ✓ Cats
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+) : !loading && pets.length === 0 ? (
+  <div className="text-center py-16">
+    <div className="max-w-md mx-auto">
+      <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <Search className="h-12 w-12 text-purple-400" />
+      </div>
+      <h3 className="text-2xl font-bold text-gray-900 mb-2">No pets found</h3>
+      <p className="text-gray-500 mb-6">Try adjusting your search criteria</p>
+    </div>
+  </div>
+) : (
+  <div className="flex justify-center items-center h-64">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
   </div>
 )}
-        {/* Pets Grid */}
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200"></div>
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-600 border-t-transparent absolute top-0"></div>
-            </div>
-          </div>
-        ) : pets.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {pets.map((pet) => (
-              <div
-                key={pet.id}
-                className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border border-gray-100"
-                onClick={() => handlePetClick(pet)}
-              >
-                <div className="relative h-56 bg-gradient-to-br from-purple-100 to-pink-100 overflow-hidden">
-                  {pet.image ? (
-                    <img
-                      src={getImageUrl(pet) || "/placeholder.svg"}
-                      alt={pet.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      onError={(e) => {
-                        e.target.onerror = null
-                        e.target.src = "/default-pet.jpg"
-                      }}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <img src="/default-pet.jpg" alt="Default pet" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-
-                  <div className="absolute top-3 right-3">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/90 text-purple-700 backdrop-blur-sm capitalize shadow-lg">
-                      {pet.type}
-                    </span>
-                  </div>
-
-                  {pet.additional_images?.length > 0 && (
-                    <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
-                      +{pet.additional_images.length} photos
-                    </div>
-                  )}
-
-                  <div className="absolute top-3 left-3">
-                    <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors">
-                      <Heart className="h-4 w-4 text-gray-600 hover:text-red-500 transition-colors" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
-                      {pet.name}
-                    </h3>
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-500 mb-4">
-                    <span className="capitalize font-medium">{pet.gender}</span>
-                    <span className="mx-2">•</span>
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span>{pet.location}</span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {pet.health_info?.vaccinated === "Yes" && (
-                      <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
-                        ✓ Vaccinated
-                      </span>
-                    )}
-                    {pet.health_info?.spayed_neutered === "Yes" && (
-                      <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
-                        ✓ Fixed
-                      </span>
-                    )}
-                    {pet.health_info?.energy_level && (
-                      <span className="inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-lg border border-blue-200">
-                        {pet.health_info.energy_level} energy
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap gap-1">
-                    {pet.health_info?.good_with?.children && (
-                      <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
-                        ✓ Kids
-                      </span>
-                    )}
-                    {pet.health_info?.good_with?.dogs && (
-                      <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
-                        ✓ Dogs
-                      </span>
-                    )}
-                    {pet.health_info?.good_with?.cats && (
-                      <span className="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-200">
-                        ✓ Cats
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="h-12 w-12 text-purple-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">No pets found</h3>
-              <p className="text-gray-500 mb-6">Try adjusting your search or filter criteria to find more pets</p>
-              <button
-                onClick={() =>
-                  handleFilterChange({
-                    type: "",
-                    gender: "",
-                    location: "",
-                    good_with: "",
-                    energy_level: "",
-                  })
-                }
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all font-medium"
-              >
-                Reset All Filters
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Enhanced Modal with Tabs */}
         {showModal && selectedPet && (
