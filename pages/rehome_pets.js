@@ -236,7 +236,11 @@ const getImageUrl = (pet, filename = "main.jpg") => {
             </div>
           </div>
         </div>
-
+{!loading && (
+  <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+    <pre>{JSON.stringify(pets, null, 2)}</pre>
+  </div>
+)}
         {/* Pets Grid */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
