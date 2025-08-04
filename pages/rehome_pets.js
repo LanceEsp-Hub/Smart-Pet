@@ -608,9 +608,16 @@ export default function RehomePets() {
     setFilters((prev) => ({ ...prev, ...newFilters }))
   }
 
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://fkpimtcxncgwtdsfyrjb.supabase.co"
+  const PET_IMAGES_BUCKET = "pet-images"
+
   const getImageUrl = (pet, filename = "main.jpg") => {
-    return `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/uploads/pet_images/${pet.id}/${filename}?t=${Date.now()}`
+    if (!pet || !pet.id) return "https://via.placeholder.com/100"
+    // Handle the format "1/main.jpg" -> "https://fkpimtcxncgwtdsfyrjb.supabase.co/storage/v1/object/public/pet-images/1/main.jpg"
+    const imagePath = `${pet.id}/${filename}`
+    return `${SUPABASE_URL}/storage/v1/object/public/${PET_IMAGES_BUCKET}/${imagePath}`
   }
+
 
   const tabs = [
     { id: "overview", label: "Overview", icon: Star },
