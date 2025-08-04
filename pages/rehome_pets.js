@@ -97,12 +97,14 @@ export default function RehomePets() {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://fkpimtcxncgwtdsfyrjb.supabase.co"
   const PET_IMAGES_BUCKET = "pet-images"
 
-  const getImageUrl = (pet, filename = "main.jpg") => {
-    if (!pet || !pet.id) return "https://via.placeholder.com/100"
-    // Handle the format "1/main.jpg" -> "https://fkpimtcxncgwtdsfyrjb.supabase.co/storage/v1/object/public/pet-images/1/main.jpg"
-    const imagePath = `${pet.id}/${filename}`
-    return `${SUPABASE_URL}/storage/v1/object/public/${PET_IMAGES_BUCKET}/${imagePath}`
-  }
+const getImageUrl = (pet, filename = "main.jpg") => {
+  if (!pet || !pet.id) return "/default-pet.jpg";
+  
+  // Handle cases where pet.image might be "1/main.jpg" or just the filename
+  const imagePath = pet.image ? pet.image : `${pet.id}/${filename}`;
+  
+  return `${SUPABASE_URL}/storage/v1/object/public/${PET_IMAGES_BUCKET}/${imagePath}`;
+}
 
   const tabs = [
     { id: "overview", label: "Overview", icon: Star },
