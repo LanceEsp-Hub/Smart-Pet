@@ -549,13 +549,32 @@ export default function RehomePets() {
     }
   }, [])
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   const fetchRehomePetsData = async () => {
+  //     try {
+  //       setLoading(true)
+  //       const data = await fetchRehomePets(filters)
+  //       setPets(data)
+  //     } catch (error) {
+  //       toast.error(error.message)
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   }
+
+  //   fetchRehomePetsData()
+  // }, [filters])
+
+    useEffect(() => {
     const fetchRehomePetsData = async () => {
       try {
         setLoading(true)
+        console.log("Fetching rehome pets with filters:", filters)
         const data = await fetchRehomePets(filters)
+        console.log("Received pets data:", data)
         setPets(data)
       } catch (error) {
+        console.error("Error fetching rehome pets:", error)
         toast.error(error.message)
       } finally {
         setLoading(false)
@@ -758,6 +777,7 @@ export default function RehomePets() {
           </div>
         ) : pets.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {console.log("Rendering pets:", pets)}
             {pets.map((pet) => (
               <div
                 key={pet.id}
