@@ -3265,7 +3265,8 @@ export const fetchRehomePets = async (filters = {}) => {
         params.append(key, value);
       }
     });
-
+    console.log("Final API URL:", `${API_URL}/api/pets/rehome/?${params.toString()}`);
+  
     const response = await fetch(`${API_URL}/api/pets/rehome/?${params.toString()}`, {
       method: "GET",
       headers: {
