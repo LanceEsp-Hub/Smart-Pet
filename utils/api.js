@@ -3245,51 +3245,20 @@ export const getUserConversations = async (otherUserId = null) => {
 
 
 
-// export const fetchRehomePets = async (filters = {}) => {
-//   try {
-//     const token = sessionStorage.getItem("auth_token");
-//     const currentUserId = parseInt(sessionStorage.getItem("user_id")) || null;
-
-//     // Sanitize filters: remove default "all" or empty values
-//     const params = new URLSearchParams();
-    
-//     // Add current user ID to exclude their own pets
-//     if (currentUserId) {
-//       params.append('user_id', currentUserId);
-//     }
-    
-//     // Add other filters
-//     Object.entries(filters).forEach(([key, value]) => {
-//       if (value && value !== "all") {
-//         params.append(key, value);
-//       }
-//     });
-
-//     const response = await fetch(`${API_URL}/api/pets/rehome/?${params.toString()}`, {
-//       method: "GET",
-//       headers: {
-//         "Authorization": `Bearer ${token}`,
-//         "Content-Type": "application/json"
-//       }
-//     });
-
-//     return handleResponse(response);
-//   } catch (error) {
-//     console.error("Error fetching rehome pets:", error);
-//     throw error;
-//   }
-// };
 export const fetchRehomePets = async (filters = {}) => {
   try {
     const token = sessionStorage.getItem("auth_token");
     const currentUserId = parseInt(sessionStorage.getItem("user_id")) || null;
 
+    // Sanitize filters: remove default "all" or empty values
     const params = new URLSearchParams();
     
+    // Add current user ID to exclude their own pets
     if (currentUserId) {
       params.append('user_id', currentUserId);
     }
     
+    // Add other filters
     Object.entries(filters).forEach(([key, value]) => {
       if (value && value !== "all") {
         params.append(key, value);
@@ -3304,19 +3273,50 @@ export const fetchRehomePets = async (filters = {}) => {
       }
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    // Ensure we always return an array
-    return Array.isArray(data) ? data : [];
+    return handleResponse(response);
   } catch (error) {
     console.error("Error fetching rehome pets:", error);
     throw error;
   }
 };
+// export const fetchRehomePets = async (filters = {}) => {
+//   try {
+//     const token = sessionStorage.getItem("auth_token");
+//     const currentUserId = parseInt(sessionStorage.getItem("user_id")) || null;
+
+//     const params = new URLSearchParams();
+    
+//     if (currentUserId) {
+//       params.append('user_id', currentUserId);
+//     }
+    
+//     Object.entries(filters).forEach(([key, value]) => {
+//       if (value && value !== "all") {
+//         params.append(key, value);
+//       }
+//     });
+
+//     const response = await fetch(`${API_URL}/api/pets/rehome/?${params.toString()}`, {
+//       method: "GET",
+//       headers: {
+//         "Authorization": `Bearer ${token}`,
+//         "Content-Type": "application/json"
+//       }
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+
+//     const data = await response.json();
+    
+//     // Ensure we always return an array
+//     return Array.isArray(data) ? data : [];
+//   } catch (error) {
+//     console.error("Error fetching rehome pets:", error);
+//     throw error;
+//   }
+// };
 
 export const submitAdoptionApplication = async (formData) => {
   try {
