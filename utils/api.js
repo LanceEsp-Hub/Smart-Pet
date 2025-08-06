@@ -3254,9 +3254,10 @@ export const fetchRehomePets = async (filters = {}) => {
     const params = new URLSearchParams();
     
     // Add current user ID to exclude their own pets
-    if (currentUserId) {
-      params.append('user_id', currentUserId);
-    }
+  if (filters.exclude_own_pets !== false && currentUserId) {
+    params.append('user_id', currentUserId);
+  }
+
     
     // Add other filters
     Object.entries(filters).forEach(([key, value]) => {
