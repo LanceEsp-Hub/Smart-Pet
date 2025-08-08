@@ -12,7 +12,7 @@ import Footer from "@/components/Footer";
 
 // Add these constants after the imports
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://fkpimtcxncgwtdsfyrjb.supabase.co"
-const MESSAGE_IMAGES_BUCKET = "message-images"
+const MESSAGE_IMAGES_BUCKET = "messages"
 
 const getMessageImageUrl = (imageName) => {
   if (!imageName) return "https://via.placeholder.com/100"
