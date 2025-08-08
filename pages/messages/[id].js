@@ -10,18 +10,15 @@ import styles from './[id].module.css';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Helper function to get proper image URL
-const getMessageImageUrl = (imageUrl) => {
-  if (!imageUrl) return null;
-  
-  // If it's already a full URL (Supabase), return as is
-  if (imageUrl.startsWith('http')) {
-    return imageUrl;
-  }
-  
-  // Fallback for old format (shouldn't happen with new implementation)
-  return imageUrl;
-};
+// Add these constants after the imports
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://fkpimtcxncgwtdsfyrjb.supabase.co"
+const MESSAGE_IMAGES_BUCKET = "message-images"
+
+const getMessageImageUrl = (imageName) => {
+  if (!imageName) return "https://via.placeholder.com/100"
+  // Handle the format "20250808_104400_10b4cfcb.jpg" -> "https://fkpimtcxncgwtdsfyrjb.supabase.co/storage/v1/object/public/message-images/20250808_104400_10b4cfcb.jpg"
+  return `${SUPABASE_URL}/storage/v1/object/public/${MESSAGE_IMAGES_BUCKET}/${imageName}`
+}
 
 // Fallback image for failed loads
 const FALLBACK_IMAGE = '/image-placeholder.svg';
@@ -109,7 +106,7 @@ export default function MessagePage() {
       if (selectedImage) {
         const uploadResult = await uploadMessageImage(selectedImage);
         console.log('Upload result:', uploadResult);
-        imageUrl = uploadResult.file_path; // Use file_path which contains the full Supabase URL
+        imageUrl = uploadResult.filename; // Use filename which will be saved in database
       }
 
       if (imageUrl) {
