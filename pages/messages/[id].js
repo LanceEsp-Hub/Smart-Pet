@@ -1,203 +1,4 @@
 
-// "use client";
-
-// import { useState, useEffect, useRef } from 'react';
-// import { useRouter } from 'next/router';
-// import { sendMessage, getConversation, uploadMessageImage, sendMessageWithImage } from '../../utils/api';
-// import styles from './[id].module.css';
-// import Navbar from "@/components/Navbar";
-// import Footer from "@/components/Footer";
-
-// export default function MessagePage() {
-//   const router = useRouter();
-//   const { id: receiverId } = router.query;
-//   const [message, setMessage] = useState('');
-//   const [isSending, setIsSending] = useState(false);
-//   const [error, setError] = useState(null);
-//   const [conversation, setConversation] = useState([]);
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [currentUserId, setCurrentUserId] = useState(null);
-//   const [selectedImage, setSelectedImage] = useState(null);
-//   const [imagePreview, setImagePreview] = useState(null);
-//   const fileInputRef = useRef(null);
-
-// // // Image URL helper - matches your working pet images function
-// // function getMessageImageUrl(imageName) {
-// //   if (!imageName) return "https://via.placeholder.com/400";
-// //   return `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/uploads/messages/${imageName}?t=${Date.now()}`;
-// // }
-
-//   useEffect(() => {
-//     if (typeof window !== 'undefined') {
-//       setCurrentUserId(parseInt(window.sessionStorage.getItem("user_id")));
-//     }
-//   }, []);
-
-//   useEffect(() => {
-//     if (!receiverId || !currentUserId) return;
-
-//     const loadConversation = async () => {
-//       try {
-//         setIsLoading(true);
-//         const data = await getConversation(receiverId);
-//         setConversation(data.messages);
-//       } catch (err) {
-//         setError(err.message);
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-
-//     loadConversation();
-//   }, [receiverId, currentUserId]);
-
-//   const handleImageSelect = (e) => {
-//     const file = e.target.files[0];
-//     if (!file) return;
-
-//     // Validate file type
-//     if (!file.type.match('image.*')) {
-//       setError('Please select an image file');
-//       return;
-//     }
-
-//     // Validate file size (5MB max)
-//     if (file.size > 5 * 1024 * 1024) {
-//       setError('Image size must be less than 5MB');
-//       return;
-//     }
-
-//     setSelectedImage(file);
-//     setImagePreview(URL.createObjectURL(file));
-//     setError(null);
-//   };
-
-//   const removeSelectedImage = () => {
-//     setSelectedImage(null);
-//     setImagePreview(null);
-//     if (fileInputRef.current) fileInputRef.current.value = '';
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (!message.trim() && !selectedImage) return;
-
-//     try {
-//       setIsSending(true);
-//       let imageUrl = null;
-
-//       if (selectedImage) {
-//         const uploadResult = await uploadMessageImage(selectedImage);
-//         imageUrl = uploadResult.filename;
-//       }
-
-//       if (imageUrl) {
-//         await sendMessageWithImage(receiverId, message, imageUrl);
-//       } else {
-//         await sendMessage(receiverId, message);
-//       }
-
-//       setMessage('');
-//       setSelectedImage(null);
-//       setImagePreview(null);
-      
-//       // Refresh conversation
-//       const data = await getConversation(receiverId);
-//       setConversation(data.messages);
-//     } catch (err) {
-//       setError(err.message);
-//     } finally {
-//       setIsSending(false);
-//       if (fileInputRef.current) fileInputRef.current.value = '';
-//     }
-//   };
-
-//   if (isLoading) {
-//     return <div className={styles.loading}>Loading conversation...</div>;
-//   }
-
-//   return (
-//     <div>
-//       <Navbar />
-//       <div className={styles.container}>
-//         <h1>Conversation with User {receiverId}</h1>
-        
-//         {error && <div className={styles.error}>{error}</div>}
-        
-//         <div className={styles.messagesContainer}>
-//           {conversation.map((msg) => (
-//             <div key={msg.id} className={`${styles.message} ${msg.sender_id === currentUserId ? styles.sent : styles.received}`}>
-//               <div className={styles.messageContent}>
-//                 {msg.text && <p>{msg.text}</p>}
-//                 {msg.image_url && (
-//   <img
-//     src={msg.image_url}
-//     alt="Message attachment"
-//     className="max-w-full h-auto"
-//     onError={(e) => {
-//       e.target.onerror = null;
-//     }}
-//   />
-// )}
-//                 <span className={styles.timestamp}>
-//                   {new Date(msg.timestamp).toLocaleString()}
-//                 </span>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-        
-//         <form onSubmit={handleSubmit} className={styles.messageForm}>
-//           {imagePreview && (
-//             <div className={styles.imagePreviewContainer}>
-//               <img src={imagePreview} alt="Preview" className={styles.imagePreview} />
-//               <button 
-//                 type="button" 
-//                 onClick={removeSelectedImage}
-//                 className={styles.removeImageButton}
-//               >
-//                 ×
-//               </button>
-//             </div>
-//           )}
-          
-//           <div className={styles.inputContainer}>
-//             <input
-//               type="file"
-//               ref={fileInputRef}
-//               onChange={handleImageSelect}
-//               accept="image/*"
-//               style={{ display: 'none' }}
-//               id="message-image-upload"
-//             />
-//             <label htmlFor="message-image-upload" className={styles.uploadButton}>
-//               📷
-//             </label>
-            
-//             <input
-//               type="text"
-//               value={message}
-//               onChange={(e) => setMessage(e.target.value)}
-//               placeholder="Type your message..."
-//               className={styles.messageInput}
-//             />
-            
-//             <button 
-//               type="submit" 
-//               disabled={isSending || (!message.trim() && !selectedImage)}
-//               className={styles.sendButton}
-//             >
-//               {isSending ? 'Sending...' : 'Send'}
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-//       <Footer />
-//     </div>
-//   );
-// }
-
-
 
 //frontend\pages\messages\[id].js
 "use client";
@@ -208,6 +9,22 @@ import { sendMessage, getConversation, uploadMessageImage, sendMessageWithImage 
 import styles from './[id].module.css';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
+// Helper function to get proper image URL
+const getMessageImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  
+  // If it's already a full URL (Supabase), return as is
+  if (imageUrl.startsWith('http')) {
+    return imageUrl;
+  }
+  
+  // Fallback for old format (shouldn't happen with new implementation)
+  return imageUrl;
+};
+
+// Fallback image for failed loads
+const FALLBACK_IMAGE = '/image-placeholder.svg';
 
 export default function MessagePage() {
   const router = useRouter();
@@ -236,6 +53,7 @@ export default function MessagePage() {
       try {
         setIsLoading(true);
         const data = await getConversation(receiverId);
+        console.log('Conversation data:', data);
         setConversation(data.messages || []); // Ensure we always have an array
       } catch (err) {
         setError(err.message);
@@ -290,7 +108,8 @@ export default function MessagePage() {
 
       if (selectedImage) {
         const uploadResult = await uploadMessageImage(selectedImage);
-        imageUrl = uploadResult.filename;
+        console.log('Upload result:', uploadResult);
+        imageUrl = uploadResult.file_path; // Use file_path which contains the full Supabase URL
       }
 
       if (imageUrl) {
@@ -351,12 +170,20 @@ export default function MessagePage() {
                 {msg.image_url && (
                   <div className={styles.imageWrapper}>
                     <img
-                      src={msg.image_url}
+                      src={getMessageImageUrl(msg.image_url)}
                       alt="Message attachment"
                       className={styles.messageImage}
                       onError={(e) => {
+                        console.error('Failed to load image:', msg.image_url);
                         e.target.onerror = null;
-                        e.target.src = '/image-placeholder.svg';
+                        e.target.src = FALLBACK_IMAGE;
+                      }}
+                      onLoad={() => {
+                        console.log('Image loaded successfully:', msg.image_url);
+                      }}
+                      style={{ 
+                        minHeight: '100px',
+                        backgroundColor: '#f3f4f6'
                       }}
                     />
                   </div>
