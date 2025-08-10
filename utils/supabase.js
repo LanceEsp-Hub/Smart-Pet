@@ -17,13 +17,14 @@ export const getProductImageUrl = (imageName) => {
   // Use the backend API URL for product images since they're served locally
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
   
-  // If the imageName already contains the full path, use it as is
+  // If the imageName already contains the full path, extract just the filename
   if (imageName.startsWith('/uploads/products/')) {
-    return `${API_URL}${imageName}`
+    const filename = imageName.split('/').pop();
+    return `${API_URL}/api/ecommerce/product-image/${filename}`;
   }
   
-  // If it's just the filename, construct the path
-  return `${API_URL}/uploads/products/${imageName}`
+  // If it's just the filename, use it directly
+  return `${API_URL}/api/ecommerce/product-image/${imageName}`;
 }
 
 // Get success story image URL
