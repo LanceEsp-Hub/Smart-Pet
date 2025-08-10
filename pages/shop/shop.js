@@ -129,6 +129,7 @@ export default function UserProductPage() {
 
   const addToCart = async (productId, quantity) => {
     try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
       const userId = sessionStorage.getItem("user_id");
       const token = sessionStorage.getItem("auth_token");
       if (!userId || !token) {
