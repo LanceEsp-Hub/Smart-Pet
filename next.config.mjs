@@ -17,6 +17,11 @@ const nextConfig = {
         hostname: 'newback-production-a0cc.up.railway.app',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'newback-production-a0cc.up.railway.app',
+        pathname: '/api/ecommerce/product-image/**',
+      },
     ],
   },
 };
