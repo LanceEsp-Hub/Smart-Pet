@@ -13,7 +13,17 @@ const BUCKETS = {
 // Get product image URL
 export const getProductImageUrl = (imageName) => {
   if (!imageName) return "https://via.placeholder.com/400x300?text=Product+Image"
-  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKETS.PRODUCTS}/${imageName}`
+  
+  // Use the backend API URL for product images since they're served locally
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+  
+  // If the imageName already contains the full path, use it as is
+  if (imageName.startsWith('/uploads/products/')) {
+    return `${API_URL}${imageName}`
+  }
+  
+  // If it's just the filename, construct the path
+  return `${API_URL}/uploads/products/${imageName}`
 }
 
 // Get success story image URL
@@ -48,3 +58,4 @@ export const getImageUrl = (imageName, bucket) => {
 
 // Export configuration for use in other files
 export { SUPABASE_URL, BUCKETS }
+
