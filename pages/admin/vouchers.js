@@ -38,7 +38,13 @@ export default function AdminVouchersPage() {
   const fetchVouchers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/api/vouchers/');
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+      const token = sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/vouchers/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch vouchers');
       }
@@ -55,15 +61,20 @@ export default function AdminVouchersPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
       const url = editingVoucher 
-        ? `http://localhost:8000/api/vouchers/${editingVoucher.id}`
-        : 'http://localhost:8000/api/vouchers/';
+        ? `${API_URL}/api/vouchers/${editingVoucher.id}`
+        : `${API_URL}/api/vouchers/`;
       
       const method = editingVoucher ? 'PUT' : 'POST';
       
+      const token = sessionStorage.getItem("token");
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           ...formData,
           discount_value: parseFloat(formData.discount_value),
@@ -94,8 +105,13 @@ export default function AdminVouchersPage() {
     if (!confirm('Are you sure you want to delete this voucher?')) return;
     
     try {
-      const response = await fetch(`http://localhost:8000/api/vouchers/${voucherId}`, {
-        method: 'DELETE'
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+      const token = sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/vouchers/${voucherId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (!response.ok) {
@@ -122,8 +138,13 @@ export default function AdminVouchersPage() {
 
   const handleDeactivate = async (voucherId) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/vouchers/${voucherId}/deactivate`, {
-        method: 'PUT'
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+      const token = sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/vouchers/${voucherId}/deactivate`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (!response.ok) {
