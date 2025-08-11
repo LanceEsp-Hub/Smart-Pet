@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getApiUrl } from "../../utils/apiUtils";
 
 export default function CheckoutPage() {
   const userId = typeof window !== 'undefined' ? sessionStorage.getItem("user_id") : null;
@@ -63,7 +64,7 @@ export default function CheckoutPage() {
   // Fetch user info
   useEffect(() => {
     if (!userId) return;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+    const API_URL = getApiUrl();
     const token = sessionStorage.getItem("auth_token");
     fetch(`${API_URL}/api/user/${userId}`, {
       headers: {
@@ -77,7 +78,7 @@ export default function CheckoutPage() {
   // Fetch addresses
   useEffect(() => {
     if (!userId) return;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+    const API_URL = getApiUrl();
     const token = sessionStorage.getItem("auth_token");
     fetch(`${API_URL}/api/address/user/${userId}`, {
       headers: {
@@ -95,7 +96,7 @@ export default function CheckoutPage() {
   // Fetch cart
   useEffect(() => {
     if (!userId) return;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+    const API_URL = getApiUrl();
     const token = sessionStorage.getItem("auth_token");
     fetch(`${API_URL}/api/ecommerce/cart?user_id=${userId}`, {
       headers: {
@@ -113,7 +114,7 @@ export default function CheckoutPage() {
     const fetchUserVouchers = async () => {
       try {
         setLoadingVouchers(true);
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+        const API_URL = getApiUrl();
         const token = sessionStorage.getItem("auth_token");
         const response = await fetch(`${API_URL}/api/vouchers/user/${userId}`, {
           headers: {
@@ -139,7 +140,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchDeliverySettings = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+        const API_URL = getApiUrl();
         const response = await fetch(`${API_URL}/api/ecommerce/delivery-fee`);
         if (!response.ok) {
           throw new Error('Failed to fetch delivery settings');
@@ -160,7 +161,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (addresses.length >= 3) return;
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+      const API_URL = getApiUrl();
       const token = sessionStorage.getItem("auth_token");
       const res = await fetch(`${API_URL}/api/address/`, {
         method: "POST",
@@ -198,7 +199,7 @@ export default function CheckoutPage() {
       setApplyingVoucher(true);
       setVoucherError("");
       
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+      const API_URL = getApiUrl();
       const token = sessionStorage.getItem("auth_token");
       const response = await fetch(`${API_URL}/api/vouchers/validate`, {
         method: "POST",
@@ -259,7 +260,7 @@ export default function CheckoutPage() {
       const voucher = selectedUserVoucher.voucher;
       
       // Validate the voucher
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+      const API_URL = getApiUrl();
       const token = sessionStorage.getItem("auth_token");
       const response = await fetch(`${API_URL}/api/vouchers/validate`, {
         method: "POST",
@@ -305,7 +306,7 @@ export default function CheckoutPage() {
   const handleConfirmOrder = async () => {
     setPlacingOrder(true);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+      const API_URL = getApiUrl();
       const token = sessionStorage.getItem("auth_token");
       const res = await fetch(`${API_URL}/api/checkout`, {
         method: "POST",
