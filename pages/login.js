@@ -2,7 +2,7 @@
 
 import { useState, useEffect, lazy, Suspense } from "react"
 import Head from "next/head"
-import { loginUser, registerUser, sendPasswordResetEmail } from "../utils/api"
+import { loginUser, registerUser } from "../utils/api"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import toast from "react-hot-toast"
@@ -58,13 +58,9 @@ export default function Page() {
     }
 
     return () => {
-      if (registerBtn && loginBtn && container) {
-        registerBtn.removeEventListener("click", () => {
-          container.classList.add("right-panel-active")
-        })
-        loginBtn.removeEventListener("click", () => {
-          container.classList.remove("right-panel-active")
-        })
+      if (registerBtn && loginBtn) {
+        registerBtn.removeEventListener("click", () => {})
+        loginBtn.removeEventListener("click", () => {})
       }
     }
   }, [])
@@ -73,59 +69,18 @@ export default function Page() {
     e.preventDefault()
     try {
       const response = await loginUser({ email, password })
-      console.log("Login Response:", response) // Debugging
-
       if (response.access_token) {
+        const encryptedToken = encryptData(response.access_token)
+        localStorage.setItem("token", encryptedToken)
         setToken(response.access_token)
-
-        // Store the token in sessionStorage
-        sessionStorage.setItem("auth_token", response.access_token)
-
-        // Store user data in sessionStorage (if available)
-        if (response.user) {
-          sessionStorage.setItem("user", JSON.stringify(response.user))
-        }
-
-        // Store the user's role in sessionStorage
-        if (response.roles) {
-          const encryptedRoles = encryptData(response.roles) // Encrypt roles
-          sessionStorage.setItem("roles", encryptedRoles)
-        }
-
-        // Store the user's ID in sessionStorage
-        if (response.user_id) {
-          sessionStorage.setItem("user_id", response.user_id)
-          console.log("User ID stored in sessionStorage:", response.user_id) // Debugging
-        }
-
-        toast.success("Login successful! Redirecting...")
-        const encryptedRoles = sessionStorage.getItem("roles")
-        const roles = decryptData(encryptedRoles)
-
-        // Role-based redirection
-        if (roles === "admin") {
-          setTimeout(() => {
-            setIsAuthenticated(true)
-            router.push("/admin_dashboard") // Redirect admin to /pet_status
-          }, 2000)
-        } else if (roles === "user") {
-          setTimeout(() => {
-            setIsAuthenticated(true)
-            router.push("/pet_dashboard") // Redirect user to /pet_dashboard
-          }, 2000)
-        } else {
-          // Handle unknown roles
-          toast.error("Unknown role. Redirecting to login...")
-          setTimeout(() => {
-            setIsAuthenticated(false)
-            router.push("/login") // Redirect to login for unknown roles
-          }, 2000)
-        }
-      } else {
-        toast.error(response.detail || "Login failed")
+        setIsAuthenticated(true)
+        toast.success("Login successful!")
+        router.push("/pet_dashboard")
       }
     } catch (error) {
-      toast.error(error.message || "An error occurred during login")
+      console.error("Login error:", error)
+      toast.error(error.message || "Login failed")
+      setMessage(error.message || "Login failed")
     }
   }
 
@@ -133,34 +88,25 @@ export default function Page() {
     e.preventDefault()
     try {
       const response = await registerUser({ email, name, password })
-      if (response.detail) {
-        toast.error(response.detail)
-      } else {
-        toast.success("Registration successful! Check your email for verification.")
+      if (response.access_token) {
+        const encryptedToken = encryptData(response.access_token)
+        localStorage.setItem("token", encryptedToken)
+        setToken(response.access_token)
+        setIsAuthenticated(true)
+        toast.success("Registration successful!")
+        router.push("/pet_dashboard")
       }
     } catch (error) {
-      toast.error(error.message || "An error occurred during registration")
-    }
-  }
-
-  const handleForgotPassword = async () => {
-    if (!email) {
-      toast.error("Please enter your email address.")
-      return
-    }
-
-    try {
-      const response = await sendPasswordResetEmail(email)
-      toast.success("Password reset email sent. Please check your inbox.")
-    } catch (error) {
-      toast.error(error.message || "Failed to send password reset email.")
+      console.error("Registration error:", error)
+      toast.error(error.message || "Registration failed")
+      setMessage(error.message || "Registration failed")
     }
   }
 
   return (
     <>
       <Head>
-        <title>SmartPet Love - Login & Registration</title>
+        <title>Double Slider Login / Registration Form</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 
@@ -173,14 +119,59 @@ export default function Page() {
 
         body {
           display: flex;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
           justify-content: center;
           align-items: center;
           flex-direction: column;
           font-family: "Poppins", sans-serif;
-          overflow: hidden;
-          height: 100vh;
+          min-height: 100vh;
           margin: 0;
+          padding: 20px;
+          position: relative;
+          overflow-x: hidden;
+        }
+
+        /* Added animated background circles */
+        body::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+          animation: moveCircles 20s ease-in-out infinite;
+          z-index: -1;
+        }
+
+        @keyframes moveCircles {
+          0%, 100% {
+            background: 
+              radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+          }
+          25% {
+            background: 
+              radial-gradient(circle at 60% 30%, rgba(120, 119, 198, 0.4) 0%, transparent 50%),
+              radial-gradient(circle at 30% 70%, rgba(255, 119, 198, 0.4) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(120, 219, 255, 0.4) 0%, transparent 50%);
+          }
+          50% {
+            background: 
+              radial-gradient(circle at 80% 60%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 20% 40%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 60% 20%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+          }
+          75% {
+            background: 
+              radial-gradient(circle at 40% 90%, rgba(120, 119, 198, 0.4) 0%, transparent 50%),
+              radial-gradient(circle at 90% 50%, rgba(255, 119, 198, 0.4) 0%, transparent 50%),
+              radial-gradient(circle at 10% 60%, rgba(120, 219, 255, 0.4) 0%, transparent 50%);
+          }
         }
 
         h1 {
@@ -188,48 +179,39 @@ export default function Page() {
           letter-spacing: -1.5px;
           margin: 0;
           margin-bottom: 15px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
         }
 
         h1.title {
-          font-size: 45px;
-          line-height: 45px;
+          font-size: clamp(28px, 5vw, 45px);
+          line-height: 1.1;
           margin: 0;
-          text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-          color: white;
-          -webkit-text-fill-color: white;
+          text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
         }
 
         p {
-          font-size: 14px;
-          font-weight: 400;
+          font-size: clamp(12px, 2.5vw, 14px);
+          font-weight: 100;
           line-height: 20px;
           letter-spacing: 0.5px;
           margin: 20px 0 30px;
-          text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+          text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
         }
 
         span {
           font-size: 14px;
           margin-top: 25px;
-          color: #666;
         }
 
         a {
-          color: #667eea;
+          color: #333;
           font-size: 14px;
           text-decoration: none;
           margin: 15px 0;
           transition: 0.3s ease-in-out;
-          font-weight: 500;
         }
 
         a:hover {
-          color: #764ba2;
-          text-decoration: underline;
+          color: #4bb6b7;
         }
 
         .content {
@@ -247,7 +229,7 @@ export default function Page() {
         }
 
         .content input {
-          accent-color: #667eea;
+          accent-color: #333;
           width: 12px;
           height: 12px;
         }
@@ -260,44 +242,28 @@ export default function Page() {
 
         button {
           position: relative;
-          border-radius: 25px;
-          border: none;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 20px;
+          border: 1px solid #4bb6b7;
+          background-color: #4bb6b7;
           color: #fff;
           font-size: 15px;
-          font-weight: 600;
+          font-weight: 700;
           margin: 10px;
-          padding: 14px 45px;
+          padding: 12px 60px;
           letter-spacing: 1px;
-          text-transform: uppercase;
-          transition: all 0.3s ease;
+          text-transform: capitalize;
+          transition: 0.3s ease-in-out;
           cursor: pointer;
-          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-          overflow: hidden;
-        }
-
-        button::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: left 0.5s;
-        }
-
-        button:hover::before {
-          left: 100%;
         }
 
         button:hover {
+          letter-spacing: 3px;
           transform: translateY(-2px);
-          box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+          box-shadow: 0 5px 15px rgba(75, 182, 183, 0.4);
         }
 
         button:active {
-          transform: translateY(0);
+          transform: scale(0.95);
         }
 
         button:focus {
@@ -305,17 +271,10 @@ export default function Page() {
         }
 
         button.ghost {
-          background: rgba(255, 255, 255, 0.1);
-          border: 2px solid rgba(255, 255, 255, 0.8);
+          background-color: rgba(225, 225, 225, 0.2);
+          border: 2px solid #fff;
           color: #fff;
-          backdrop-filter: blur(10px);
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        button.ghost:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: #fff;
-          transform: translateY(-2px);
+          padding: 12px 45px;
         }
 
         button.ghost i {
@@ -343,80 +302,229 @@ export default function Page() {
         }
 
         form {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
+          background-color: #fff;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-direction: column;
-          padding: 0 50px;
+          padding: 0 40px;
           height: 100%;
           text-align: center;
-          border-radius: 0;
         }
 
         input {
-          background: rgba(238, 238, 238, 0.8);
-          border-radius: 15px;
-          border: 2px solid transparent;
-          padding: 15px 20px;
+          background-color: #eee;
+          border-radius: 10px;
+          border: none;
+          padding: 12px 15px;
           margin: 8px 0;
           width: 100%;
           font-size: 14px;
-          transition: all 0.3s ease;
         }
 
-        input:focus {
-          outline: none;
-          border-color: #667eea;
-          background: rgba(255, 255, 255, 0.9);
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-        }
-
+        /* Made container fully responsive for mobile */
         .container {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
-          border-radius: 30px;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+          background-color: #fff;
+          border-radius: 25px;
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
           position: relative;
           overflow: hidden;
-          width: 900px;
-          max-width: 100%;
-          min-height: 600px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          animation: float 6s ease-in-out infinite;
+          width: 100%;
+          max-width: 768px;
+          min-height: 500px;
+          height: auto;
         }
 
-        .form-container {
-          position: absolute;
-          top: 0;
-          height: 100%;
-          transition: all 0.6s ease-in-out;
+        /* Mobile-first responsive design */
+        @media (max-width: 768px) {
+          body {
+            padding: 10px;
+          }
+          
+          .container {
+            min-height: 600px;
+            border-radius: 15px;
+          }
+          
+          .form-container {
+            position: relative !important;
+            width: 100% !important;
+            height: auto !important;
+            transform: none !important;
+            opacity: 1 !important;
+            z-index: 1 !important;
+          }
+          
+          .login-container {
+            display: block;
+          }
+          
+          .registration-container {
+            display: none;
+          }
+          
+          .container.right-panel-active .login-container {
+            display: none;
+          }
+          
+          .container.right-panel-active .registration-container {
+            display: block;
+          }
+          
+          .overlay-container {
+            position: relative !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 200px !important;
+            transform: none !important;
+          }
+          
+          .overlay {
+            position: relative !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            transform: none !important;
+            background-size: cover !important;
+            background-position: center !important;
+          }
+          
+          .overlay-panel {
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            transform: none !important;
+            padding: 20px !important;
+          }
+          
+          .overlay-left {
+            display: none;
+          }
+          
+          .overlay-right {
+            display: block;
+          }
+          
+          .container.right-panel-active .overlay-left {
+            display: block;
+          }
+          
+          .container.right-panel-active .overlay-right {
+            display: none;
+          }
+          
+          form {
+            padding: 20px;
+            min-height: 400px;
+          }
+          
+          button {
+            padding: 12px 40px;
+            font-size: 14px;
+          }
+          
+          button.ghost {
+            padding: 12px 30px;
+          }
         }
 
-        .login-container {
-          left: 0;
-          width: 50%;
-          z-index: 2;
-        }
+        @media (min-width: 769px) {
+          .form-container {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            transition: all 0.6s ease-in-out;
+          }
 
-        .registration-container {
-          left: 0;
-          width: 50%;
-          opacity: 0;
-          z-index: 1;
-        }
+          .login-container {
+            left: 0;
+            width: 50%;
+            z-index: 2;
+          }
 
-        .container.right-panel-active .login-container {
-          transform: translateX(100%);
-        }
+          .registration-container {
+            left: 0;
+            width: 50%;
+            opacity: 0;
+            z-index: 1;
+          }
 
-        .container.right-panel-active .registration-container {
-          transform: translateX(100%);
-          opacity: 1;
-          z-index: 5;
-          animation: show 0.6s;
+          .container.right-panel-active .login-container {
+            transform: translateX(100%);
+          }
+
+          .container.right-panel-active .registration-container {
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+            animation: show 0.6s;
+          }
+
+          .overlay-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: transform 0.6s ease-in-out;
+            z-index: 100;
+          }
+
+          .container.right-panel-active .overlay-container {
+            transform: translate(-100%);
+          }
+
+          .overlay {
+            background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-mikhail-nilov-6530653.jpg-NmIC1X70wcMEnYQQYkfLqNxuWsRYXs.jpeg");
+            background-repeat: no-repeat;
+            background-size: 120% auto;
+            background-position: 0 0;
+            color: #fff;
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+            animation: panBackground 15s linear infinite alternate;
+          }
+
+          .container.right-panel-active .overlay {
+            transform: translateX(50%);
+          }
+
+          .overlay-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 40px;
+            text-align: center;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+          }
+
+          .overlay-left {
+            transform: translateX(-20%);
+          }
+
+          .container.right-panel-active .overlay-left {
+            transform: translateX(0);
+          }
+
+          .overlay-right {
+            right: 0;
+            transform: translateX(0);
+          }
+
+          .container.right-panel-active .overlay-right {
+            transform: translateX(20%);
+          }
         }
 
         @keyframes show {
@@ -433,34 +541,8 @@ export default function Page() {
           }
         }
 
-        .overlay-container {
-          position: absolute;
-          top: 0;
-          left: 50%;
-          width: 50%;
-          height: 100%;
-          overflow: hidden;
-          transition: transform 0.6s ease-in-out;
-          z-index: 100;
-        }
-
-        .container.right-panel-active .overlay-container {
-          transform: translate(-100%);
-        }
-
-        .overlay {
-          background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%),
-                      url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-mikhail-nilov-6530653.jpg-NmIC1X70wcMEnYQQYkfLqNxuWsRYXs.jpeg");
-          background-repeat: no-repeat;
-          background-size: cover;
-          background-position: center;
-          color: #fff;
-          position: relative;
-          left: -100%;
-          height: 100%;
-          width: 200%;
-          transform: translateX(0);
-          transition: transform 0.6s ease-in-out;
+        .overlay-panel {
+          background-color: rgba(0, 0, 0, 0.6);
         }
 
         .overlay::before {
@@ -470,43 +552,7 @@ export default function Page() {
           right: 0;
           top: 0;
           bottom: 0;
-          background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
-        }
-
-        .container.right-panel-active .overlay {
-          transform: translateX(50%);
-        }
-
-        .overlay-panel {
-          position: absolute;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-          padding: 0 40px;
-          text-align: center;
-          top: 0;
-          height: 100%;
-          width: 50%;
-          transform: translateX(0);
-          transition: transform 0.6s ease-in-out;
-        }
-
-        .overlay-left {
-          transform: translateX(-20%);
-        }
-
-        .container.right-panel-active .overlay-left {
-          transform: translateX(0);
-        }
-
-        .overlay-right {
-          right: 0;
-          transform: translateX(0);
-        }
-
-        .container.right-panel-active .overlay-right {
-          transform: translateX(20%);
+          background: linear-gradient(to top, rgba(46, 94, 109, 0.4) 40%, rgba(46, 94, 109, 0));
         }
 
         .social-container {
@@ -514,124 +560,58 @@ export default function Page() {
         }
 
         .social-container a {
-          border: 2px solid #ddd;
+          border: 1px solid #dddddd;
           border-radius: 50%;
           display: inline-flex;
           justify-content: center;
           align-items: center;
           margin: 0 5px;
-          height: 45px;
-          width: 45px;
-          transition: all 0.3s ease;
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
+          height: 40px;
+          width: 40px;
+          transition: 0.3s ease-in-out;
         }
 
         .social-container a:hover {
-          border-color: #667eea;
-          background: rgba(102, 126, 234, 0.1);
+          border: 1px solid #4bb6b7;
           transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 5px 15px rgba(75, 182, 183, 0.3);
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .container {
-            width: 95%;
-            min-height: 80vh;
-            max-height: 90vh;
-            margin: 2rem auto;
+        @keyframes panBackground {
+          0% {
+            background-position: 0 0;
           }
-
-          .form-container {
-            padding: 2rem 1.5rem;
-          }
-
-          form {
-            padding: 0 20px;
-          }
-
-          h1.title {
-            font-size: 28px;
-            line-height: 32px;
-            margin-bottom: 1rem;
-          }
-
-          button {
-            padding: 14px 40px;
-            font-size: 16px;
-            width: 100%;
-            margin: 1rem 0;
-          }
-
-          .overlay-container {
-            display: none;
-          }
-
-          .container.right-panel-active .sign-in-container {
-            transform: translateX(0);
-          }
-
-          .container.right-panel-active .sign-up-container {
-            transform: translateX(0);
-            opacity: 1;
-            z-index: 5;
+          100% {
+            background-position: 100% 0;
           }
         }
 
-        @media (max-width: 480px) {
-          .container {
-            width: 98%;
-            min-height: 85vh;
-            border-radius: 20px;
-            margin: 1rem auto;
-          }
-
-          h1.title {
-            font-size: 24px;
-            line-height: 28px;
-          }
-
-          input {
-            padding: 14px 20px;
-            font-size: 16px;
-          }
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-
-        .container {
+        /* Added floating animation for forms */
+        .form-container {
           animation: float 6s ease-in-out infinite;
         }
 
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+
         @media (max-width: 768px) {
-          .container {
+          .form-container {
             animation: none;
           }
         }
       `}</style>
-
       <div className="container" id="container">
         <div className="text-[#1A237E] form-container registration-container">
           <form onSubmit={handleRegister}>
-            <h1>Create Account</h1>
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <h1>Register Here</h1>
+            <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             <input
               type="password"
               placeholder="Password"
@@ -639,8 +619,8 @@ export default function Page() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button type="submit">Sign Up</button>
-            <span>or continue with</span>
+            <button type="submit">Register</button>
+            <span>or use your account</span>
             <div className="social-container text-[#1A237E]">
               <a href="https://newback-production-a0cc.up.railway.app/auth/google" className="social">
                 <i className="lni lni-google"></i>
@@ -651,14 +631,8 @@ export default function Page() {
 
         <div className="form-container login-container text-[#1A237E]">
           <form onSubmit={handleLogin}>
-            <h1>Welcome Back</h1>
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <h1>Login Here</h1>
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             <input
               type="password"
               placeholder="Password"
@@ -666,16 +640,16 @@ export default function Page() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button type="submit">Sign In</button>
-            <span>or continue with</span>
+            <button type="submit">Login</button>
+            <span>or use your account</span>
             <div className="social-container">
               <a href="https://newback-production-a0cc.up.railway.app/auth/google" className="social">
                 <i className="lni lni-google"></i>
               </a>
             </div>
             <Suspense fallback={<div>Loading...</div>}>
-              <Link href="/forgot-password" className="text-sm text-gray-600 hover:text-purple-700 font-medium">
-                Forgot your password?
+              <Link href="/forgot-password" className="text-sm text-gray-600 hover:text-purple-700">
+                Forgot Password?
               </Link>
             </Suspense>
           </form>
@@ -684,17 +658,21 @@ export default function Page() {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-left">
-              <h1 className="title">Welcome Back!</h1>
-              <p>Sign in to access your pet dashboard and manage your furry friends</p>
+              <h1 className="title">
+                Hello <br /> FRIENDS
+              </h1>
+              <p>If you have an account, login here and have fun</p>
               <button className="ghost" id="login">
-                Sign In
+                Login
               </button>
             </div>
             <div className="overlay-panel overlay-right">
-              <h1 className="title">Join Our Family!</h1>
-              <p>Create an account and start your journey with SmartPet Love today</p>
+              <h1 className="title">
+                Start your <br /> journey now
+              </h1>
+              <p>If you don't have an account yet, join us and start your journey.</p>
               <button className="ghost" id="register">
-                Sign Up
+                Register
               </button>
             </div>
           </div>
