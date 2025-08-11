@@ -1,8 +1,9 @@
+
 "use client"
 
-import { useState, useEffect, lazy, Suspense } from "react"
+import { useState, useEffect, lazy } from "react"
 import Head from "next/head"
-import { loginUser, registerUser } from "../utils/api"
+import { loginUser, registerUser, sendPasswordResetEmail } from "../utils/api"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import toast from "react-hot-toast"
@@ -58,9 +59,13 @@ export default function Page() {
     }
 
     return () => {
-      if (registerBtn && loginBtn) {
-        registerBtn.removeEventListener("click", () => {})
-        loginBtn.removeEventListener("click", () => {})
+      if (registerBtn && loginBtn && container) {
+        registerBtn.removeEventListener("click", () => {
+          container.classList.add("right-panel-active")
+        })
+        loginBtn.removeEventListener("click", () => {
+          container.classList.remove("right-panel-active")
+        })
       }
     }
   }, [])
@@ -69,18 +74,52 @@ export default function Page() {
     e.preventDefault()
     try {
       const response = await loginUser({ email, password })
+      console.log("Login Response:", response)
+
       if (response.access_token) {
-        const encryptedToken = encryptData(response.access_token)
-        localStorage.setItem("token", encryptedToken)
         setToken(response.access_token)
-        setIsAuthenticated(true)
-        toast.success("Login successful!")
-        router.push("/pet_dashboard")
+        sessionStorage.setItem("auth_token", response.access_token)
+
+        if (response.user) {
+          sessionStorage.setItem("user", JSON.stringify(response.user))
+        }
+
+        if (response.roles) {
+          const encryptedRoles = encryptData(response.roles)
+          sessionStorage.setItem("roles", encryptedRoles)
+        }
+
+        if (response.user_id) {
+          sessionStorage.setItem("user_id", response.user_id)
+          console.log("User ID stored in sessionStorage:", response.user_id)
+        }
+
+        toast.success("Login successful! Redirecting...")
+        const encryptedRoles = sessionStorage.getItem("roles")
+        const roles = decryptData(encryptedRoles)
+
+        if (roles === "admin") {
+          setTimeout(() => {
+            setIsAuthenticated(true)
+            router.push("/admin_dashboard")
+          }, 2000)
+        } else if (roles === "user") {
+          setTimeout(() => {
+            setIsAuthenticated(true)
+            router.push("/pet_dashboard")
+          }, 2000)
+        } else {
+          toast.error("Unknown role. Redirecting to login...")
+          setTimeout(() => {
+            setIsAuthenticated(false)
+            router.push("/login")
+          }, 2000)
+        }
+      } else {
+        toast.error(response.detail || "Login failed")
       }
     } catch (error) {
-      console.error("Login error:", error)
-      toast.error(error.message || "Login failed")
-      setMessage(error.message || "Login failed")
+      toast.error(error.message || "An error occurred during login")
     }
   }
 
@@ -88,18 +127,27 @@ export default function Page() {
     e.preventDefault()
     try {
       const response = await registerUser({ email, name, password })
-      if (response.access_token) {
-        const encryptedToken = encryptData(response.access_token)
-        localStorage.setItem("token", encryptedToken)
-        setToken(response.access_token)
-        setIsAuthenticated(true)
-        toast.success("Registration successful!")
-        router.push("/pet_dashboard")
+      if (response.detail) {
+        toast.error(response.detail)
+      } else {
+        toast.success("Registration successful! Check your email for verification.")
       }
     } catch (error) {
-      console.error("Registration error:", error)
-      toast.error(error.message || "Registration failed")
-      setMessage(error.message || "Registration failed")
+      toast.error(error.message || "An error occurred during registration")
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Please enter your email address.")
+      return
+    }
+
+    try {
+      const response = await sendPasswordResetEmail(email)
+      toast.success("Password reset email sent. Please check your inbox.")
+    } catch (error) {
+      toast.error(error.message || "Failed to send password reset email.")
     }
   }
 
@@ -110,25 +158,67 @@ export default function Page() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 
-      <style jsx>{`
+      <style jsx global>{`
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
         * {
           box-sizing: border-box;
         }
 
         body {
-          font-family: 'Montserrat', sans-serif;
-          background: #f6f5f7;
           display: flex;
+          background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+          background-size: 400% 400%;
+          animation: gradientShift 15s ease infinite;
           justify-content: center;
           align-items: center;
           flex-direction: column;
-          margin: 0;
+          font-family: "Poppins", sans-serif;
+          overflow: hidden;
           height: 100vh;
+          margin: 0;
+          position: relative;
+        }
+
+        body::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+          animation: floatCircles 20s ease-in-out infinite;
+          z-index: -1;
+        }
+
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        @keyframes floatCircles {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(30px, -30px) rotate(120deg); }
+          66% { transform: translate(-20px, 20px) rotate(240deg); }
         }
 
         h1 {
-          font-weight: bold;
+          font-weight: 700;
+          letter-spacing: -1.5px;
           margin: 0;
+          margin-bottom: 15px;
+        }
+
+        h1.title {
+          font-size: 45px;
+          line-height: 45px;
+          margin: 0;
+          text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
         }
 
         p {
@@ -137,10 +227,12 @@ export default function Page() {
           line-height: 20px;
           letter-spacing: 0.5px;
           margin: 20px 0 30px;
+          text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
         }
 
         span {
-          font-size: 12px;
+          font-size: 14px;
+          margin-top: 25px;
         }
 
         a {
@@ -148,20 +240,57 @@ export default function Page() {
           font-size: 14px;
           text-decoration: none;
           margin: 15px 0;
+          transition: 0.3s ease-in-out;
+        }
+
+        a:hover {
+          color: #4bb6b7;
+        }
+
+        .content {
+          display: flex;
+          width: 100%;
+          height: 50px;
+          align-items: center;
+          justify-content: space-around;
+        }
+
+        .content .checkbox {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .content input {
+          accent-color: #333;
+          width: 12px;
+          height: 12px;
+        }
+
+        .content label {
+          font-size: 14px;
+          user-select: none;
+          padding-left: 5px;
         }
 
         button {
+          position: relative;
           border-radius: 20px;
-          border: 1px solid #ff4b2b;
-          background-color: #ff4b2b;
-          color: #ffffff;
-          font-size: 12px;
-          font-weight: bold;
-          padding: 12px 45px;
+          border: 1px solid #4bb6b7;
+          background-color: #4bb6b7;
+          color: #fff;
+          font-size: 15px;
+          font-weight: 700;
+          margin: 10px;
+          padding: 12px 80px;
           letter-spacing: 1px;
-          text-transform: uppercase;
-          transition: transform 80ms ease-in;
+          text-transform: capitalize;
+          transition: 0.3s ease-in-out;
           cursor: pointer;
+        }
+
+        button:hover {
+          letter-spacing: 3px;
         }
 
         button:active {
@@ -173,12 +302,37 @@ export default function Page() {
         }
 
         button.ghost {
-          background-color: transparent;
-          border-color: #ffffff;
+          background-color: rgba(225, 225, 225, 0.2);
+          border: 2px solid #fff;
+          color: #fff;
+        }
+
+        button.ghost i {
+          position: absolute;
+          opacity: 0;
+          transition: 0.3s ease-in-out;
+        }
+
+        button.ghost i.register {
+          right: 70px;
+        }
+
+        button.ghost i.login {
+          left: 70px;
+        }
+
+        button.ghost:hover i.register {
+          right: 40px;
+          opacity: 1;
+        }
+
+        button.ghost:hover i.login {
+          left: 40px;
+          opacity: 1;
         }
 
         form {
-          background-color: #ffffff;
+          background-color: #fff;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -190,6 +344,7 @@ export default function Page() {
 
         input {
           background-color: #eee;
+          border-radius: 10px;
           border: none;
           padding: 12px 15px;
           margin: 8px 0;
@@ -198,14 +353,95 @@ export default function Page() {
 
         .container {
           background-color: #fff;
-          border-radius: 10px;
-          box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+          border-radius: 25px;
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
           position: relative;
           overflow: hidden;
           width: 768px;
           max-width: 100%;
-          min-height: 480px;
-          z-index: 10;
+          min-height: 500px;
+        }
+
+        @media (max-width: 768px) {
+          .container {
+            width: 95%;
+            min-height: 600px;
+            flex-direction: column;
+          }
+          
+          .form-container {
+            position: relative !important;
+            width: 100% !important;
+            height: auto !important;
+            transform: none !important;
+            opacity: 1 !important;
+          }
+          
+          .login-container {
+            display: block;
+            z-index: 2;
+          }
+          
+          .registration-container {
+            display: none;
+          }
+          
+          .container.right-panel-active .login-container {
+            display: none;
+          }
+          
+          .container.right-panel-active .registration-container {
+            display: block;
+          }
+          
+          .overlay-container {
+            position: relative !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 200px !important;
+            order: -1;
+          }
+          
+          .overlay {
+            position: relative !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            transform: none !important;
+          }
+          
+          .overlay-panel {
+            width: 100% !important;
+            height: 100% !important;
+            transform: none !important;
+            padding: 20px !important;
+          }
+          
+          .overlay-left,
+          .overlay-right {
+            display: none;
+          }
+          
+          .container.right-panel-active .overlay-left {
+            display: flex;
+          }
+          
+          .container:not(.right-panel-active) .overlay-right {
+            display: flex;
+          }
+          
+          form {
+            padding: 20px;
+          }
+          
+          h1.title {
+            font-size: 28px;
+            line-height: 32px;
+          }
+          
+          button {
+            padding: 12px 40px;
+          }
         }
 
         .form-container {
@@ -240,11 +476,14 @@ export default function Page() {
         }
 
         @keyframes show {
-          0%, 49.99% {
+          0%,
+          49.99% {
             opacity: 0;
             z-index: 1;
           }
-          50%, 100% {
+
+          50%,
+          100% {
             opacity: 1;
             z-index: 5;
           }
@@ -262,23 +501,36 @@ export default function Page() {
         }
 
         .container.right-panel-active .overlay-container {
-          transform: translateX(-100%);
+          transform: translate(-100%);
         }
 
         .overlay {
-          background: #ff416c;
-          background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c);
-          background: linear-gradient(to right, #ff4b2b, #ff416c);
+          background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-mikhail-nilov-6530653.jpg-NmIC1X70wcMEnYQQYkfLqNxuWsRYXs.jpeg");
           background-repeat: no-repeat;
-          background-size: cover;
+          background-size: 120% auto;
           background-position: 0 0;
-          color: #ffffff;
+          color: #fff;
           position: relative;
           left: -100%;
           height: 100%;
           width: 200%;
           transform: translateX(0);
           transition: transform 0.6s ease-in-out;
+          animation: panBackground 15s linear infinite alternate;
+        }
+
+        .overlay-panel {
+          background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .overlay::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          background: linear-gradient(to top, rgba(46, 94, 109, 0.4) 40%, rgba(46, 94, 109, 0));
         }
 
         .container.right-panel-active .overlay {
@@ -330,102 +582,19 @@ export default function Page() {
           margin: 0 5px;
           height: 40px;
           width: 40px;
+          transition: 0.3s ease-in-out;
         }
 
-        @media (max-width: 768px) {
-          .container {
-            width: 95%;
-            min-height: 600px;
-            flex-direction: column;
-          }
-          
-          .form-container {
-            position: relative !important;
-            width: 100% !important;
-            height: auto !important;
-            transform: none !important;
-            opacity: 1 !important;
-            z-index: 1 !important;
-          }
-          
-          .login-container {
-            display: block;
-            width: 100% !important;
-            left: 0 !important;
-            transform: none !important;
-          }
-          
-          .registration-container {
-            display: none;
-            width: 100% !important;
-            left: 0 !important;
-            transform: none !important;
-          }
-          
-          .container.right-panel-active .login-container {
-            display: none;
-            transform: none !important;
-          }
-          
-          .container.right-panel-active .registration-container {
-            display: block;
-            transform: none !important;
-            opacity: 1;
-          }
-          
-          .overlay-container {
-            position: relative !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 200px !important;
-            transform: none !important;
-          }
-          
-          .overlay {
-            left: 0 !important;
-            width: 100% !important;
-            transform: none !important;
-          }
-          
-          .overlay-panel {
-            width: 100% !important;
-            transform: none !important;
-            padding: 20px;
-          }
-          
-          .overlay-left,
-          .overlay-right {
-            transform: none !important;
-            position: relative !important;
-            right: auto !important;
-          }
-          
-          .container.right-panel-active .overlay-left,
-          .container.right-panel-active .overlay-right {
-            transform: none !important;
-          }
-          
-          form {
-            padding: 20px;
-          }
+        .social-container a:hover {
+          border: 1px solid #4bb6b7;
         }
 
-        @media (max-width: 480px) {
-          .container {
-            width: 98%;
-            margin: 10px;
+        @keyframes panBackground {
+          0% {
+            background-position: 0 0;
           }
-          
-          form {
-            padding: 15px;
-          }
-          
-          input {
-            padding: 10px 12px;
-          }
-          
-          button {
-            padding: 10px 35px;
+          100% {
+            background-position: 100% 0;
           }
         }
       `}</style>
@@ -470,11 +639,9 @@ export default function Page() {
                 <i className="lni lni-google"></i>
               </a>
             </div>
-            <Suspense fallback={<div>Loading...</div>}>
-              <Link href="/forgot-password" className="text-sm text-gray-600 hover:text-purple-700">
-                Forgot Password?
-              </Link>
-            </Suspense>
+            <Link href="/forgot-password" className="text-sm text-gray-600 hover:text-purple-700">
+              Forgot Password?
+            </Link>
           </form>
         </div>
 
@@ -505,8 +672,6 @@ export default function Page() {
     </>
   )
 }
-
-
 
 
 
