@@ -1,7 +1,7 @@
 //frontend\pages\pet_dashboard.js
 "use client";
 
-import { MessageSquare, User, ChevronRight, Plus, PawPrint, Heart, HelpCircle, Settings } from "lucide-react";
+import { MessageSquare, User, ChevronRight, Plus, PawPrint, Heart, HelpCircle, Settings, Home, Users } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,8 +22,23 @@ const decryptData = (encryptedData) => {
 };
 
 const getPetImageUrl = (imageName) => {
-  if (!imageName) return "https://via.placeholder.com/400";
+  if (!imageName) return "https://via.placeholder.com/500";
   return `http://localhost:8000/uploads/pet_images/${imageName}?t=${Date.now()}`;
+};
+
+const getStatusColor = (status) => {
+  switch (status?.toLowerCase()) {
+    case 'lost':
+      return { bg: 'bg-red-100', text: 'text-red-800', icon: '🚨' };
+    case 'found':
+      return { bg: 'bg-green-100', text: 'text-green-800', icon: '🔍' };
+    case 'safe at home':
+      return { bg: 'bg-blue-100', text: 'text-blue-800', icon: '🏠' };
+    case 'rehome':
+      return { bg: 'bg-purple-100', text: 'text-purple-800', icon: '💞' };
+    default:
+      return { bg: 'bg-gray-100', text: 'text-gray-800', icon: '❓' };
+  }
 };
 
 export default function Dashboard() {
@@ -155,57 +170,73 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="grid gap-6">
-                  {pets.map((pet) => (
-                    <div 
-                      key={pet.id}
-                      onClick={() => handlePetCardClick(pet.id)}
-                      className="bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                    >
-                      <div className="relative h-64 bg-gray-100">
-                        {pet.image ? (
-                          <img 
-                            src={getPetImageUrl(pet.image)} 
-                            alt={pet.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.onerror = null; 
-                              e.target.src = "https://via.placeholder.com/400";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <PawPrint size={40} />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold text-gray-900 text-lg">
-                              {pet.name || "Unnamed Pet"}
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                              {pet.type} • {pet.gender}
-                            </p>
-                          </div>
-                          <span className={`px-3 py-1 text-sm rounded-full ${
-                            pet.status === 'lost' 
-                              ? 'bg-red-100 text-red-800' 
-                              : pet.status === 'found' 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-gray-100 text-gray-800'
-                          }`}>
+                  {pets.map((pet) => {
+                    const statusColors = getStatusColor(pet.status);
+                    return (
+                      <div 
+                        key={pet.id}
+                        onClick={() => handlePetCardClick(pet.id)}
+                        className="bg-white border rounded-xl overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+                      >
+                        <div className="relative h-64 w-full bg-gray-100 flex items-center justify-center">
+                          {pet.image ? (
+                            <img 
+                              src={getPetImageUrl(pet.image)} 
+                              alt={pet.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              onError={(e) => {
+                                e.target.onerror = null; 
+                                e.target.src = "https://via.placeholder.com/500";
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <PawPrint size={40} />
+                            </div>
+                          )}
+                          <div className={`absolute top-3 right-3 px-3 py-1 rounded-full ${statusColors.bg} ${statusColors.text} flex items-center text-sm font-medium`}>
+                            <span className="mr-1">{statusColors.icon}</span>
                             {pet.status || 'Unknown'}
-                          </span>
+                          </div>
                         </div>
-                        {pet.description && (
-                          <p className="mt-3 text-gray-600 line-clamp-2">
-                            {pet.description}
-                          </p>
-                        )}
+                        <div className="p-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-semibold text-gray-900 text-xl">
+                                {pet.name || "Unnamed Pet"}
+                              </h3>
+                              <div className="flex items-center mt-1 space-x-3">
+                                <span className="text-sm text-gray-500">
+                                  {pet.type}
+                                </span>
+                                {pet.gender && (
+                                  <span className="text-sm text-gray-500">
+                                    • {pet.gender}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {pet.date && (
+                              <span className="text-xs text-gray-400">
+                                {new Date(pet.date).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                          {pet.description && (
+                            <p className="mt-3 text-gray-600 line-clamp-2">
+                              {pet.description}
+                            </p>
+                          )}
+                          {pet.address && (
+                            <div className="mt-2 flex items-center text-sm text-gray-500">
+                              <Home className="h-4 w-4 mr-1" />
+                              <span className="truncate">{pet.address}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -257,30 +288,53 @@ export default function Dashboard() {
                 </Link>
                 
                 <Link
-                  href="/settings/account_information"
+                  href="/rehome"
                   className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-green-100 rounded-lg">
-                      <User className="h-5 w-5 text-green-600" />
+                      <Users className="h-5 w-5 text-green-600" />
                     </div>
-                    <span className="text-gray-700">Profile Settings</span>
+                    <span className="text-gray-700">Rehoming</span>
                   </div>
                   <ChevronRight className="h-5 w-5 text-gray-400" />
                 </Link>
                 
                 <Link
-                  href="/settings"
+                  href="/settings/account_information"
                   className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-yellow-100 rounded-lg">
-                      <Settings className="h-5 w-5 text-yellow-600" />
+                      <User className="h-5 w-5 text-yellow-600" />
                     </div>
-                    <span className="text-gray-700">Account Settings</span>
+                    <span className="text-gray-700">Profile Settings</span>
                   </div>
                   <ChevronRight className="h-5 w-5 text-gray-400" />
                 </Link>
+              </div>
+            </div>
+
+            {/* Status Legend */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Status Legend</h2>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <span className="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                  <span className="text-sm text-gray-700">Lost</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                  <span className="text-sm text-gray-700">Found</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                  <span className="text-sm text-gray-700">Safe at Home</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
+                  <span className="text-sm text-gray-700">Rehome</span>
+                </div>
               </div>
             </div>
           </div>
@@ -291,7 +345,6 @@ export default function Dashboard() {
     </div>
   );
 }
-
 
 // //frontend\pages\pet_dashboard.js
 // "use client"
