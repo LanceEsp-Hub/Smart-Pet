@@ -10,12 +10,23 @@ const BUCKETS = {
   MESSAGES: "messages"
 }
 
+const getApiUrl = () => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+  // Ensure HTTPS is used
+  if (apiUrl.startsWith('http://')) {
+    return apiUrl.replace('http://', 'https://');
+  }
+  return apiUrl;
+};
+
+const API_URL = getApiUrl();
+
 // Get product image URL
 export const getProductImageUrl = (imageName) => {
   if (!imageName) return "https://via.placeholder.com/400x300?text=Product+Image"
   
   // Use the backend API URL for product images since they're served locally
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+  // const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
   
   // If the imageName already contains the full path, extract just the filename
   if (imageName.startsWith('/uploads/products/')) {
