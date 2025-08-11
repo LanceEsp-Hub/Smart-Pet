@@ -1672,7 +1672,7 @@
 // Add this import at the top of the file
 import { decryptData } from './auth';
 // Configure API URL based on environment
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
 
 // Helper function for consistent error handling
 const handleResponse = async (response) => {
@@ -2811,7 +2811,7 @@ export const generateFingerprint = async (petId, status) => {
     const token = localStorage.getItem("token") // or however you store your auth token
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/pets/${petId}/generate-fingerprint`,
+      `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/pets/${petId}/generate-fingerprint`,
       {
         method: "POST",
         headers: {
