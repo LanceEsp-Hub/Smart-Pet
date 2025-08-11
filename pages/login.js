@@ -110,96 +110,37 @@ export default function Page() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 
-      <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
-
+      <style jsx>{`
         * {
           box-sizing: border-box;
         }
 
         body {
+          font-family: 'Montserrat', sans-serif;
+          background: #f6f5f7;
           display: flex;
-          background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
           justify-content: center;
           align-items: center;
           flex-direction: column;
-          font-family: "Poppins", sans-serif;
-          min-height: 100vh;
           margin: 0;
-          padding: 20px;
-          position: relative;
-          overflow-x: hidden;
-        }
-
-        /* Added animated background circles */
-        body::before {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: 
-            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
-          animation: moveCircles 20s ease-in-out infinite;
-          z-index: -1;
-        }
-
-        @keyframes moveCircles {
-          0%, 100% {
-            background: 
-              radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
-          }
-          25% {
-            background: 
-              radial-gradient(circle at 60% 30%, rgba(120, 119, 198, 0.4) 0%, transparent 50%),
-              radial-gradient(circle at 30% 70%, rgba(255, 119, 198, 0.4) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(120, 219, 255, 0.4) 0%, transparent 50%);
-          }
-          50% {
-            background: 
-              radial-gradient(circle at 80% 60%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 20% 40%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 60% 20%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
-          }
-          75% {
-            background: 
-              radial-gradient(circle at 40% 90%, rgba(120, 119, 198, 0.4) 0%, transparent 50%),
-              radial-gradient(circle at 90% 50%, rgba(255, 119, 198, 0.4) 0%, transparent 50%),
-              radial-gradient(circle at 10% 60%, rgba(120, 219, 255, 0.4) 0%, transparent 50%);
-          }
+          height: 100vh;
         }
 
         h1 {
-          font-weight: 700;
-          letter-spacing: -1.5px;
+          font-weight: bold;
           margin: 0;
-          margin-bottom: 15px;
-        }
-
-        h1.title {
-          font-size: clamp(28px, 5vw, 45px);
-          line-height: 1.1;
-          margin: 0;
-          text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
         }
 
         p {
-          font-size: clamp(12px, 2.5vw, 14px);
+          font-size: 14px;
           font-weight: 100;
           line-height: 20px;
           letter-spacing: 0.5px;
           margin: 20px 0 30px;
-          text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
         }
 
         span {
-          font-size: 14px;
-          margin-top: 25px;
+          font-size: 12px;
         }
 
         a {
@@ -207,59 +148,20 @@ export default function Page() {
           font-size: 14px;
           text-decoration: none;
           margin: 15px 0;
-          transition: 0.3s ease-in-out;
-        }
-
-        a:hover {
-          color: #4bb6b7;
-        }
-
-        .content {
-          display: flex;
-          width: 100%;
-          height: 50px;
-          align-items: center;
-          justify-content: space-around;
-        }
-
-        .content .checkbox {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .content input {
-          accent-color: #333;
-          width: 12px;
-          height: 12px;
-        }
-
-        .content label {
-          font-size: 14px;
-          user-select: none;
-          padding-left: 5px;
         }
 
         button {
-          position: relative;
           border-radius: 20px;
-          border: 1px solid #4bb6b7;
-          background-color: #4bb6b7;
-          color: #fff;
-          font-size: 15px;
-          font-weight: 700;
-          margin: 10px;
-          padding: 12px 60px;
+          border: 1px solid #ff4b2b;
+          background-color: #ff4b2b;
+          color: #ffffff;
+          font-size: 12px;
+          font-weight: bold;
+          padding: 12px 45px;
           letter-spacing: 1px;
-          text-transform: capitalize;
-          transition: 0.3s ease-in-out;
+          text-transform: uppercase;
+          transition: transform 80ms ease-in;
           cursor: pointer;
-        }
-
-        button:hover {
-          letter-spacing: 3px;
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(75, 182, 183, 0.4);
         }
 
         button:active {
@@ -271,288 +173,148 @@ export default function Page() {
         }
 
         button.ghost {
-          background-color: rgba(225, 225, 225, 0.2);
-          border: 2px solid #fff;
-          color: #fff;
-          padding: 12px 45px;
-        }
-
-        button.ghost i {
-          position: absolute;
-          opacity: 0;
-          transition: 0.3s ease-in-out;
-        }
-
-        button.ghost i.register {
-          right: 70px;
-        }
-
-        button.ghost i.login {
-          left: 70px;
-        }
-
-        button.ghost:hover i.register {
-          right: 40px;
-          opacity: 1;
-        }
-
-        button.ghost:hover i.login {
-          left: 40px;
-          opacity: 1;
+          background-color: transparent;
+          border-color: #ffffff;
         }
 
         form {
-          background-color: #fff;
+          background-color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-direction: column;
-          padding: 0 40px;
+          padding: 0 50px;
           height: 100%;
           text-align: center;
         }
 
         input {
           background-color: #eee;
-          border-radius: 10px;
           border: none;
           padding: 12px 15px;
           margin: 8px 0;
           width: 100%;
-          font-size: 14px;
         }
 
-        /* Made container fully responsive for mobile */
         .container {
           background-color: #fff;
-          border-radius: 25px;
-          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+          border-radius: 10px;
+          box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
           position: relative;
           overflow: hidden;
-          width: 100%;
-          max-width: 768px;
-          min-height: 500px;
-          height: auto;
+          width: 768px;
+          max-width: 100%;
+          min-height: 480px;
+          z-index: 10;
         }
 
-        /* Mobile-first responsive design */
-        @media (max-width: 768px) {
-          body {
-            padding: 10px;
-          }
-          
-          .container {
-            min-height: 600px;
-            border-radius: 15px;
-          }
-          
-          .form-container {
-            position: relative !important;
-            width: 100% !important;
-            height: auto !important;
-            transform: none !important;
-            opacity: 1 !important;
-            z-index: 1 !important;
-          }
-          
-          .login-container {
-            display: block;
-          }
-          
-          .registration-container {
-            display: none;
-          }
-          
-          .container.right-panel-active .login-container {
-            display: none;
-          }
-          
-          .container.right-panel-active .registration-container {
-            display: block;
-          }
-          
-          .overlay-container {
-            position: relative !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 200px !important;
-            transform: none !important;
-          }
-          
-          .overlay {
-            position: relative !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            transform: none !important;
-            background-size: cover !important;
-            background-position: center !important;
-          }
-          
-          .overlay-panel {
-            position: relative !important;
-            width: 100% !important;
-            height: 100% !important;
-            transform: none !important;
-            padding: 20px !important;
-          }
-          
-          .overlay-left {
-            display: none;
-          }
-          
-          .overlay-right {
-            display: block;
-          }
-          
-          .container.right-panel-active .overlay-left {
-            display: block;
-          }
-          
-          .container.right-panel-active .overlay-right {
-            display: none;
-          }
-          
-          form {
-            padding: 20px;
-            min-height: 400px;
-          }
-          
-          button {
-            padding: 12px 40px;
-            font-size: 14px;
-          }
-          
-          button.ghost {
-            padding: 12px 30px;
-          }
+        .form-container {
+          position: absolute;
+          top: 0;
+          height: 100%;
+          transition: all 0.6s ease-in-out;
         }
 
-        @media (min-width: 769px) {
-          .form-container {
-            position: absolute;
-            top: 0;
-            height: 100%;
-            transition: all 0.6s ease-in-out;
-          }
+        .login-container {
+          left: 0;
+          width: 50%;
+          z-index: 2;
+        }
 
-          .login-container {
-            left: 0;
-            width: 50%;
-            z-index: 2;
-          }
+        .registration-container {
+          left: 0;
+          width: 50%;
+          opacity: 0;
+          z-index: 1;
+        }
 
-          .registration-container {
-            left: 0;
-            width: 50%;
-            opacity: 0;
-            z-index: 1;
-          }
+        .container.right-panel-active .login-container {
+          transform: translateX(100%);
+        }
 
-          .container.right-panel-active .login-container {
-            transform: translateX(100%);
-          }
-
-          .container.right-panel-active .registration-container {
-            transform: translateX(100%);
-            opacity: 1;
-            z-index: 5;
-            animation: show 0.6s;
-          }
-
-          .overlay-container {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 50%;
-            height: 100%;
-            overflow: hidden;
-            transition: transform 0.6s ease-in-out;
-            z-index: 100;
-          }
-
-          .container.right-panel-active .overlay-container {
-            transform: translate(-100%);
-          }
-
-          .overlay {
-            background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-mikhail-nilov-6530653.jpg-NmIC1X70wcMEnYQQYkfLqNxuWsRYXs.jpeg");
-            background-repeat: no-repeat;
-            background-size: 120% auto;
-            background-position: 0 0;
-            color: #fff;
-            position: relative;
-            left: -100%;
-            height: 100%;
-            width: 200%;
-            transform: translateX(0);
-            transition: transform 0.6s ease-in-out;
-            animation: panBackground 15s linear infinite alternate;
-          }
-
-          .container.right-panel-active .overlay {
-            transform: translateX(50%);
-          }
-
-          .overlay-panel {
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 0 40px;
-            text-align: center;
-            top: 0;
-            height: 100%;
-            width: 50%;
-            transform: translateX(0);
-            transition: transform 0.6s ease-in-out;
-          }
-
-          .overlay-left {
-            transform: translateX(-20%);
-          }
-
-          .container.right-panel-active .overlay-left {
-            transform: translateX(0);
-          }
-
-          .overlay-right {
-            right: 0;
-            transform: translateX(0);
-          }
-
-          .container.right-panel-active .overlay-right {
-            transform: translateX(20%);
-          }
+        .container.right-panel-active .registration-container {
+          transform: translateX(100%);
+          opacity: 1;
+          z-index: 5;
+          animation: show 0.6s;
         }
 
         @keyframes show {
-          0%,
-          49.99% {
+          0%, 49.99% {
             opacity: 0;
             z-index: 1;
           }
-
-          50%,
-          100% {
+          50%, 100% {
             opacity: 1;
             z-index: 5;
           }
         }
 
-        .overlay-panel {
-          background-color: rgba(0, 0, 0, 0.6);
+        .overlay-container {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          width: 50%;
+          height: 100%;
+          overflow: hidden;
+          transition: transform 0.6s ease-in-out;
+          z-index: 100;
         }
 
-        .overlay::before {
-          content: "";
+        .container.right-panel-active .overlay-container {
+          transform: translateX(-100%);
+        }
+
+        .overlay {
+          background: #ff416c;
+          background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c);
+          background: linear-gradient(to right, #ff4b2b, #ff416c);
+          background-repeat: no-repeat;
+          background-size: cover;
+          background-position: 0 0;
+          color: #ffffff;
+          position: relative;
+          left: -100%;
+          height: 100%;
+          width: 200%;
+          transform: translateX(0);
+          transition: transform 0.6s ease-in-out;
+        }
+
+        .container.right-panel-active .overlay {
+          transform: translateX(50%);
+        }
+
+        .overlay-panel {
           position: absolute;
-          left: 0;
-          right: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          padding: 0 40px;
+          text-align: center;
           top: 0;
-          bottom: 0;
-          background: linear-gradient(to top, rgba(46, 94, 109, 0.4) 40%, rgba(46, 94, 109, 0));
+          height: 100%;
+          width: 50%;
+          transform: translateX(0);
+          transition: transform 0.6s ease-in-out;
+        }
+
+        .overlay-left {
+          transform: translateX(-20%);
+        }
+
+        .container.right-panel-active .overlay-left {
+          transform: translateX(0);
+        }
+
+        .overlay-right {
+          right: 0;
+          transform: translateX(0);
+        }
+
+        .container.right-panel-active .overlay-right {
+          transform: translateX(20%);
         }
 
         .social-container {
@@ -568,41 +330,102 @@ export default function Page() {
           margin: 0 5px;
           height: 40px;
           width: 40px;
-          transition: 0.3s ease-in-out;
-        }
-
-        .social-container a:hover {
-          border: 1px solid #4bb6b7;
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(75, 182, 183, 0.3);
-        }
-
-        @keyframes panBackground {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 100% 0;
-          }
-        }
-
-        /* Added floating animation for forms */
-        .form-container {
-          animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
         }
 
         @media (max-width: 768px) {
+          .container {
+            width: 95%;
+            min-height: 600px;
+            flex-direction: column;
+          }
+          
           .form-container {
-            animation: none;
+            position: relative !important;
+            width: 100% !important;
+            height: auto !important;
+            transform: none !important;
+            opacity: 1 !important;
+            z-index: 1 !important;
+          }
+          
+          .login-container {
+            display: block;
+            width: 100% !important;
+            left: 0 !important;
+            transform: none !important;
+          }
+          
+          .registration-container {
+            display: none;
+            width: 100% !important;
+            left: 0 !important;
+            transform: none !important;
+          }
+          
+          .container.right-panel-active .login-container {
+            display: none;
+            transform: none !important;
+          }
+          
+          .container.right-panel-active .registration-container {
+            display: block;
+            transform: none !important;
+            opacity: 1;
+          }
+          
+          .overlay-container {
+            position: relative !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 200px !important;
+            transform: none !important;
+          }
+          
+          .overlay {
+            left: 0 !important;
+            width: 100% !important;
+            transform: none !important;
+          }
+          
+          .overlay-panel {
+            width: 100% !important;
+            transform: none !important;
+            padding: 20px;
+          }
+          
+          .overlay-left,
+          .overlay-right {
+            transform: none !important;
+            position: relative !important;
+            right: auto !important;
+          }
+          
+          .container.right-panel-active .overlay-left,
+          .container.right-panel-active .overlay-right {
+            transform: none !important;
+          }
+          
+          form {
+            padding: 20px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .container {
+            width: 98%;
+            margin: 10px;
+          }
+          
+          form {
+            padding: 15px;
+          }
+          
+          input {
+            padding: 10px 12px;
+          }
+          
+          button {
+            padding: 10px 35px;
           }
         }
       `}</style>
@@ -682,6 +505,7 @@ export default function Page() {
     </>
   )
 }
+
 
 
 
