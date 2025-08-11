@@ -284,7 +284,7 @@ import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
 
 // Define API_URL (was missing in your original code)
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"
 
 const AccountInformationPage = () => {
   const [formData, setFormData] = useState({
