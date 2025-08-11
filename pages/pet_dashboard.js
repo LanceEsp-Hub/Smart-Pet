@@ -1,7 +1,7 @@
 //frontend\pages\pet_dashboard.js
 "use client";
 
-import { MessageSquare, User, ChevronRight, Plus, PawPrint } from "lucide-react";
+import { MessageSquare, User, ChevronRight, Plus, PawPrint, Heart, HelpCircle, Settings } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,7 +22,7 @@ const decryptData = (encryptedData) => {
 };
 
 const getPetImageUrl = (imageName) => {
-  if (!imageName) return "https://via.placeholder.com/100";
+  if (!imageName) return "https://via.placeholder.com/400";
   return `http://localhost:8000/uploads/pet_images/${imageName}?t=${Date.now()}`;
 };
 
@@ -154,14 +154,14 @@ export default function Dashboard() {
                   </Link>
                 </div>
               ) : (
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid gap-6">
                   {pets.map((pet) => (
                     <div 
                       key={pet.id}
                       onClick={() => handlePetCardClick(pet.id)}
                       className="bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
                     >
-                      <div className="relative h-40 bg-gray-100">
+                      <div className="relative h-64 bg-gray-100">
                         {pet.image ? (
                           <img 
                             src={getPetImageUrl(pet.image)} 
@@ -169,7 +169,7 @@ export default function Dashboard() {
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               e.target.onerror = null; 
-                              e.target.src = "https://via.placeholder.com/100";
+                              e.target.src = "https://via.placeholder.com/400";
                             }}
                           />
                         ) : (
@@ -181,14 +181,14 @@ export default function Dashboard() {
                       <div className="p-4">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-semibold text-gray-900">
+                            <h3 className="font-semibold text-gray-900 text-lg">
                               {pet.name || "Unnamed Pet"}
                             </h3>
                             <p className="text-sm text-gray-500">
                               {pet.type} • {pet.gender}
                             </p>
                           </div>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
+                          <span className={`px-3 py-1 text-sm rounded-full ${
                             pet.status === 'lost' 
                               ? 'bg-red-100 text-red-800' 
                               : pet.status === 'found' 
@@ -199,7 +199,7 @@ export default function Dashboard() {
                           </span>
                         </div>
                         {pet.description && (
-                          <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                          <p className="mt-3 text-gray-600 line-clamp-2">
                             {pet.description}
                           </p>
                         )}
@@ -229,41 +229,58 @@ export default function Dashboard() {
                   </div>
                   <ChevronRight className="h-5 w-5 text-gray-400" />
                 </Link>
+                
+                <Link
+                  href="/favorites"
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-pink-100 rounded-lg">
+                      <Heart className="h-5 w-5 text-pink-600" />
+                    </div>
+                    <span className="text-gray-700">Favorites</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                </Link>
+                
+                <Link
+                  href="/help"
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <HelpCircle className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <span className="text-gray-700">Help Center</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                </Link>
+                
                 <Link
                   href="/settings/account_information"
                   className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <User className="h-5 w-5 text-blue-600" />
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <User className="h-5 w-5 text-green-600" />
                     </div>
                     <span className="text-gray-700">Profile Settings</span>
                   </div>
                   <ChevronRight className="h-5 w-5 text-gray-400" />
                 </Link>
-              </div>
-            </div>
-
-            {/* Status Summary */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Pet Status</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Total Pets</span>
-                  <span className="font-medium">{pets.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Lost</span>
-                  <span className="font-medium text-red-600">
-                    {pets.filter(pet => pet.status === 'lost').length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Found</span>
-                  <span className="font-medium text-green-600">
-                    {pets.filter(pet => pet.status === 'found').length}
-                  </span>
-                </div>
+                
+                <Link
+                  href="/settings"
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-yellow-100 rounded-lg">
+                      <Settings className="h-5 w-5 text-yellow-600" />
+                    </div>
+                    <span className="text-gray-700">Account Settings</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                </Link>
               </div>
             </div>
           </div>
