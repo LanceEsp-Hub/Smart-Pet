@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { getApiUrl } from "../../../utils/apiUtils";
 
 export default function OrderDetailPage() {
   const router = useRouter();
@@ -16,7 +17,8 @@ export default function OrderDetailPage() {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8000/api/checkout/order/${id}`);
+        const API_URL = getApiUrl();
+        const response = await fetch(`${API_URL}/api/checkout/order/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch order details');
         }
