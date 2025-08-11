@@ -1,4 +1,3 @@
-
 //frontend\pages\pet_dashboard.js
 "use client"
 
@@ -206,7 +205,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-6">
                         <div className="relative">
-                          <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-md">
+                          <div className="w-28 h-28 md:w-32 md:h-32 bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-md">
                             {pet.image ? (
                               <img
                                 src={getPetImageUrl(pet.image) || "/placeholder.svg"}
@@ -253,39 +252,96 @@ export default function Dashboard() {
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
-                Inbox
+                Quick Access
               </h2>
-              <Link
-                href="/conversations"
-                className="group flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl hover:from-purple-100 hover:to-blue-100 transition-all duration-200 border border-purple-100"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
-                    <MessageSquare className="h-5 w-5 text-purple-600" />
+              <div className="space-y-3">
+                <Link
+                  href="/conversations"
+                  className="group flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl hover:from-purple-100 hover:to-blue-100 transition-all duration-200 border border-purple-100"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <MessageSquare className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-gray-700 group-hover:text-purple-700">Messages</span>
                   </div>
-                  <span className="font-medium text-gray-700 group-hover:text-purple-700">Messages</span>
-                </div>
-                <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all duration-200" />
-              </Link>
-            </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all duration-200" />
+                </Link>
 
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
-                Account
-              </h2>
-              <Link
-                href="/settings/account_information"
-                className="group flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 border border-emerald-100"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
-                    <User className="h-5 w-5 text-emerald-600" />
+                <Link
+                  href="/settings/account_information"
+                  className="group flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 border border-emerald-100"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <User className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <span className="font-medium text-gray-700 group-hover:text-emerald-700">Account Settings</span>
                   </div>
-                  <span className="font-medium text-gray-700 group-hover:text-emerald-700">Profile</span>
-                </div>
-                <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all duration-200" />
-              </Link>
+                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all duration-200" />
+                </Link>
+
+                <Link
+                  href="/notifications"
+                  className="group flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl hover:from-orange-100 hover:to-red-100 transition-all duration-200 border border-orange-100"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <svg className="h-5 w-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M9 11h.01"
+                        />
+                      </svg>
+                    </div>
+                    <span className="font-medium text-gray-700 group-hover:text-orange-700">Notifications</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all duration-200" />
+                </Link>
+
+                <Link
+                  href="/help"
+                  className="group flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl hover:from-indigo-100 hover:to-purple-100 transition-all duration-200 border border-indigo-100"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <svg className="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <span className="font-medium text-gray-700 group-hover:text-indigo-700">Help & Support</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all duration-200" />
+                </Link>
+
+                <Link
+                  href="/privacy"
+                  className="group flex items-center justify-between p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl hover:from-pink-100 hover:to-rose-100 transition-all duration-200 border border-pink-100"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <svg className="h-5 w-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                        />
+                      </svg>
+                    </div>
+                    <span className="font-medium text-gray-700 group-hover:text-pink-700">Privacy Settings</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-pink-600 group-hover:translate-x-1 transition-all duration-200" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -295,6 +351,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 
