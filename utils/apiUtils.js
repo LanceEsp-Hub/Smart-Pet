@@ -3,11 +3,40 @@
  * This ensures that all API calls use HTTPS to prevent mixed content errors
  */
 export const getApiUrl = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
-  // Ensure HTTPS is used
-  if (apiUrl.startsWith('http://')) {
-    return apiUrl.replace('http://', 'https://');
+  // Try to get the environment variable
+  let apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  
+  // Debug logging
+  console.log('Environment API URL:', apiUrl);
+  
+  // If no environment variable is set, use the fallback
+  if (!apiUrl) {
+    apiUrl = "https://newback-production-a0cc.up.railway.app";
+    console.log('Using fallback API URL:', apiUrl);
   }
+  
+  // Ensure HTTPS is used - multiple checks for robustness
+  if (apiUrl.startsWith('http://')) {
+    const httpsUrl = apiUrl.replace('http://', 'https://');
+    console.log('Converted HTTP to HTTPS:', httpsUrl);
+    return httpsUrl;
+  }
+  
+  // Double-check and force HTTPS if needed
+  if (!apiUrl.startsWith('https://')) {
+    const httpsUrl = apiUrl.replace(/^http:\/\//, 'https://');
+    console.log('Forced HTTPS conversion:', httpsUrl);
+    return httpsUrl;
+  }
+  
+  // Final validation - if somehow we still don't have HTTPS, force it
+  if (!apiUrl.includes('https://')) {
+    const httpsUrl = `https://${apiUrl.replace(/^https?:\/\//, '')}`;
+    console.log('Final HTTPS enforcement:', httpsUrl);
+    return httpsUrl;
+  }
+  
+  console.log('Final API URL:', apiUrl);
   return apiUrl;
 };
 
