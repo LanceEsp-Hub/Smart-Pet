@@ -243,7 +243,23 @@ export default function Navbar() {
 
   return (
     <div className="bg-white/95 backdrop-blur-md shadow-lg border-b border-white/20 sticky top-0 z-50">
-      <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600">
+      <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 animate-gradient-x">
+        <style jsx>{`
+          @keyframes gradient-x {
+            0%, 100% {
+              background-size: 200% 200%;
+              background-position: left center;
+            }
+            50% {
+              background-size: 200% 200%;
+              background-position: right center;
+            }
+          }
+          .animate-gradient-x {
+            background-size: 200% 200%;
+            animation: gradient-x 4s ease infinite;
+          }
+        `}</style>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-center items-center py-3 text-sm text-white/90">
             <div className="flex items-center space-x-6">
@@ -272,7 +288,7 @@ export default function Navbar() {
                 <img
                   src="/logo.png"
                   alt="Smartpet Love Lost"
-                  className="h-12 w-auto transition-transform hover:scale-105"
+                  className="h-16 w-auto transition-transform hover:scale-110 duration-300"
                 />
               </div>
             </div>
@@ -318,9 +334,7 @@ export default function Navbar() {
                   >
                     <Bell className="h-6 w-6 text-gray-600 group-hover:text-purple-600 transition-colors" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full text-white text-xs flex items-center justify-center font-bold shadow-lg animate-pulse">
-                        {unreadCount}
-                      </span>
+                      <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping"></span>
                     )}
                   </div>
                 </div>
@@ -425,9 +439,7 @@ export default function Navbar() {
                 >
                   <MessageSquare className="h-6 w-6 text-gray-600 group-hover:text-purple-600 transition-colors" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    </span>
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping"></span>
                   )}
                 </div>
               </div>
