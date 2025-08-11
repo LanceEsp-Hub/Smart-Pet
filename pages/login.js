@@ -385,6 +385,7 @@ export default function Page() {
           max-width: 100%;
           min-height: 600px;
           border: 1px solid rgba(255, 255, 255, 0.2);
+          animation: float 6s ease-in-out infinite;
         }
 
         .form-container {
@@ -537,21 +538,78 @@ export default function Page() {
         @media (max-width: 768px) {
           .container {
             width: 95%;
-            min-height: 500px;
+            min-height: 80vh;
+            max-height: 90vh;
+            margin: 2rem auto;
+          }
+
+          .form-container {
+            padding: 2rem 1.5rem;
           }
 
           form {
-            padding: 0 30px;
+            padding: 0 20px;
           }
 
           h1.title {
-            font-size: 35px;
-            line-height: 35px;
+            font-size: 28px;
+            line-height: 32px;
+            margin-bottom: 1rem;
           }
 
           button {
-            padding: 12px 35px;
-            font-size: 14px;
+            padding: 14px 40px;
+            font-size: 16px;
+            width: 100%;
+            margin: 1rem 0;
+          }
+
+          .overlay-container {
+            display: none;
+          }
+
+          .container.right-panel-active .sign-in-container {
+            transform: translateX(0);
+          }
+
+          .container.right-panel-active .sign-up-container {
+            transform: translateX(0);
+            opacity: 1;
+            z-index: 5;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .container {
+            width: 98%;
+            min-height: 85vh;
+            border-radius: 20px;
+            margin: 1rem auto;
+          }
+
+          h1.title {
+            font-size: 24px;
+            line-height: 28px;
+          }
+
+          input {
+            padding: 14px 20px;
+            font-size: 16px;
+          }
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+
+        .container {
+          animation: float 6s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+          .container {
+            animation: none;
           }
         }
       `}</style>
