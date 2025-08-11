@@ -9,6 +9,13 @@ export default function CheckoutPage() {
     const apiUrl = getApiUrl();
     console.log('Checkout page loaded with API URL:', apiUrl);
     console.log('Environment variable NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+    
+    // Override fetch to log all requests
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+      console.log('Fetch called with:', args);
+      return originalFetch.apply(this, args);
+    };
   }, []);
   const [user, setUser] = useState(null);
   const [placingOrder, setPlacingOrder] = useState(false);
@@ -322,8 +329,18 @@ export default function CheckoutPage() {
         throw new Error('API URL must use HTTPS for security');
       }
       
+      // Force HTTPS and ensure no trailing slash
+      const checkoutUrl = `${API_URL}/api/checkout`.replace(/\/$/, '');
+      console.log('Final checkout URL:', checkoutUrl);
+      
+      // Additional validation
+      if (checkoutUrl.includes('http://')) {
+        throw new Error('Checkout URL contains HTTP - this should not happen');
+      }
+      
       const token = sessionStorage.getItem("auth_token");
-      const res = await fetch(`${API_URL}/api/checkout`, {
+      console.log('About to make fetch request to:', checkoutUrl);
+      const res = await fetch(checkoutUrl, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
