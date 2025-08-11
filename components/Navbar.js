@@ -22,7 +22,7 @@ const decryptData = (encryptedData) => {
 
 const markNotificationAsRead = async (token, notificationId) => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/${notificationId}/read`,
+    `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/notifications/${notificationId}/read`,
     {
       method: 'PATCH',
       headers: {
@@ -68,7 +68,7 @@ export default function Navbar() {
 
     // Fetch recent notifications first
     const notifResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/user/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/notifications/user/${userId}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -89,7 +89,7 @@ export default function Navbar() {
     
     // Only fetch unread count if notifications were successful
     const countResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/notifications/unread-count/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/notifications/unread-count/${userId}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`
