@@ -3,6 +3,13 @@ import { getApiUrl } from "../../utils/apiUtils";
 
 export default function CheckoutPage() {
   const userId = typeof window !== 'undefined' ? sessionStorage.getItem("user_id") : null;
+  
+  // Debug: Log the API URL on component mount
+  useEffect(() => {
+    const apiUrl = getApiUrl();
+    console.log('Checkout page loaded with API URL:', apiUrl);
+    console.log('Environment variable NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+  }, []);
   const [user, setUser] = useState(null);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [addresses, setAddresses] = useState([]);
@@ -307,6 +314,14 @@ export default function CheckoutPage() {
     setPlacingOrder(true);
     try {
       const API_URL = getApiUrl();
+      console.log('Checkout API URL:', API_URL);
+      console.log('Full checkout endpoint:', `${API_URL}/api/checkout`);
+      
+      // Validate that we're using HTTPS
+      if (!API_URL.startsWith('https://')) {
+        throw new Error('API URL must use HTTPS for security');
+      }
+      
       const token = sessionStorage.getItem("auth_token");
       const res = await fetch(`${API_URL}/api/checkout`, {
         method: "POST",
