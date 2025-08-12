@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { getApiUrl } from "../../utils/apiUtils";
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -22,13 +23,13 @@ export default function OrdersPage() {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
-    const token = sessionStorage.getItem("auth_token");
-    const response = await fetch(`${API_URL}/api/checkout/orders/${userId}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
+        const API_URL = getApiUrl();
+        const token = sessionStorage.getItem("auth_token");
+        const response = await fetch(`${API_URL}/api/checkout/orders/${userId}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch orders');
         }
@@ -90,7 +91,7 @@ export default function OrdersPage() {
       setShowReceiptModal(true);
       
       // Fetch detailed order information
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+      const API_URL = getApiUrl();
       const token = sessionStorage.getItem("auth_token");
       const response = await fetch(`${API_URL}/api/checkout/order/${order.id}`, {
         headers: {
