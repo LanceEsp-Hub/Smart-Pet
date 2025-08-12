@@ -1,6 +1,31 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 "use client"
 
 import { useState, useEffect, lazy } from "react"
@@ -49,25 +74,46 @@ export default function Page() {
     const container = document.getElementById("container")
     const registerBtn = document.getElementById("register")
     const loginBtn = document.getElementById("login")
+    const mobileRegisterBtn = document.getElementById("mobile-register")
+    const mobileLoginBtn = document.getElementById("mobile-login")
+
+    const handleRegisterClick = () => {
+      container.classList.add("right-panel-active")
+      // Update mobile toggle buttons
+      if (mobileRegisterBtn && mobileLoginBtn) {
+        mobileRegisterBtn.classList.add("active")
+        mobileLoginBtn.classList.remove("active")
+      }
+    }
+
+    const handleLoginClick = () => {
+      container.classList.remove("right-panel-active")
+      // Update mobile toggle buttons
+      if (mobileRegisterBtn && mobileLoginBtn) {
+        mobileLoginBtn.classList.add("active")
+        mobileRegisterBtn.classList.remove("active")
+      }
+    }
 
     if (registerBtn && loginBtn && container) {
-      registerBtn.addEventListener("click", () => {
-        container.classList.add("right-panel-active")
-      })
+      registerBtn.addEventListener("click", handleRegisterClick)
+      loginBtn.addEventListener("click", handleLoginClick)
+    }
 
-      loginBtn.addEventListener("click", () => {
-        container.classList.remove("right-panel-active")
-      })
+    // Mobile toggle functionality
+    if (mobileRegisterBtn && mobileLoginBtn && container) {
+      mobileRegisterBtn.addEventListener("click", handleRegisterClick)
+      mobileLoginBtn.addEventListener("click", handleLoginClick)
     }
 
     return () => {
       if (registerBtn && loginBtn && container) {
-        registerBtn.removeEventListener("click", () => {
-          container.classList.add("right-panel-active")
-        })
-        loginBtn.removeEventListener("click", () => {
-          container.classList.remove("right-panel-active")
-        })
+        registerBtn.removeEventListener("click", handleRegisterClick)
+        loginBtn.removeEventListener("click", handleLoginClick)
+      }
+      if (mobileRegisterBtn && mobileLoginBtn && container) {
+        mobileRegisterBtn.removeEventListener("click", handleRegisterClick)
+        mobileLoginBtn.removeEventListener("click", handleLoginClick)
       }
     }
   }, [])
@@ -381,6 +427,13 @@ export default function Page() {
             padding: 20px 10px;
             min-height: 100vh;
             overflow-y: auto;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+          }
+
+          body::before {
+            display: none;
           }
 
           .container {
@@ -390,6 +443,8 @@ export default function Page() {
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
           }
           
           .form-container {
@@ -419,64 +474,53 @@ export default function Page() {
           }
           
           .overlay-container {
-            position: relative !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 120px !important;
-            order: -1;
+            display: none !important;
+          }
+          
+          .mobile-toggle {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px 15px 0 0;
             margin-bottom: 20px;
           }
-          
-          .overlay {
-            position: relative !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            transform: none !important;
-            border-radius: 15px 15px 0 0;
+
+          .mobile-toggle button {
+            background: transparent;
+            border: 2px solid #4bb6b7;
+            color: #4bb6b7;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            min-width: 100px;
           }
-          
-          .overlay-panel {
-            width: 100% !important;
-            height: 100% !important;
-            transform: none !important;
-            padding: 15px !important;
-            border-radius: 15px 15px 0 0;
+
+          .mobile-toggle button.active {
+            background: #4bb6b7;
+            color: white;
           }
-          
-          .overlay-left,
-          .overlay-right {
-            display: none;
-          }
-          
-          .container.right-panel-active .overlay-left {
-            display: flex;
-          }
-          
-          .container:not(.right-panel-active) .overlay-right {
-            display: flex;
+
+          .mobile-toggle button:not(.active) {
+            background: transparent;
+            color: #4bb6b7;
           }
           
           form {
             padding: 30px 20px;
             min-height: 400px;
             justify-content: flex-start;
+            background: transparent;
           }
 
           form h1 {
             font-size: 24px;
             margin-bottom: 20px;
-          }
-          
-          h1.title {
-            font-size: 20px;
-            line-height: 24px;
-            margin-bottom: 10px;
-          }
-
-          p {
-            font-size: 12px;
-            margin: 10px 0 15px;
+            color: #1A237E;
           }
           
           input {
@@ -484,24 +528,27 @@ export default function Page() {
             margin: 10px 0;
             font-size: 16px;
             border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
           }
           
-          button {
+          button[type="submit"] {
             padding: 15px 30px;
             font-size: 14px;
             margin: 15px 0;
             width: 100%;
             max-width: 200px;
+            background: #4bb6b7;
+            color: white;
           }
 
-          button.ghost {
-            padding: 12px 25px;
-            font-size: 13px;
+          button[type="submit"]:hover {
+            background: #3a9a9b;
           }
           
           span {
             font-size: 12px;
             margin: 15px 0;
+            color: #666;
           }
 
           .social-container {
@@ -514,11 +561,20 @@ export default function Page() {
             margin: 0 5px;
             min-height: 44px;
             min-width: 44px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+          }
+
+          .social-container a:hover {
+            background: #4bb6b7;
+            border-color: #4bb6b7;
+            color: white;
           }
 
           a {
             font-size: 12px;
             margin: 10px 0;
+            color: #4bb6b7;
           }
         }
 
@@ -765,6 +821,12 @@ export default function Page() {
         }
       `}</style>
       <div className="container" id="container">
+        {/* Mobile Toggle Buttons */}
+        <div className="mobile-toggle">
+          <button id="mobile-login" className="active">Login</button>
+          <button id="mobile-register">Register</button>
+        </div>
+
         <div className="text-[#1A237E] form-container registration-container">
           <form onSubmit={handleRegister}>
             <h1>Register Here</h1>
@@ -838,7 +900,6 @@ export default function Page() {
     </>
   )
 }
-
 
 
 
