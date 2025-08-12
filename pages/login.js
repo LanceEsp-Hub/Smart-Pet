@@ -1,9 +1,10 @@
-=-//third code is the original
+//third code is the original
 
 "use client"
 
-import { useState, useEffect } from "react"
-import Head from "next/head"
+import type React from "react"
+
+import { useState } from "react"
 import { loginUser, registerUser } from "../utils/api"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
@@ -51,115 +52,84 @@ export default function AuthPage() {
   }
 
   return (
-    <>
-      <Head>
-        <title>Login | Registration</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-      </Head>
+    <div className="auth-container">
+      {/* Background animation */}
+      <div className="bg-animation"></div>
 
-      <div className="auth-container">
-        {/* Background animation */}
-        <div className="bg-animation"></div>
-        
-        {/* Mobile header */}
-        <div className="mobile-header">
-          <h1>{isLoginView ? "Welcome Back" : "Create Account"}</h1>
-          <p>{isLoginView ? "Login to continue" : "Join us to get started"}</p>
-        </div>
+      {/* Mobile header */}
+      <div className="mobile-header">
+        <h1>{isLoginView ? "Welcome Back" : "Create Account"}</h1>
+        <p>{isLoginView ? "Login to continue" : "Join us to get started"}</p>
+      </div>
 
-        {/* Form container */}
-        <div className={`form-wrapper ${isLoginView ? "login-view" : "register-view"}`}>
-          {/* Login Form */}
-          <form 
-            className={`auth-form login-form ${!isLoginView ? "hidden" : ""}`} 
-            onSubmit={handleLogin}
-          >
-            <div className="input-group">
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="input-group">
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className="auth-btn">
-              Login
-            </button>
-            <div className="auth-footer">
-              <span>Don't have an account?</span>
-              <button type="button" className="toggle-btn" onClick={toggleView}>
-                Register
-              </button>
-            </div>
-          </form>
-
-          {/* Registration Form */}
-          <form 
-            className={`auth-form register-form ${isLoginView ? "hidden" : ""}`} 
-            onSubmit={handleRegister}
-          >
-            <div className="input-group">
-              <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="input-group">
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="input-group">
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className="auth-btn">
+      {/* Form container */}
+      <div className={`form-wrapper ${isLoginView ? "login-view" : "register-view"}`}>
+        {/* Login Form */}
+        <form className={`auth-form login-form ${!isLoginView ? "hidden" : ""}`} onSubmit={handleLogin}>
+          <div className="input-group">
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" className="auth-btn">
+            Login
+          </button>
+          <div className="auth-footer">
+            <span>Don't have an account?</span>
+            <button type="button" className="toggle-btn" onClick={toggleView}>
               Register
             </button>
-            <div className="auth-footer">
-              <span>Already have an account?</span>
-              <button type="button" className="toggle-btn" onClick={toggleView}>
-                Login
-              </button>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
 
-        {/* Desktop overlay (hidden on mobile) */}
-        <div className="desktop-overlay">
-          <div className={`overlay-panel ${isLoginView ? "overlay-right" : "overlay-left"}`}>
-            <h1>{isLoginView ? "Hello, Friend!" : "Welcome Back!"}</h1>
-            <p>
-              {isLoginView
-                ? "Enter your personal details and start journey with us"
-                : "To keep connected with us please login with your personal info"}
-            </p>
-            <button className="overlay-btn" onClick={toggleView}>
-              {isLoginView ? "Register" : "Login"}
+        {/* Registration Form */}
+        <form className={`auth-form register-form ${isLoginView ? "hidden" : ""}`} onSubmit={handleRegister}>
+          <div className="input-group">
+            <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+          </div>
+          <div className="input-group">
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" className="auth-btn">
+            Register
+          </button>
+          <div className="auth-footer">
+            <span>Already have an account?</span>
+            <button type="button" className="toggle-btn" onClick={toggleView}>
+              Login
             </button>
           </div>
+        </form>
+      </div>
+
+      {/* Desktop overlay (hidden on mobile) */}
+      <div className="desktop-overlay">
+        <div className={`overlay-panel ${isLoginView ? "overlay-right" : "overlay-left"}`}>
+          <h1>{isLoginView ? "Hello, Friend!" : "Welcome Back!"}</h1>
+          <p>
+            {isLoginView
+              ? "Enter your personal details and start journey with us"
+              : "To keep connected with us please login with your personal info"}
+          </p>
+          <button className="overlay-btn" onClick={toggleView}>
+            {isLoginView ? "Register" : "Login"}
+          </button>
         </div>
       </div>
 
@@ -188,11 +158,12 @@ export default function AuthPage() {
         .auth-container {
           position: relative;
           width: 100vw;
-          height: 100vh;
+          min-height: 100vh;
           display: flex;
           justify-content: center;
           align-items: center;
           overflow: hidden;
+          padding: 1rem;
         }
 
         /* Background animation */
@@ -220,37 +191,42 @@ export default function AuthPage() {
 
         /* Mobile header */
         .mobile-header {
-          display: none;
+          display: block;
           text-align: center;
           color: var(--light-text);
           position: absolute;
-          top: 20%;
+          top: 10%;
           width: 100%;
-          padding: 0 20px;
+          padding: 0 1rem;
+          z-index: 5;
         }
 
         .mobile-header h1 {
-          font-size: 2rem;
+          font-size: clamp(1.5rem, 4vw, 2rem);
           margin-bottom: 0.5rem;
           text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          font-weight: 600;
         }
 
         .mobile-header p {
-          font-size: 1rem;
+          font-size: clamp(0.9rem, 3vw, 1rem);
           opacity: 0.9;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
         /* Form wrapper */
         .form-wrapper {
-          background: rgba(255, 255, 255, 0.9);
+          background: rgba(255, 255, 255, 0.95);
           border-radius: 20px;
           box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-          width: 90%;
+          width: 100%;
           max-width: 400px;
-          padding: 2rem;
+          padding: 2rem 1.5rem;
           transition: all 0.6s ease;
           position: relative;
           overflow: hidden;
+          margin-top: 6rem;
+          backdrop-filter: blur(10px);
         }
 
         /* Auth forms */
@@ -266,50 +242,59 @@ export default function AuthPage() {
         }
 
         .input-group {
-          margin-bottom: 1rem;
+          margin-bottom: 1.2rem;
           width: 100%;
         }
 
         input {
           width: 100%;
-          padding: 15px;
-          border-radius: 8px;
-          border: 1px solid #ddd;
+          padding: 1rem;
+          border-radius: 12px;
+          border: 2px solid #e1e5e9;
           font-size: 1rem;
           transition: all 0.3s;
+          background: rgba(255, 255, 255, 0.9);
         }
 
         input:focus {
           outline: none;
           border-color: var(--primary-color);
-          box-shadow: 0 0 0 2px rgba(75, 182, 183, 0.2);
+          box-shadow: 0 0 0 3px rgba(75, 182, 183, 0.1);
+          background: white;
         }
 
         .auth-btn {
-          background-color: var(--primary-color);
+          background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
           color: white;
           border: none;
-          padding: 15px;
-          border-radius: 8px;
+          padding: 1rem;
+          border-radius: 12px;
           font-size: 1rem;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s;
-          margin-top: 1rem;
+          margin-top: 0.5rem;
+          box-shadow: 0 4px 15px rgba(75, 182, 183, 0.3);
         }
 
         .auth-btn:hover {
-          background-color: #3a9a9b;
           transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(75, 182, 183, 0.4);
+        }
+
+        .auth-btn:active {
+          transform: translateY(0);
         }
 
         .auth-footer {
           display: flex;
           justify-content: center;
           align-items: center;
+          flex-wrap: wrap;
           margin-top: 1.5rem;
           font-size: 0.9rem;
           color: var(--text-color);
+          text-align: center;
         }
 
         .toggle-btn {
@@ -320,6 +305,11 @@ export default function AuthPage() {
           margin-left: 0.5rem;
           cursor: pointer;
           text-decoration: underline;
+          font-size: 0.9rem;
+        }
+
+        .toggle-btn:hover {
+          color: var(--secondary-color);
         }
 
         /* Desktop overlay */
@@ -344,12 +334,12 @@ export default function AuthPage() {
           align-items: center;
           width: 100%;
           height: 100%;
-          padding: 0 40px;
+          padding: 0 2.5rem;
           text-align: center;
           background: linear-gradient(
-            to right,
-            rgba(75, 182, 183, 0.8),
-            rgba(35, 166, 213, 0.8)
+            135deg,
+            rgba(75, 182, 183, 0.9),
+            rgba(35, 166, 213, 0.9)
           );
           color: white;
           transition: transform 0.6s ease;
@@ -364,15 +354,27 @@ export default function AuthPage() {
           transform: translateX(0);
         }
 
+        .overlay-panel h1 {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+          font-weight: 600;
+        }
+
+        .overlay-panel p {
+          font-size: 1rem;
+          line-height: 1.6;
+          opacity: 0.9;
+        }
+
         .overlay-btn {
-          border: 1px solid white;
+          border: 2px solid white;
           background: transparent;
           color: white;
-          padding: 12px 45px;
-          border-radius: 20px;
+          padding: 12px 2rem;
+          border-radius: 25px;
           font-size: 1rem;
           font-weight: 600;
-          margin-top: 1.5rem;
+          margin-top: 2rem;
           cursor: pointer;
           transition: all 0.3s;
         }
@@ -380,30 +382,70 @@ export default function AuthPage() {
         .overlay-btn:hover {
           background: white;
           color: var(--primary-color);
+          transform: translateY(-2px);
         }
 
-        /* Responsive styles */
-        @media (max-width: 768px) {
+        /* Mobile responsive styles */
+        @media (max-width: 480px) {
           .auth-container {
+            padding: 0.5rem;
             align-items: flex-start;
-            padding-top: 20%;
+            padding-top: 2rem;
           }
 
           .mobile-header {
-            display: block;
+            top: 8%;
           }
 
           .form-wrapper {
-            padding: 1.5rem;
-            margin-top: 2rem;
+            padding: 1.5rem 1rem;
+            margin-top: 5rem;
+            border-radius: 16px;
+          }
+
+          .auth-footer {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+
+          .toggle-btn {
+            margin-left: 0;
+          }
+
+          input {
+            padding: 0.875rem;
+            font-size: 16px; /* Prevents zoom on iOS */
           }
         }
 
+        /* Tablet styles */
+        @media (min-width: 481px) and (max-width: 768px) {
+          .mobile-header {
+            top: 12%;
+          }
+
+          .form-wrapper {
+            max-width: 450px;
+            margin-top: 4rem;
+          }
+        }
+
+        /* Desktop styles */
         @media (min-width: 1024px) {
+          .auth-container {
+            padding: 0;
+          }
+
+          .mobile-header {
+            display: none;
+          }
+
           .form-wrapper {
             width: 50%;
             max-width: 500px;
             min-height: 500px;
+            margin-top: 0;
+            padding: 2rem;
           }
 
           .desktop-overlay {
@@ -415,12 +457,12 @@ export default function AuthPage() {
             top: 0;
             height: 100%;
             justify-content: center;
+            padding: 2rem;
           }
 
           .login-view .login-form {
             left: 0;
             width: 50%;
-            padding: 0 2rem;
           }
 
           .login-view .register-form {
@@ -455,10 +497,30 @@ export default function AuthPage() {
             transform: translateX(100%);
           }
         }
+
+        /* Large desktop styles */
+        @media (min-width: 1440px) {
+          .form-wrapper {
+            max-width: 600px;
+          }
+
+          .overlay-panel {
+            padding: 0 3rem;
+          }
+
+          .overlay-panel h1 {
+            font-size: 2.5rem;
+          }
+
+          .overlay-panel p {
+            font-size: 1.1rem;
+          }
+        }
       `}</style>
-    </>
+    </div>
   )
 }
+
 
 
 
