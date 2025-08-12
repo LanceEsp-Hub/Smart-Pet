@@ -1671,8 +1671,10 @@
 
 // Add this import at the top of the file
 import { decryptData } from './auth';
+import { getApiUrl } from './apiUtils';
+
 // Configure API URL based on environment
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+const API_URL = getApiUrl();
 
 // Helper function for consistent error handling
 const handleResponse = async (response) => {
