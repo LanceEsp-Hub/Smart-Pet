@@ -1,8 +1,5 @@
 
 
-
-
-
 "use client"
 
 import { useState, useEffect, lazy } from "react"
@@ -434,16 +431,50 @@ export default function Page() {
 
           .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             min-height: auto;
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+                  }
+
+        /* Tablet - 768px */
+        @media (min-width: 769px) and (max-width: 1023px) {
+          .container {
+            width: 800px;
+            max-width: 90%;
+            min-height: 450px;
           }
-          
-          .form-container {
+
+          form {
+            padding: 0 60px;
+          }
+
+          .mobile-toggle {
+            display: none !important;
+          }
+
+          .overlay-container {
+            display: block !important;
+          }
+        }
+
+        /* Laptop - 1024px to 1440px */
+        @media (min-width: 1024px) and (max-width: 1440px) {
+          .container {
+            width: 850px;
+            max-width: 90%;
+            min-height: 420px;
+          }
+
+          form {
+            padding: 0 50px;
+          }
+        }
+
+        .form-container {
             position: relative !important;
             width: 100% !important;
             height: auto !important;
@@ -508,8 +539,8 @@ export default function Page() {
           }
           
           form {
-            padding: 20px 20px;
-            min-height: 300px;
+            padding: 20px 40px;
+            min-height: 280px;
             justify-content: flex-start;
             background: transparent;
           }
@@ -575,13 +606,14 @@ export default function Page() {
           }
         }
 
-        @media (max-width: 480px) {
+        /* Mobile L - 425px */
+        @media (max-width: 425px) {
           body {
             padding: 15px 5px;
           }
 
           .container {
-            max-width: 360px;
+            max-width: 420px;
             border-radius: 10px;
           }
 
@@ -597,8 +629,8 @@ export default function Page() {
           }
 
           form {
-            padding: 15px 15px;
-            min-height: 280px;
+            padding: 15px 50px;
+            min-height: 260px;
           }
 
           form h1 {
@@ -625,46 +657,109 @@ export default function Page() {
           }
         }
 
-        @media (max-width: 360px) {
+        /* Mobile M - 375px */
+        @media (max-width: 375px) {
+          body {
+            padding: 15px 5px;
+          }
+
           .container {
-            max-width: 340px;
-            margin: 0 auto;
-            border-radius: 8px;
-            min-height: auto;
+            max-width: 380px;
+            border-radius: 10px;
           }
 
           .mobile-toggle {
-            padding: 10px;
+            padding: 12px;
           }
 
           .mobile-toggle button {
-            padding: 5px 10px;
-            font-size: 11px;
-            min-width: 60px;
-            min-height: 32px;
+            padding: 6px 12px;
+            font-size: 12px;
+            min-width: 70px;
+            min-height: 36px;
           }
 
           form {
-            padding: 12px 10px;
+            padding: 15px 45px;
             min-height: 250px;
           }
 
           form h1 {
-            font-size: 18px;
-            margin-bottom: 6px;
+            font-size: 20px;
+            margin-bottom: 8px;
           }
 
           input {
-            padding: 8px 6px;
-            font-size: 13px;
+            padding: 8px 8px;
+            font-size: 14px;
           }
 
           button[type="submit"] {
             padding: 8px 16px;
-            font-size: 12px;
-            max-width: 140px;
+            font-size: 13px;
+            max-width: 160px;
+          }
+
+          .social-container a {
+            height: 32px;
+            width: 32px;
+            min-height: 40px;
+            min-width: 40px;
           }
         }
+
+        /* Mobile S - 320px */
+        @media (max-width: 320px) {
+          body {
+            padding: 15px 5px;
+          }
+
+          .container {
+            max-width: 340px;
+            border-radius: 10px;
+          }
+
+          .mobile-toggle {
+            padding: 12px;
+          }
+
+          .mobile-toggle button {
+            padding: 6px 12px;
+            font-size: 12px;
+            min-width: 70px;
+            min-height: 36px;
+          }
+
+          form {
+            padding: 15px 40px;
+            min-height: 240px;
+          }
+
+          form h1 {
+            font-size: 20px;
+            margin-bottom: 8px;
+          }
+
+          input {
+            padding: 8px 8px;
+            font-size: 14px;
+          }
+
+          button[type="submit"] {
+            padding: 8px 16px;
+            font-size: 13px;
+            max-width: 160px;
+          }
+
+          .social-container a {
+            height: 32px;
+            width: 32px;
+            min-height: 40px;
+            min-width: 40px;
+          }
+        }
+
+
 
         .form-container {
           position: absolute;
@@ -907,6 +1002,12 @@ export default function Page() {
     </>
   )
 }
+
+
+
+
+
+
 
 
 
