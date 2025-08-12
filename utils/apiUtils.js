@@ -64,7 +64,59 @@ if (typeof window !== 'undefined') {
       console.log('Global fetch interceptor: Converting HTTP to HTTPS:', finalUrl);
     }
     
+    // Additional check for any URLs containing our API domain
+    if (typeof url === 'string' && url.includes('newback-production-a0cc.up.railway.app')) {
+      if (url.startsWith('http://')) {
+        finalUrl = url.replace('http://', 'https://');
+        console.log('Global fetch interceptor: Converting API HTTP to HTTPS:', finalUrl);
+      }
+    }
+    
     return originalFetch(finalUrl, options);
+  };
+}
+
+/**
+ * Global URL interceptor to catch and fix HTTP URLs
+ */
+if (typeof window !== 'undefined') {
+  // Intercept all fetch calls
+  const originalFetch = window.fetch;
+  window.fetch = function(url, options) {
+    let finalUrl = url;
+    
+    if (typeof url === 'string') {
+      // Convert any HTTP URLs to HTTPS
+      if (url.startsWith('http://')) {
+        finalUrl = url.replace('http://', 'https://');
+        console.log('URL Interceptor: Converted HTTP to HTTPS:', finalUrl);
+      }
+      
+      // Special handling for our API domain
+      if (url.includes('newback-production-a0cc.up.railway.app')) {
+        if (url.startsWith('http://')) {
+          finalUrl = url.replace('http://', 'https://');
+          console.log('API URL Interceptor: Converted HTTP to HTTPS:', finalUrl);
+        }
+      }
+    }
+    
+    return originalFetch(finalUrl, options);
+  };
+  
+  // Intercept XMLHttpRequest
+  const originalXHROpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url, ...args) {
+    let finalUrl = url;
+    
+    if (typeof url === 'string') {
+      if (url.startsWith('http://')) {
+        finalUrl = url.replace('http://', 'https://');
+        console.log('XHR Interceptor: Converted HTTP to HTTPS:', finalUrl);
+      }
+    }
+    
+    return originalXHROpen.call(this, method, finalUrl, ...args);
   };
 }
 
