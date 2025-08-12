@@ -315,7 +315,7 @@ export default function CheckoutPage() {
     try {
       const API_URL = getApiUrl();
       console.log('Checkout API URL:', API_URL);
-      console.log('Full checkout endpoint:', `${API_URL}/api/checkout`);
+      console.log('Full checkout endpoint:', `${API_URL}/api/checkout/`);
       
       // Validate that we're using HTTPS
       if (!API_URL.startsWith('https://')) {
@@ -326,11 +326,11 @@ export default function CheckoutPage() {
       console.log('About to make checkout request using makeAuthenticatedRequest');
       
       // Additional debugging to track the exact URL being used
-      const finalUrl = `${API_URL}/api/checkout`;
+      const finalUrl = `${API_URL}/api/checkout/`;
       console.log('Final checkout URL being used:', finalUrl);
       console.log('URL protocol:', new URL(finalUrl).protocol);
       
-      const orderData = await makeAuthenticatedRequest('/api/checkout', {
+      const orderData = await makeAuthenticatedRequest('/api/checkout/', {
         method: "POST",
         body: JSON.stringify({
           user_id: userId,
