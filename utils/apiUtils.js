@@ -3,41 +3,70 @@
  * This ensures that all API calls use HTTPS to prevent mixed content errors
  */
 export const getApiUrl = () => {
+  // Always use HTTPS for the production API
+  const productionUrl = "https://newback-production-a0cc.up.railway.app";
+  
   // Try to get the environment variable
   let apiUrl = process.env.NEXT_PUBLIC_API_URL;
   
   console.log('Environment API URL:', apiUrl);
   
-  // If no environment variable is set, use the fallback
+  // If no environment variable is set, use the production URL
   if (!apiUrl) {
-    apiUrl = "https://newback-production-a0cc.up.railway.app";
-    console.log('Using fallback API URL:', apiUrl);
+    apiUrl = productionUrl;
+    console.log('Using production API URL:', apiUrl);
   }
   
-  // Ensure HTTPS is used - multiple checks for robustness
-  if (apiUrl.startsWith('http://')) {
-    const httpsUrl = apiUrl.replace('http://', 'https://');
-    console.log('Converted HTTP to HTTPS:', httpsUrl);
-    return httpsUrl;
+  // Force HTTPS for production environment
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    // In production, always use HTTPS
+    if (apiUrl.startsWith('http://')) {
+      apiUrl = apiUrl.replace('http://', 'https://');
+      console.log('Production: Forced HTTPS:', apiUrl);
+    }
+    
+    // If it's not HTTPS, use the production URL
+    if (!apiUrl.startsWith('https://')) {
+      apiUrl = productionUrl;
+      console.log('Production: Using fallback HTTPS URL:', apiUrl);
+    }
+  } else {
+    // In development, allow HTTP for localhost
+    if (apiUrl.startsWith('http://')) {
+      const httpsUrl = apiUrl.replace('http://', 'https://');
+      console.log('Development: Converted HTTP to HTTPS:', httpsUrl);
+      return httpsUrl;
+    }
   }
   
-  // Double-check and force HTTPS if needed
+  // Final validation - ensure HTTPS
   if (!apiUrl.startsWith('https://')) {
-    const httpsUrl = `https://${apiUrl.replace(/^https?:\/\//, '')}`;
-    console.log('Forced HTTPS:', httpsUrl);
-    return httpsUrl;
-  }
-  
-  // Final validation - if somehow we still don't have HTTPS, force it
-  if (!apiUrl.includes('https://')) {
-    const httpsUrl = `https://${apiUrl.replace(/^https?:\/\//, '')}`;
-    console.log('Final HTTPS enforcement:', httpsUrl);
-    return httpsUrl;
+    apiUrl = `https://${apiUrl.replace(/^https?:\/\//, '')}`;
+    console.log('Final HTTPS enforcement:', apiUrl);
   }
   
   console.log('Final API URL:', apiUrl);
   return apiUrl;
 };
+
+/**
+ * Global fetch interceptor to ensure HTTPS
+ */
+const originalFetch = global.fetch || window.fetch;
+
+if (typeof window !== 'undefined') {
+  window.fetch = function(url, options) {
+    let finalUrl = url;
+    
+    // Convert HTTP to HTTPS if needed
+    if (typeof url === 'string' && url.startsWith('http://')) {
+      finalUrl = url.replace('http://', 'https://');
+      console.log('Global fetch interceptor: Converting HTTP to HTTPS:', finalUrl);
+    }
+    
+    return originalFetch(finalUrl, options);
+  };
+}
 
 /**
  * Helper function to make authenticated API requests
@@ -54,6 +83,17 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
   if (fullUrl.startsWith('http://')) {
     finalUrl = fullUrl.replace('http://', 'https://');
     console.log('makeAuthenticatedRequest: Converting to HTTPS:', finalUrl);
+  }
+  
+  // Additional validation
+  try {
+    const urlObj = new URL(finalUrl);
+    if (urlObj.protocol !== 'https:') {
+      finalUrl = finalUrl.replace('http://', 'https://');
+      console.log('URL validation: Forced HTTPS:', finalUrl);
+    }
+  } catch (e) {
+    console.error('URL validation error:', e);
   }
   
   const defaultOptions = {
@@ -78,4 +118,18 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
   }
 
   return response.json();
+};
+
+/**
+ * Utility function to ensure any URL uses HTTPS
+ */
+export const ensureHttps = (url) => {
+  if (!url) return url;
+  if (url.startsWith('http://')) {
+    return url.replace('http://', 'https://');
+  }
+  if (!url.startsWith('https://')) {
+    return `https://${url.replace(/^https?:\/\//, '')}`;
+  }
+  return url;
 };
