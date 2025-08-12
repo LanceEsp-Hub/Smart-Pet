@@ -330,17 +330,26 @@ export default function CheckoutPage() {
       console.log('Final checkout URL being used:', finalUrl);
       console.log('URL protocol:', new URL(finalUrl).protocol);
       
+      // Prepare order data with proper data types
+      const orderPayload = {
+        user_id: parseInt(userId),
+        address_id: parseInt(selectedAddressId),
+        total_price: parseFloat(totalPrice),
+        payment_method: paymentMethod,
+        delivery_type: deliveryType,
+        delivery_fee: parseFloat(calculatedDeliveryFee),
+      };
+
+      // Only include voucher_id if a voucher is applied
+      if (appliedVoucher && appliedVoucher.voucher && appliedVoucher.voucher.id) {
+        orderPayload.voucher_id = parseInt(appliedVoucher.voucher.id);
+      }
+
+      console.log('Order payload:', orderPayload);
+
       const orderData = await makeAuthenticatedRequest('/api/checkout/', {
         method: "POST",
-        body: JSON.stringify({
-          user_id: userId,
-          address_id: selectedAddressId,
-          total_price: totalPrice,
-          payment_method: paymentMethod,
-          delivery_type: deliveryType,
-          delivery_fee: calculatedDeliveryFee,
-          voucher_id: appliedVoucher && appliedVoucher.voucher ? appliedVoucher.voucher.id : null,
-        }),
+        body: JSON.stringify(orderPayload),
       });
       console.log("Order created successfully:", orderData);
       setOrderSuccess(true);
