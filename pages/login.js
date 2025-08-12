@@ -3,7 +3,6 @@
 
 
 
-
 "use client"
 
 import { useState, useEffect, lazy } from "react"
@@ -256,7 +255,7 @@ export default function Page() {
           font-weight: 700;
           letter-spacing: -1.5px;
           margin: 0;
-          margin-bottom: 15px;
+          margin-bottom: 10px;
         }
 
         h1.title {
@@ -271,13 +270,13 @@ export default function Page() {
           font-weight: 100;
           line-height: 20px;
           letter-spacing: 0.5px;
-          margin: 20px 0 30px;
+          margin: 15px 0 20px;
           text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
         }
 
         span {
           font-size: 14px;
-          margin-top: 25px;
+          margin-top: 15px;
         }
 
         a {
@@ -326,8 +325,8 @@ export default function Page() {
           color: #fff;
           font-size: 15px;
           font-weight: 700;
-          margin: 10px;
-          padding: 12px 80px;
+          margin: 8px;
+          padding: 10px 60px;
           letter-spacing: 1px;
           text-transform: capitalize;
           transition: 0.3s ease-in-out;
@@ -385,7 +384,7 @@ export default function Page() {
           align-items: center;
           justify-content: center;
           flex-direction: column;
-          padding: 0 50px;
+          padding: 0 10px;
           height: 100%;
           text-align: center;
         }
@@ -394,8 +393,8 @@ export default function Page() {
           background-color: #eee;
           border-radius: 10px;
           border: none;
-          padding: 12px 15px;
-          margin: 8px 0;
+          padding: 10px 15px;
+          margin: 6px 0;
           width: 100%;
           font-size: 16px;
           -webkit-appearance: none;
@@ -414,9 +413,9 @@ export default function Page() {
           box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
           position: relative;
           overflow: hidden;
-          width: 768px;
+          width: 900px;
           max-width: 100%;
-          min-height: 500px;
+          min-height: 400px;
         }
 
         @media (max-width: 768px) {
@@ -435,7 +434,7 @@ export default function Page() {
 
           .container {
             width: 100%;
-            max-width: 350px;
+            max-width: 400px;
             min-height: auto;
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -509,30 +508,30 @@ export default function Page() {
           }
           
           form {
-            padding: 25px 20px;
-            min-height: 350px;
+            padding: 20px 20px;
+            min-height: 300px;
             justify-content: flex-start;
             background: transparent;
           }
 
           form h1 {
             font-size: 22px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             color: #1A237E;
           }
           
           input {
-            padding: 15px 12px;
-            margin: 10px 0;
+            padding: 12px 12px;
+            margin: 8px 0;
             font-size: 16px;
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.9);
           }
           
           button[type="submit"] {
-            padding: 12px 25px;
+            padding: 10px 20px;
             font-size: 14px;
-            margin: 12px 0;
+            margin: 10px 0;
             width: 100%;
             max-width: 180px;
             background: #4bb6b7;
@@ -545,12 +544,12 @@ export default function Page() {
           
           span {
             font-size: 12px;
-            margin: 15px 0;
+            margin: 10px 0;
             color: #666;
           }
 
           .social-container {
-            margin: 15px 0;
+            margin: 10px 0;
           }
 
           .social-container a {
@@ -582,7 +581,7 @@ export default function Page() {
           }
 
           .container {
-            max-width: 320px;
+            max-width: 360px;
             border-radius: 10px;
           }
 
@@ -598,22 +597,22 @@ export default function Page() {
           }
 
           form {
-            padding: 20px 15px;
-            min-height: 320px;
+            padding: 15px 15px;
+            min-height: 280px;
           }
 
           form h1 {
             font-size: 20px;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
           }
 
           input {
-            padding: 10px 8px;
+            padding: 8px 8px;
             font-size: 14px;
           }
 
           button[type="submit"] {
-            padding: 10px 20px;
+            padding: 8px 16px;
             font-size: 13px;
             max-width: 160px;
           }
@@ -628,7 +627,7 @@ export default function Page() {
 
         @media (max-width: 360px) {
           .container {
-            max-width: 300px;
+            max-width: 340px;
             margin: 0 auto;
             border-radius: 8px;
             min-height: auto;
@@ -646,12 +645,13 @@ export default function Page() {
           }
 
           form {
-            padding: 15px 10px;
-            min-height: 280px;
+            padding: 12px 10px;
+            min-height: 250px;
           }
 
           form h1 {
             font-size: 18px;
+            margin-bottom: 6px;
           }
 
           input {
@@ -792,7 +792,7 @@ export default function Page() {
         }
 
         .social-container {
-          margin: 20px 0;
+          margin: 15px 0;
         }
 
         .social-container a {
@@ -907,6 +907,8 @@ export default function Page() {
     </>
   )
 }
+
+
 
 
 
