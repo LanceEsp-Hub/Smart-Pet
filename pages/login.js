@@ -1,4 +1,6 @@
 
+
+
 "use client"
 
 import { useState, useEffect, lazy } from "react"
@@ -153,10 +155,10 @@ export default function Page() {
 
   return (
     <>
-      <Head>
-        <title>Double Slider Login / Registration Form</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </Head>
+              <Head>
+          <title>Double Slider Login / Registration Form</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        </Head>
 
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
@@ -174,11 +176,37 @@ export default function Page() {
           align-items: center;
           flex-direction: column;
           font-family: "Poppins", sans-serif;
-          min-height: 100vh;
-          height: auto;
+          overflow: hidden;
+          height: 100vh;
           margin: 0;
-          padding: 20px;
           position: relative;
+        }
+
+        body::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+          animation: floatCircles 20s ease-in-out infinite;
+          z-index: -1;
+        }
+
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        @keyframes floatCircles {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(30px, -30px) rotate(120deg); }
+          66% { transform: translate(-20px, 20px) rotate(240deg); }
         }
 
         h1 {
@@ -221,16 +249,365 @@ export default function Page() {
           color: #4bb6b7;
         }
 
+        .content {
+          display: flex;
+          width: 100%;
+          height: 50px;
+          align-items: center;
+          justify-content: space-around;
+        }
+
+        .content .checkbox {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .content input {
+          accent-color: #333;
+          width: 12px;
+          height: 12px;
+        }
+
+        .content label {
+          font-size: 14px;
+          user-select: none;
+          padding-left: 5px;
+        }
+
+        button {
+          position: relative;
+          border-radius: 20px;
+          border: 1px solid #4bb6b7;
+          background-color: #4bb6b7;
+          color: #fff;
+          font-size: 15px;
+          font-weight: 700;
+          margin: 10px;
+          padding: 12px 80px;
+          letter-spacing: 1px;
+          text-transform: capitalize;
+          transition: 0.3s ease-in-out;
+          cursor: pointer;
+          min-height: 44px;
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        button:hover {
+          letter-spacing: 3px;
+        }
+
+        button:active {
+          transform: scale(0.95);
+        }
+
+        button:focus {
+          outline: none;
+        }
+
+        button.ghost {
+          background-color: rgba(225, 225, 225, 0.2);
+          border: 2px solid #fff;
+          color: #fff;
+        }
+
+        button.ghost i {
+          position: absolute;
+          opacity: 0;
+          transition: 0.3s ease-in-out;
+        }
+
+        button.ghost i.register {
+          right: 70px;
+        }
+
+        button.ghost i.login {
+          left: 70px;
+        }
+
+        button.ghost:hover i.register {
+          right: 40px;
+          opacity: 1;
+        }
+
+        button.ghost:hover i.login {
+          left: 40px;
+          opacity: 1;
+        }
+
+        form {
+          background-color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          padding: 0 50px;
+          height: 100%;
+          text-align: center;
+        }
+
+        input {
+          background-color: #eee;
+          border-radius: 10px;
+          border: none;
+          padding: 12px 15px;
+          margin: 8px 0;
+          width: 100%;
+          font-size: 16px;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+        }
+
+        input:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(75, 182, 183, 0.3);
+        }
+
         .container {
           background-color: #fff;
           border-radius: 25px;
           box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
           position: relative;
           overflow: hidden;
-          width: 100%;
-          max-width: 768px;
+          width: 768px;
+          max-width: 100%;
           min-height: 500px;
-          margin: 20px auto;
+        }
+
+        @media (max-width: 768px) {
+          body {
+            padding: 20px 10px;
+            min-height: 100vh;
+            overflow-y: auto;
+          }
+
+          .container {
+            width: 100%;
+            max-width: 400px;
+            min-height: auto;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
+          }
+          
+          .form-container {
+            position: relative !important;
+            width: 100% !important;
+            height: auto !important;
+            transform: none !important;
+            opacity: 1 !important;
+            min-height: 400px;
+          }
+          
+          .login-container {
+            display: block;
+            z-index: 2;
+          }
+          
+          .registration-container {
+            display: none;
+          }
+          
+          .container.right-panel-active .login-container {
+            display: none;
+          }
+          
+          .container.right-panel-active .registration-container {
+            display: block;
+          }
+          
+          .overlay-container {
+            position: relative !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 120px !important;
+            order: -1;
+            margin-bottom: 20px;
+          }
+          
+          .overlay {
+            position: relative !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            transform: none !important;
+            border-radius: 15px 15px 0 0;
+          }
+          
+          .overlay-panel {
+            width: 100% !important;
+            height: 100% !important;
+            transform: none !important;
+            padding: 15px !important;
+            border-radius: 15px 15px 0 0;
+          }
+          
+          .overlay-left,
+          .overlay-right {
+            display: none;
+          }
+          
+          .container.right-panel-active .overlay-left {
+            display: flex;
+          }
+          
+          .container:not(.right-panel-active) .overlay-right {
+            display: flex;
+          }
+          
+          form {
+            padding: 30px 20px;
+            min-height: 400px;
+            justify-content: flex-start;
+          }
+
+          form h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+          }
+          
+          h1.title {
+            font-size: 20px;
+            line-height: 24px;
+            margin-bottom: 10px;
+          }
+
+          p {
+            font-size: 12px;
+            margin: 10px 0 15px;
+          }
+          
+          input {
+            padding: 15px 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 8px;
+          }
+          
+          button {
+            padding: 15px 30px;
+            font-size: 14px;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 200px;
+          }
+
+          button.ghost {
+            padding: 12px 25px;
+            font-size: 13px;
+          }
+          
+          span {
+            font-size: 12px;
+            margin: 15px 0;
+          }
+
+          .social-container {
+            margin: 15px 0;
+          }
+
+          .social-container a {
+            height: 40px;
+            width: 40px;
+            margin: 0 5px;
+            min-height: 44px;
+            min-width: 44px;
+          }
+
+          a {
+            font-size: 12px;
+            margin: 10px 0;
+          }
+        }
+
+        @media (max-width: 480px) {
+          body {
+            padding: 15px 5px;
+          }
+
+          .container {
+            max-width: 100%;
+            border-radius: 10px;
+          }
+
+          .overlay-container {
+            height: 100px;
+          }
+
+          form {
+            padding: 25px 15px;
+            min-height: 350px;
+          }
+
+          form h1 {
+            font-size: 22px;
+            margin-bottom: 15px;
+          }
+
+          h1.title {
+            font-size: 18px;
+            line-height: 22px;
+          }
+
+          input {
+            padding: 12px 10px;
+            font-size: 14px;
+          }
+
+          button {
+            padding: 12px 25px;
+            font-size: 13px;
+          }
+
+          button.ghost {
+            padding: 10px 20px;
+            font-size: 12px;
+          }
+
+          .social-container a {
+            height: 35px;
+            width: 35px;
+            min-height: 44px;
+            min-width: 44px;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .container {
+            margin: 0;
+            border-radius: 0;
+            min-height: 100vh;
+          }
+
+          .overlay-container {
+            height: 80px;
+          }
+
+          form {
+            padding: 20px 10px;
+            min-height: 300px;
+          }
+
+          form h1 {
+            font-size: 20px;
+          }
+
+          h1.title {
+            font-size: 16px;
+            line-height: 20px;
+          }
+
+          input {
+            padding: 10px 8px;
+            font-size: 13px;
+          }
+
+          button {
+            padding: 10px 20px;
+            font-size: 12px;
+          }
         }
 
         .form-container {
@@ -264,210 +641,6 @@ export default function Page() {
           animation: show 0.6s;
         }
 
-        @media (max-width: 768px) {
-          body {
-            padding: 10px;
-            overflow-x: hidden;
-          }
-          
-          .container {
-            width: 100%;
-            max-width: 100%;
-            min-height: auto;
-            margin: 10px 0;
-            border-radius: 15px;
-          }
-          
-          .form-container {
-            position: relative !important;
-            width: 100% !important;
-            height: auto !important;
-            transform: none !important;
-            opacity: 1 !important;
-            top: auto !important;
-            left: auto !important;
-          }
-          
-          .login-container {
-            display: block;
-            z-index: 2;
-          }
-          
-          .registration-container {
-            display: none;
-          }
-          
-          .container.right-panel-active .login-container {
-            display: none;
-            transform: none;
-          }
-          
-          .container.right-panel-active .registration-container {
-            display: block;
-            transform: none;
-          }
-          
-          .overlay-container {
-            position: relative !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 150px !important;
-            order: -1;
-            top: auto !important;
-          }
-          
-          .overlay {
-            position: relative !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            transform: none !important;
-            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-          }
-          
-          .overlay-panel {
-            width: 100% !important;
-            height: 100% !important;
-            transform: none !important;
-            padding: 15px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
-          }
-          
-          .overlay-left,
-          .overlay-right {
-            display: none;
-          }
-          
-          .container.right-panel-active .overlay-left {
-            display: flex;
-          }
-          
-          .container:not(.right-panel-active) .overlay-right {
-            display: flex;
-          }
-          
-          form {
-            padding: 30px 20px;
-            min-height: auto;
-          }
-          
-          h1.title {
-            font-size: 24px !important;
-            line-height: 28px !important;
-            margin-bottom: 10px !important;
-          }
-          
-          h1 {
-            font-size: 28px;
-            margin-bottom: 20px;
-          }
-          
-          input {
-            width: 100%;
-            margin: 8px 0;
-            padding: 12px 15px;
-            font-size: 16px;
-          }
-          
-          button {
-            padding: 12px 30px;
-            font-size: 14px;
-            margin: 10px 0;
-            width: auto;
-            min-width: 120px;
-          }
-          
-          .social-container {
-            margin: 15px 0;
-          }
-          
-          .social {
-            width: 40px;
-            height: 40px;
-            font-size: 18px;
-          }
-          
-          p {
-            font-size: 14px;
-            margin: 15px 0;
-          }
-          
-          span {
-            font-size: 12px;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .container {
-            border-radius: 10px;
-            margin: 5px 0;
-          }
-          
-          form {
-            padding: 20px 15px;
-          }
-          
-          h1 {
-            font-size: 24px;
-          }
-          
-          h1.title {
-            font-size: 20px !important;
-            line-height: 24px !important;
-          }
-          
-          .overlay-container {
-            height: 120px !important;
-          }
-          
-          .overlay-panel {
-            padding: 10px !important;
-          }
-          
-          input {
-            padding: 10px 12px;
-            font-size: 14px;
-          }
-          
-          button {
-            padding: 10px 25px;
-            font-size: 13px;
-          }
-        }
-
-        .floating-shape {
-          position: absolute;
-          animation: float 6s ease-in-out infinite;
-          pointer-events: none;
-          z-index: -1;
-        }
-
-        @media (max-width: 768px) {
-          .floating-shape {
-            animation-duration: 8s;
-            opacity: 0.3;
-          }
-          
-          .floating-shape:nth-child(n+6) {
-            display: none;
-          }
-        }
-
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-
-        @keyframes floatCircles {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(120deg); }
-          66% { transform: translate(-20px, 20px) rotate(240deg); }
-        }
-
         @keyframes show {
           0%,
           49.99% {
@@ -482,10 +655,113 @@ export default function Page() {
           }
         }
 
-        @keyframes float {
-          0% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-          100% { transform: translateY(0); }
+        .overlay-container {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          width: 50%;
+          height: 100%;
+          overflow: hidden;
+          transition: transform 0.6s ease-in-out;
+          z-index: 100;
+        }
+
+        .container.right-panel-active .overlay-container {
+          transform: translate(-100%);
+        }
+
+        .overlay {
+          background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-mikhail-nilov-6530653.jpg-NmIC1X70wcMEnYQQYkfLqNxuWsRYXs.jpeg");
+          background-repeat: no-repeat;
+          background-size: 120% auto;
+          background-position: 0 0;
+          color: #fff;
+          position: relative;
+          left: -100%;
+          height: 100%;
+          width: 200%;
+          transform: translateX(0);
+          transition: transform 0.6s ease-in-out;
+          animation: panBackground 15s linear infinite alternate;
+        }
+
+        .overlay-panel {
+          background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .overlay::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          background: linear-gradient(to top, rgba(46, 94, 109, 0.4) 40%, rgba(46, 94, 109, 0));
+        }
+
+        .container.right-panel-active .overlay {
+          transform: translateX(50%);
+        }
+
+        .overlay-panel {
+          position: absolute;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          padding: 0 40px;
+          text-align: center;
+          top: 0;
+          height: 100%;
+          width: 50%;
+          transform: translateX(0);
+          transition: transform 0.6s ease-in-out;
+        }
+
+        .overlay-left {
+          transform: translateX(-20%);
+        }
+
+        .container.right-panel-active .overlay-left {
+          transform: translateX(0);
+        }
+
+        .overlay-right {
+          right: 0;
+          transform: translateX(0);
+        }
+
+        .container.right-panel-active .overlay-right {
+          transform: translateX(20%);
+        }
+
+        .social-container {
+          margin: 20px 0;
+        }
+
+        .social-container a {
+          border: 1px solid #dddddd;
+          border-radius: 50%;
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 5px;
+          height: 40px;
+          width: 40px;
+          transition: 0.3s ease-in-out;
+        }
+
+        .social-container a:hover {
+          border: 1px solid #4bb6b7;
+        }
+
+        @keyframes panBackground {
+          0% {
+            background-position: 0 0;
+          }
+          100% {
+            background-position: 100% 0;
+          }
         }
       `}</style>
       <div className="container" id="container">
