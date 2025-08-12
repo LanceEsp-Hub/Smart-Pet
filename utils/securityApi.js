@@ -1,11 +1,4 @@
-const getApiUrl = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
-  // Ensure HTTPS is used
-  if (apiUrl.startsWith('http://')) {
-    return apiUrl.replace('http://', 'https://');
-  }
-  return apiUrl;
-};
+import { getApiUrl } from './apiUtils';
 
 const API_URL = getApiUrl();
 
