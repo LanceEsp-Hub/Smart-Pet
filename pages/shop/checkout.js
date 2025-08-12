@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getApiUrl } from "../../utils/apiUtils";
+import { getApiUrl, makeAuthenticatedRequest } from "../../utils/apiUtils";
 
 export default function CheckoutPage() {
   const userId = typeof window !== 'undefined' ? sessionStorage.getItem("user_id") : null;
@@ -9,13 +9,6 @@ export default function CheckoutPage() {
     const apiUrl = getApiUrl();
     console.log('Checkout page loaded with API URL:', apiUrl);
     console.log('Environment variable NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
-    
-    // Override fetch to log all requests
-    const originalFetch = window.fetch;
-    window.fetch = function(...args) {
-      console.log('Fetch called with:', args);
-      return originalFetch.apply(this, args);
-    };
   }, []);
   const [user, setUser] = useState(null);
   const [placingOrder, setPlacingOrder] = useState(false);
@@ -329,23 +322,16 @@ export default function CheckoutPage() {
         throw new Error('API URL must use HTTPS for security');
       }
       
-      // Force HTTPS and ensure no trailing slash
-      const checkoutUrl = `${API_URL}/api/checkout`.replace(/\/$/, '');
-      console.log('Final checkout URL:', checkoutUrl);
-      
-      // Additional validation
-      if (checkoutUrl.includes('http://')) {
-        throw new Error('Checkout URL contains HTTP - this should not happen');
-      }
-      
       const token = sessionStorage.getItem("auth_token");
-      console.log('About to make fetch request to:', checkoutUrl);
-      const res = await fetch(checkoutUrl, {
+      console.log('About to make checkout request using makeAuthenticatedRequest');
+      
+      // Additional debugging to track the exact URL being used
+      const finalUrl = `${API_URL}/api/checkout`;
+      console.log('Final checkout URL being used:', finalUrl);
+      console.log('URL protocol:', new URL(finalUrl).protocol);
+      
+      const orderData = await makeAuthenticatedRequest('/api/checkout', {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
         body: JSON.stringify({
           user_id: userId,
           address_id: selectedAddressId,
@@ -356,16 +342,12 @@ export default function CheckoutPage() {
           voucher_id: appliedVoucher && appliedVoucher.voucher ? appliedVoucher.voucher.id : null,
         }),
       });
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "Failed to place order");
-      }
-      const orderData = await res.json();
       console.log("Order created successfully:", orderData);
       setOrderSuccess(true);
       setCart([]);
       setShowModal(false);
     } catch (err) {
+      console.error('Checkout error:', err);
       alert(err.message);
     } finally {
       setPlacingOrder(false);
