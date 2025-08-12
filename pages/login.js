@@ -4,28 +4,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client"
 
 import { useState, useEffect, lazy } from "react"
@@ -55,6 +33,7 @@ export default function Page() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [name, setName] = useState("")
   const [message, setMessage] = useState("")
   const [token, setToken] = useState("")
@@ -173,12 +152,30 @@ export default function Page() {
 
   const handleRegister = async (e) => {
     e.preventDefault()
+    
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match")
+      return
+    }
+    
+    // Validate password length
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long")
+      return
+    }
+    
     try {
       const response = await registerUser({ email, name, password })
       if (response.detail) {
         toast.error(response.detail)
       } else {
         toast.success("Registration successful! Check your email for verification.")
+        // Clear form after successful registration
+        setName("")
+        setEmail("")
+        setPassword("")
+        setConfirmPassword("")
       }
     } catch (error) {
       toast.error(error.message || "An error occurred during registration")
@@ -438,7 +435,7 @@ export default function Page() {
 
           .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 350px;
             min-height: auto;
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -481,23 +478,24 @@ export default function Page() {
             display: flex !important;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px 15px 0 0;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
           }
 
           .mobile-toggle button {
             background: transparent;
             border: 2px solid #4bb6b7;
             color: #4bb6b7;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            margin: 0 8px;
+            border-radius: 20px;
             font-weight: 600;
             transition: all 0.3s ease;
-            min-height: 44px;
-            min-width: 100px;
+            min-height: 40px;
+            min-width: 80px;
+            font-size: 14px;
           }
 
           .mobile-toggle button.active {
@@ -511,15 +509,15 @@ export default function Page() {
           }
           
           form {
-            padding: 30px 20px;
-            min-height: 400px;
+            padding: 25px 20px;
+            min-height: 350px;
             justify-content: flex-start;
             background: transparent;
           }
 
           form h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 22px;
+            margin-bottom: 15px;
             color: #1A237E;
           }
           
@@ -532,11 +530,11 @@ export default function Page() {
           }
           
           button[type="submit"] {
-            padding: 15px 30px;
+            padding: 12px 25px;
             font-size: 14px;
-            margin: 15px 0;
+            margin: 12px 0;
             width: 100%;
-            max-width: 200px;
+            max-width: 180px;
             background: #4bb6b7;
             color: white;
           }
@@ -584,85 +582,87 @@ export default function Page() {
           }
 
           .container {
-            max-width: 100%;
+            max-width: 320px;
             border-radius: 10px;
           }
 
-          .overlay-container {
-            height: 100px;
+          .mobile-toggle {
+            padding: 12px;
+          }
+
+          .mobile-toggle button {
+            padding: 6px 12px;
+            font-size: 12px;
+            min-width: 70px;
+            min-height: 36px;
           }
 
           form {
-            padding: 25px 15px;
-            min-height: 350px;
+            padding: 20px 15px;
+            min-height: 320px;
           }
 
           form h1 {
-            font-size: 22px;
-            margin-bottom: 15px;
-          }
-
-          h1.title {
-            font-size: 18px;
-            line-height: 22px;
+            font-size: 20px;
+            margin-bottom: 12px;
           }
 
           input {
-            padding: 12px 10px;
+            padding: 10px 8px;
             font-size: 14px;
           }
 
-          button {
-            padding: 12px 25px;
-            font-size: 13px;
-          }
-
-          button.ghost {
+          button[type="submit"] {
             padding: 10px 20px;
-            font-size: 12px;
+            font-size: 13px;
+            max-width: 160px;
           }
 
           .social-container a {
-            height: 35px;
-            width: 35px;
-            min-height: 44px;
-            min-width: 44px;
+            height: 32px;
+            width: 32px;
+            min-height: 40px;
+            min-width: 40px;
           }
         }
 
         @media (max-width: 360px) {
           .container {
-            margin: 0;
-            border-radius: 0;
-            min-height: 100vh;
+            max-width: 300px;
+            margin: 0 auto;
+            border-radius: 8px;
+            min-height: auto;
           }
 
-          .overlay-container {
-            height: 80px;
+          .mobile-toggle {
+            padding: 10px;
+          }
+
+          .mobile-toggle button {
+            padding: 5px 10px;
+            font-size: 11px;
+            min-width: 60px;
+            min-height: 32px;
           }
 
           form {
-            padding: 20px 10px;
-            min-height: 300px;
+            padding: 15px 10px;
+            min-height: 280px;
           }
 
           form h1 {
-            font-size: 20px;
-          }
-
-          h1.title {
-            font-size: 16px;
-            line-height: 20px;
+            font-size: 18px;
           }
 
           input {
-            padding: 10px 8px;
+            padding: 8px 6px;
             font-size: 13px;
           }
 
-          button {
-            padding: 10px 20px;
+          button[type="submit"] {
+            padding: 8px 16px;
             font-size: 12px;
+            max-width: 140px;
           }
         }
 
@@ -839,6 +839,13 @@ export default function Page() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
             <button type="submit">Register</button>
             <span>or use your account</span>
             <div className="social-container text-[#1A237E]">
@@ -900,6 +907,7 @@ export default function Page() {
     </>
   )
 }
+
 
 
 
