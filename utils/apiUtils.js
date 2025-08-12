@@ -1,4 +1,25 @@
 /**
+ * Override process.env.NEXT_PUBLIC_API_URL to ensure HTTPS
+ */
+if (typeof window !== 'undefined') {
+  const originalEnv = process.env.NEXT_PUBLIC_API_URL;
+  if (originalEnv && originalEnv.startsWith('http://')) {
+    console.log('Environment variable contains HTTP, forcing HTTPS');
+    Object.defineProperty(process.env, 'NEXT_PUBLIC_API_URL', {
+      get: function() {
+        return originalEnv.replace('http://', 'https://');
+      },
+      set: function(value) {
+        if (value && value.startsWith('http://')) {
+          value = value.replace('http://', 'https://');
+        }
+        originalEnv = value;
+      }
+    });
+  }
+}
+
+/**
  * Utility function to get the API URL with HTTPS enforcement
  * This ensures that all API calls use HTTPS to prevent mixed content errors
  */
@@ -99,6 +120,14 @@ if (typeof window !== 'undefined') {
           console.log('API URL Interceptor: Converted HTTP to HTTPS:', finalUrl);
         }
       }
+      
+      // Special handling for checkout endpoint
+      if (url.includes('/api/checkout')) {
+        if (url.startsWith('http://')) {
+          finalUrl = url.replace('http://', 'https://');
+          console.log('Checkout URL Interceptor: Converted HTTP to HTTPS:', finalUrl);
+        }
+      }
     }
     
     return originalFetch(finalUrl, options);
@@ -113,6 +142,14 @@ if (typeof window !== 'undefined') {
       if (url.startsWith('http://')) {
         finalUrl = url.replace('http://', 'https://');
         console.log('XHR Interceptor: Converted HTTP to HTTPS:', finalUrl);
+      }
+      
+      // Special handling for checkout endpoint
+      if (url.includes('/api/checkout')) {
+        if (url.startsWith('http://')) {
+          finalUrl = url.replace('http://', 'https://');
+          console.log('XHR Checkout Interceptor: Converted HTTP to HTTPS:', finalUrl);
+        }
       }
     }
     
