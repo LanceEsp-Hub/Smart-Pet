@@ -6,7 +6,6 @@ export const getApiUrl = () => {
   // Try to get the environment variable
   let apiUrl = process.env.NEXT_PUBLIC_API_URL;
   
-  // Debug logging
   console.log('Environment API URL:', apiUrl);
   
   // If no environment variable is set, use the fallback
@@ -24,8 +23,8 @@ export const getApiUrl = () => {
   
   // Double-check and force HTTPS if needed
   if (!apiUrl.startsWith('https://')) {
-    const httpsUrl = apiUrl.replace(/^http:\/\//, 'https://');
-    console.log('Forced HTTPS conversion:', httpsUrl);
+    const httpsUrl = `https://${apiUrl.replace(/^https?:\/\//, '')}`;
+    console.log('Forced HTTPS:', httpsUrl);
     return httpsUrl;
   }
   
@@ -47,6 +46,16 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
   const API_URL = getApiUrl();
   const token = sessionStorage.getItem("auth_token");
   
+  const fullUrl = `${API_URL}${endpoint}`;
+  console.log('makeAuthenticatedRequest called with:', { endpoint, fullUrl, API_URL });
+  
+  // Final check to ensure HTTPS
+  let finalUrl = fullUrl;
+  if (fullUrl.startsWith('http://')) {
+    finalUrl = fullUrl.replace('http://', 'https://');
+    console.log('makeAuthenticatedRequest: Converting to HTTPS:', finalUrl);
+  }
+  
   const defaultOptions = {
     headers: {
       "Content-Type": "application/json",
@@ -55,7 +64,10 @@ export const makeAuthenticatedRequest = async (endpoint, options = {}) => {
     },
   };
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  console.log('Final checkout URL:', finalUrl);
+  console.log('About to make fetch request to:', finalUrl);
+
+  const response = await fetch(finalUrl, {
     ...defaultOptions,
     ...options,
   });
