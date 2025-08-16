@@ -278,7 +278,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pets.length === 0 ? (
                   <div className="col-span-full text-center py-16">
                     <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center overflow-hidden shadow-md">
@@ -291,7 +291,7 @@ export default function Dashboard() {
                   pets.map((pet) => (
                     <div key={pet.id} className="border rounded-lg overflow-hidden">
                       <div
-                        className="flex items-center p-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                         onClick={handlePetCardClick}
                         data-id={pet.id}
                         data-name={pet.name}
@@ -303,7 +303,7 @@ export default function Dashboard() {
                         data-status={pet.status}
                         data-image={pet.image}
                       >
-                        <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center mr-4 relative overflow-hidden">
+                        <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-3 relative overflow-hidden">
                           {pet.image ? (
                             <img
                               src={getPetImageUrl(pet.image) || "/placeholder.svg"}
@@ -318,7 +318,7 @@ export default function Dashboard() {
                             <span className="text-gray-400 text-xs text-black">No Image</span>
                           )}
                           <span
-                            className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
+                            className={`absolute top-2 right-2 w-4 h-4 rounded-full border-2 border-white ${
                               pet.status?.toLowerCase().includes("missing") ||
                               pet.status?.toLowerCase().includes("lost")
                                 ? "bg-red-500"
@@ -334,9 +334,10 @@ export default function Dashboard() {
                             }`}
                           ></span>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-black">{pet.name || "Unnamed Pet"}</h3>
-                          <div className="flex flex-wrap gap-1 mt-1">
+
+                        <div className="text-center">
+                          <h3 className="font-medium text-black mb-2">{pet.name || "Unnamed Pet"}</h3>
+                          <div className="flex flex-wrap gap-1 justify-center mb-2">
                             {pet.type && (
                               <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">
                                 {pet.type}
@@ -347,25 +348,28 @@ export default function Dashboard() {
                             </span>
                           </div>
                           {pet.date && (
-                            <p className="text-xs text-gray-500 mt-1 text-black">
+                            <p className="text-xs text-gray-500 text-black">
                               Added: {new Date(pet.date).toLocaleDateString()}
                             </p>
                           )}
                         </div>
-                        <button
-                          onClick={(e) => togglePetDetails(pet.id, e)}
-                          className="text-gray-400 hover:text-gray-600"
-                        >
-                          {expandedPets[pet.id] ? (
-                            <ChevronUp className="w-5 h-5" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5" />
-                          )}
-                        </button>
+
+                        <div className="flex justify-center mt-3">
+                          <button
+                            onClick={(e) => togglePetDetails(pet.id, e)}
+                            className="text-gray-400 hover:text-gray-600"
+                          >
+                            {expandedPets[pet.id] ? (
+                              <ChevronUp className="w-5 h-5" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       {expandedPets[pet.id] && (
-                        <div className="px-3 pb-3 border-t bg-gray-50">
+                        <div className="px-4 pb-4 border-t bg-gray-50">
                           <div className="mt-3">
                             {pet.description && (
                               <p className="text-sm text-gray-600 mb-3 text-black">{pet.description}</p>
@@ -496,6 +500,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 
