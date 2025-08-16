@@ -336,12 +336,12 @@ export default function Dashboard() {
                         data-status={pet.status}
                         data-image={pet.image}
                       >
-                        <div className="w-full h-24 sm:h-28 md:h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3 relative overflow-hidden">
+                        <div className="w-full h-32 sm:h-28 md:h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3 relative overflow-hidden">
                           {pet.image ? (
                             <img
                               src={getPetImageUrl(pet.image) || "/placeholder.svg"}
                               alt={pet.name}
-                              className="w-full h-full object-cover aspect-square"
+                              className="w-full h-full object-cover aspect-[3/4] sm:aspect-square"
                               onError={(e) => {
                                 e.target.onerror = null
                                 e.target.src = "https://via.placeholder.com/100"
@@ -539,6 +539,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 
