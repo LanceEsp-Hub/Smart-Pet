@@ -341,7 +341,7 @@ export default function Dashboard() {
                             <img
                               src={getPetImageUrl(pet.image) || "/placeholder.svg"}
                               alt={pet.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover aspect-square"
                               onError={(e) => {
                                 e.target.onerror = null
                                 e.target.src = "https://via.placeholder.com/100"
@@ -539,6 +539,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 
