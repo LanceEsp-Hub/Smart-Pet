@@ -221,11 +221,11 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-purple-700 mb-2">Welcome back, {userData?.name || "User"}!</h1>
-              <p className="text-gray-600">Manage your pets and track their status.</p>
+              <h1 className="text-3xl font-bold text-purple-700 mb-2 text-black">Pet Dashboard</h1>
+              <p className="text-gray-600 text-black">Manage your pets and track their status.</p>
             </div>
             <div className="bg-white rounded-lg shadow-sm p-3 text-right">
-              <div className="text-lg font-medium">
+              <div className="text-lg font-medium text-black">
                 {currentDateTime.toLocaleDateString("en-US", {
                   weekday: "long",
                   year: "numeric",
@@ -233,7 +233,7 @@ export default function Dashboard() {
                   day: "numeric",
                 })}
               </div>
-              <div className="text-gray-500 text-sm">
+              <div className="text-gray-500 text-sm text-black">
                 {currentDateTime.toLocaleTimeString("en-US", {
                   hour: "numeric",
                   minute: "2-digit",
@@ -254,7 +254,7 @@ export default function Dashboard() {
                 <div className="bg-purple-100 p-3 rounded-lg mr-3">
                   <Plus className="text-purple-600 w-5 h-5" />
                 </div>
-                <span className="font-medium">Add New Pet</span>
+                <span className="font-medium text-black">Add New Pet</span>
               </Link>
               <Link
                 href="/shop"
@@ -263,13 +263,13 @@ export default function Dashboard() {
                 <div className="bg-blue-100 p-3 rounded-lg mr-3">
                   <ShoppingBag className="text-blue-600 w-5 h-5" />
                 </div>
-                <span className="font-medium">Visit Shop</span>
+                <span className="font-medium text-black">Visit Shop</span>
               </Link>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">Your Pets</h2>
+                <h2 className="text-xl font-semibold text-gray-800 text-black">Your Pets</h2>
                 <div className="flex space-x-2">
                   <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-600">Missing</span>
                   <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-600">Rehome</span>
@@ -278,14 +278,14 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {pets.length === 0 ? (
-                  <div className="text-center py-16">
+                  <div className="col-span-full text-center py-16">
                     <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center overflow-hidden shadow-md">
                       <Plus className="w-12 h-12 text-purple-400" />
                     </div>
-                    <p className="text-gray-500 text-lg font-medium">No pets found</p>
-                    <p className="text-gray-400 text-sm mt-2">Add your first pet to get started!</p>
+                    <p className="text-gray-500 text-lg font-medium text-black">No pets found</p>
+                    <p className="text-gray-400 text-sm mt-2 text-black">Add your first pet to get started!</p>
                   </div>
                 ) : (
                   pets.map((pet) => (
@@ -303,7 +303,7 @@ export default function Dashboard() {
                         data-status={pet.status}
                         data-image={pet.image}
                       >
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mr-4 relative overflow-hidden">
+                        <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center mr-4 relative overflow-hidden">
                           {pet.image ? (
                             <img
                               src={getPetImageUrl(pet.image) || "/placeholder.svg"}
@@ -315,22 +315,27 @@ export default function Dashboard() {
                               }}
                             />
                           ) : (
-                            <span className="text-gray-400 text-xs">No Image</span>
+                            <span className="text-gray-400 text-xs text-black">No Image</span>
                           )}
                           <span
                             className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
-                              pet.status?.toLowerCase().includes("missing")
+                              pet.status?.toLowerCase().includes("missing") ||
+                              pet.status?.toLowerCase().includes("lost")
                                 ? "bg-red-500"
-                                : pet.status?.toLowerCase().includes("adoption")
-                                  ? "bg-blue-500"
-                                  : pet.status?.toLowerCase().includes("safe")
-                                    ? "bg-green-500"
-                                    : "bg-gray-500"
+                                : pet.status?.toLowerCase().includes("rehome") ||
+                                    pet.status?.toLowerCase().includes("rehoming")
+                                  ? "bg-yellow-500"
+                                  : pet.status?.toLowerCase().includes("adoption")
+                                    ? "bg-blue-500"
+                                    : pet.status?.toLowerCase().includes("safe") ||
+                                        pet.status?.toLowerCase().includes("home")
+                                      ? "bg-green-500"
+                                      : "bg-gray-500"
                             }`}
                           ></span>
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-medium">{pet.name || "Unnamed Pet"}</h3>
+                          <h3 className="font-medium text-black">{pet.name || "Unnamed Pet"}</h3>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {pet.type && (
                               <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">
@@ -342,7 +347,7 @@ export default function Dashboard() {
                             </span>
                           </div>
                           {pet.date && (
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-gray-500 mt-1 text-black">
                               Added: {new Date(pet.date).toLocaleDateString()}
                             </p>
                           )}
@@ -362,12 +367,14 @@ export default function Dashboard() {
                       {expandedPets[pet.id] && (
                         <div className="px-3 pb-3 border-t bg-gray-50">
                           <div className="mt-3">
-                            {pet.description && <p className="text-sm text-gray-600 mb-3">{pet.description}</p>}
+                            {pet.description && (
+                              <p className="text-sm text-gray-600 mb-3 text-black">{pet.description}</p>
+                            )}
                             {pet.address && (
                               <div className="bg-gray-100 rounded-lg p-3 mb-3">
                                 <div className="flex items-center text-gray-600">
                                   <MapPin className="w-4 h-4 mr-2" />
-                                  <span className="text-sm">{pet.address}</span>
+                                  <span className="text-sm text-black">{pet.address}</span>
                                 </div>
                               </div>
                             )}
@@ -394,7 +401,7 @@ export default function Dashboard() {
           <div className="space-y-8">
             {/* Status Summary */}
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Pet Status</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 text-black">Pet Status</h2>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-red-100 text-red-600">
                   <div className="flex items-center">
@@ -427,94 +434,58 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Quick Links */}
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-3 text-gray-800">Quick Links</h2>
-              <div className="space-y-3">
+              <h2 className="text-xl font-semibold mb-3 text-gray-800 text-black">Quick Links</h2>
+              <div className="space-y-2">
                 <Link
                   href="/conversations"
-                  className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                  className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   <div className="bg-purple-100 p-2 rounded-lg mr-3">
-                    <MessageSquare className="text-purple-600 w-5 h-5" />
+                    <MessageSquare className="text-purple-600 w-4 h-4" />
                   </div>
-                  <span>Messages</span>
+                  <span className="text-sm text-black">Messages</span>
                 </Link>
                 <Link
                   href="/settings/account_information"
-                  className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                  className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   <div className="bg-blue-100 p-2 rounded-lg mr-3">
-                    <Settings className="text-blue-600 w-5 h-5" />
+                    <Settings className="text-blue-600 w-4 h-4" />
                   </div>
-                  <span>Account Settings</span>
+                  <span className="text-sm text-black">Account Settings</span>
                 </Link>
-                <Link href="#" className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <Link href="#" className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="bg-red-100 p-2 rounded-lg mr-3">
-                    <Search className="text-red-600 w-5 h-5" />
+                    <Search className="text-red-600 w-4 h-4" />
                   </div>
-                  <span>Lost Pet Tips</span>
+                  <span className="text-sm text-black">Lost Pet Tips</span>
                 </Link>
-                <Link href="#" className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <Link href="#" className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="bg-green-100 p-2 rounded-lg mr-3">
-                    <Flag className="text-green-600 w-5 h-5" />
+                    <Flag className="text-green-600 w-4 h-4" />
                   </div>
-                  <span>Found Pet Tips</span>
+                  <span className="text-sm text-black">Found Pet Tips</span>
                 </Link>
-                <Link href="/help" className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <Link href="/help" className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="bg-yellow-100 p-2 rounded-lg mr-3">
-                    <HelpCircle className="text-yellow-600 w-5 h-5" />
+                    <HelpCircle className="text-yellow-600 w-4 h-4" />
                   </div>
-                  <span>How to Help</span>
+                  <span className="text-sm text-black">How to Help</span>
                 </Link>
-                <Link href="#" className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <Link href="#" className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="bg-indigo-100 p-2 rounded-lg mr-3">
-                    <Info className="text-indigo-600 w-5 h-5" />
+                    <Info className="text-indigo-600 w-4 h-4" />
                   </div>
-                  <span>How PetCare Works</span>
+                  <span className="text-sm text-black">How PetCare Works</span>
                 </Link>
-                <Link href="#" className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <Link href="#" className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="bg-gray-100 p-2 rounded-lg mr-3">
-                    <Info className="text-gray-600 w-5 h-5" />
+                    <Info className="text-gray-600 w-4 h-4" />
                   </div>
-                  <span>About PetCare</span>
+                  <span className="text-sm text-black">About PetCare</span>
                 </Link>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-3 text-gray-800">Recent Locations</h2>
-              <div className="space-y-3">
-                {pets.slice(0, 3).map((pet) => (
-                  <div key={pet.id} className="flex items-start">
-                    <div
-                      className={`p-2 rounded-lg mr-3 ${
-                        pet.status?.toLowerCase().includes("missing")
-                          ? "bg-red-100"
-                          : pet.status?.toLowerCase().includes("safe")
-                            ? "bg-green-100"
-                            : "bg-gray-100"
-                      }`}
-                    >
-                      <MapPin
-                        className={`w-5 h-5 ${
-                          pet.status?.toLowerCase().includes("missing")
-                            ? "text-red-600"
-                            : pet.status?.toLowerCase().includes("safe")
-                              ? "text-green-600"
-                              : "text-gray-600"
-                        }`}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">{pet.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        {pet.address || "Location not specified"} •{" "}
-                        {pet.date ? new Date(pet.date).toLocaleDateString() : "Date unknown"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {pets.length === 0 && <p className="text-gray-500 text-sm">No recent locations to show</p>}
               </div>
             </div>
           </div>
