@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getApiUrl } from "../../utils/apiUtils";
 import CryptoJS from "crypto-js";
+import toast from "react-hot-toast";
 import AdminSidebar from "../../components/AdminSidebar";
 
 const SECRET_KEY = "asdasdasd";
@@ -95,10 +96,10 @@ export default function AdminOrdersPage() {
       }
 
       const result = await response.json();
-      alert(result.message);
+      toast.success(result.message);
       fetchOrders(); // Refresh the list
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     } finally {
       setProcessingOrder(null);
     }
@@ -125,12 +126,12 @@ export default function AdminOrdersPage() {
       if (result.voucher_reversed) {
         message += " (Voucher usage has been reversed)";
       }
-      alert(message);
+      toast.success(message);
       setShowDenyModal(false);
       setDenyReason("");
       fetchOrders(); // Refresh the list
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     } finally {
       setProcessingOrder(null);
     }
@@ -289,10 +290,10 @@ export default function AdminOrdersPage() {
       link.click();
       document.body.removeChild(link);
       
-      alert('Orders report downloaded successfully!');
+      toast.success('Orders report downloaded successfully!');
     } catch (error) {
       console.error('Error downloading report:', error);
-      alert('Error downloading report. Please try again.');
+      toast.error('Error downloading report. Please try again.');
     }
   };
 
