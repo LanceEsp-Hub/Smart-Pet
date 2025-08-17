@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getApiUrl } from "../../utils/apiUtils";
 import CryptoJS from "crypto-js";
+import AdminSidebar from "../../components/AdminSidebar";
 
 const SECRET_KEY = "asdasdasd";
 
@@ -374,170 +375,246 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
-              <p className="mt-2 text-gray-600">Review and manage customer orders</p>
+    <div className="min-h-screen bg-gray-50">
+      <AdminSidebar />
+      <div className="ml-64">
+        <div className="py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* E-Commerce Navigation Bar */}
+            <div className="bg-white shadow-md rounded-lg mb-8">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">E-Commerce Management</h2>
+                <p className="text-sm text-gray-600">Navigate between different e-commerce sections</p>
+              </div>
+              <div className="px-6 py-4">
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => router.push('/admin/product')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/product'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🛍️ Products
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/orders')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/orders'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    📦 Orders
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/vouchers')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/vouchers'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🎫 Vouchers
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/assign_vouchers')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/assign_vouchers'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🎁 Assign Vouchers
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/delivery_settings')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/delivery_settings'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🚚 Delivery Settings
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/charts')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/charts'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    📈 Charts & Analytics
+                  </button>
+                </div>
+              </div>
             </div>
-            {orders.length > 0 && (
-              <div className="flex space-x-3">
-                <button
-                  onClick={downloadOrdersReport}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            {/* Header */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
+                  <p className="mt-2 text-gray-600">Review and manage customer orders</p>
+                </div>
+                {orders.length > 0 && (
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={downloadOrdersReport}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download Report
+                    </button>
+                    <button
+                      onClick={() => router.push('/admin/charts')}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      View Charts
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Orders List */}
+            {orders.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="mx-auto h-12 w-12 text-gray-400">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
-                  Download Report
-                </button>
-                <button
-                  onClick={() => router.push('/admin/charts')}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  View Charts
-                </button>
+                </div>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
+                <p className="mt-1 text-sm text-gray-500">There are no orders to review at this time.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-white shadow rounded-lg overflow-hidden">
+                    {/* Order Header */}
+                    <div className="px-6 py-4 border-b border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-medium text-gray-900">
+                            Order #{order.id}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Customer: {order.user_name || `User ${order.user_id}`} | Placed on {formatDate(order.order_date)}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Items: {order.items_count} | Payment: {order.payment_method}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                            {getStatusDisplay(order.status)}
+                          </span>
+                          <span className="text-lg font-semibold text-gray-900">
+                            ${parseFloat(order.total_amount).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Order Details */}
+                    <div className="px-6 py-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-500">Payment Method:</span>
+                          <p className="text-gray-900">{order.payment_method}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-500">Order Date:</span>
+                          <p className="text-gray-900">{formatDate(order.order_date)}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-500">Total Amount:</span>
+                          <p className="text-gray-900 font-semibold">${parseFloat(order.total_amount).toFixed(2)}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Voucher Information */}
+                      {order.voucher_used && (
+                        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                          <span className="font-medium text-green-800">Voucher Applied:</span>
+                          <p className="text-green-700 mt-1">{order.voucher_code} - {order.voucher_discount}</p>
+                        </div>
+                      )}
+                      
+                      {order.admin_notes && (
+                        <div className="mt-4 p-3 bg-gray-50 rounded">
+                          <span className="font-medium text-gray-500">Admin Notes:</span>
+                          <p className="text-gray-900 mt-1">{order.admin_notes}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="px-6 py-4 bg-gray-50">
+                      <div className="flex justify-between items-center">
+                        <button
+                          onClick={() => router.push(`/shop/order/${order.id}`)}
+                          className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                        >
+                          View Details
+                        </button>
+                        
+                        {/* Debug info */}
+                        <div className="text-xs text-gray-500 mb-2">
+                          Debug: Status = "{order.status}", Order ID = {order.id}
+                        </div>
+                        
+                        {order.status === 'pending' && (
+                          <div className="flex space-x-3">
+                            <button
+                              onClick={() => handleApproveOrder(order.id)}
+                              disabled={processingOrder === order.id}
+                              className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                            >
+                              {processingOrder === order.id ? "Processing..." : "Approve"}
+                            </button>
+                            <button
+                              onClick={() => openDenyModal(order.id)}
+                              disabled={processingOrder === order.id}
+                              className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                            >
+                              {processingOrder === order.id ? "Processing..." : "Deny"}
+                            </button>
+                          </div>
+                        )}
+                        
+                        {order.status === 'approved' && (
+                          <button
+                            onClick={() => openReceiptModal(order)}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Receipt
+                          </button>
+                        )}
+                        
+                        {order.status !== 'pending' && order.status !== 'approved' && (
+                          <div className="text-sm text-gray-500">
+                            Order is {order.status} - no actions available
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         </div>
-
-        {/* Orders List */}
-        {orders.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="mx-auto h-12 w-12 text-gray-400">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-            </div>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
-            <p className="mt-1 text-sm text-gray-500">There are no orders to review at this time.</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {orders.map((order) => (
-              <div key={order.id} className="bg-white shadow rounded-lg overflow-hidden">
-                {/* Order Header */}
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">
-                        Order #{order.id}
-                      </h3>
-                                             <p className="text-sm text-gray-500">
-                         Customer: {order.user_name || `User ${order.user_id}`} | Placed on {formatDate(order.order_date)}
-                       </p>
-                      <p className="text-sm text-gray-500">
-                        Items: {order.items_count} | Payment: {order.payment_method}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                        {getStatusDisplay(order.status)}
-                      </span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        ${parseFloat(order.total_amount).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Order Details */}
-                <div className="px-6 py-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-gray-500">Payment Method:</span>
-                      <p className="text-gray-900">{order.payment_method}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-500">Order Date:</span>
-                      <p className="text-gray-900">{formatDate(order.order_date)}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-500">Total Amount:</span>
-                      <p className="text-gray-900 font-semibold">${parseFloat(order.total_amount).toFixed(2)}</p>
-                    </div>
-                  </div>
-                  
-                  {/* Voucher Information */}
-                  {order.voucher_used && (
-                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
-                      <span className="font-medium text-green-800">Voucher Applied:</span>
-                      <p className="text-green-700 mt-1">{order.voucher_code} - {order.voucher_discount}</p>
-                    </div>
-                  )}
-                  
-                  {order.admin_notes && (
-                    <div className="mt-4 p-3 bg-gray-50 rounded">
-                      <span className="font-medium text-gray-500">Admin Notes:</span>
-                      <p className="text-gray-900 mt-1">{order.admin_notes}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="px-6 py-4 bg-gray-50">
-                  <div className="flex justify-between items-center">
-                    <button
-                      onClick={() => router.push(`/shop/order/${order.id}`)}
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                    >
-                      View Details
-                    </button>
-                    
-                    {/* Debug info */}
-                    <div className="text-xs text-gray-500 mb-2">
-                      Debug: Status = "{order.status}", Order ID = {order.id}
-                    </div>
-                    
-                    {order.status === 'pending' && (
-                      <div className="flex space-x-3">
-                        <button
-                          onClick={() => handleApproveOrder(order.id)}
-                          disabled={processingOrder === order.id}
-                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-                        >
-                          {processingOrder === order.id ? "Processing..." : "Approve"}
-                        </button>
-                        <button
-                          onClick={() => openDenyModal(order.id)}
-                          disabled={processingOrder === order.id}
-                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-                        >
-                          {processingOrder === order.id ? "Processing..." : "Deny"}
-                        </button>
-                      </div>
-                    )}
-                    
-                    {order.status === 'approved' && (
-                      <button
-                        onClick={() => openReceiptModal(order)}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Receipt
-                      </button>
-                    )}
-                    
-                    {order.status !== 'pending' && order.status !== 'approved' && (
-                      <div className="text-sm text-gray-500">
-                        Order is {order.status} - no actions available
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Deny Modal */}
