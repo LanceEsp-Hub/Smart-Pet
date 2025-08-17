@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getApiUrl } from "../../utils/apiUtils";
 import CryptoJS from "crypto-js";
+import toast from "react-hot-toast";
+import AdminSidebar from "../../components/AdminSidebar";
 
 const SECRET_KEY = "asdasdasd";
 
@@ -90,7 +92,7 @@ export default function AssignVouchersPage() {
     e.preventDefault();
     
     if (!selectedVoucher || (!selectedUser && !assignToAll)) {
-      alert("Please select both a voucher and a user, or check 'Assign to All Users'");
+      toast.error("Please select both a voucher and a user, or check 'Assign to All Users'");
       return;
     }
 
@@ -127,7 +129,7 @@ export default function AssignVouchersPage() {
       setAssignToAll(false);
       
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setAssigning(false);
     }
@@ -168,7 +170,7 @@ export default function AssignVouchersPage() {
         setSuccessMessage(`Voucher assigned to ${successCount} users. ${errorCount} assignments failed.`);
       }
     } catch (err) {
-      alert(`Bulk assignment error: ${err.message}`);
+      toast.error(`Bulk assignment error: ${err.message}`);
     } finally {
       setBulkAssigning(false);
     }
@@ -223,42 +225,16 @@ export default function AssignVouchersPage() {
 
       // Refresh user vouchers
       await fetchUserVouchers(selectedUserForRemoval);
-      alert("Voucher removed successfully!");
+      toast.success("Voucher removed successfully!");
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setRemovingVoucher(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Authenticating...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (!isAuthenticated) {
     return null;
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   if (error) {
@@ -277,8 +253,94 @@ export default function AssignVouchersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50">
+      <AdminSidebar />
+      <div className="ml-64">
+        {(isLoading || loading) ? (
+          <div className="py-8">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
+                <p className="mt-4 text-gray-600">
+                  {isLoading ? "Authenticating..." : "Loading..."}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+        <div className="py-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* E-Commerce Navigation Bar */}
+            <div className="bg-white shadow-md rounded-lg mb-8">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">E-Commerce Management</h2>
+                <p className="text-sm text-gray-600">Navigate between different e-commerce sections</p>
+              </div>
+              <div className="px-6 py-4">
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => router.push('/admin/product')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/product'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🛍️ Products
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/orders')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/orders'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    📦 Orders
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/vouchers')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/vouchers'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🎫 Vouchers
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/assign_vouchers')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/assign_vouchers'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🎁 Assign Vouchers
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/delivery_settings')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/delivery_settings'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🚚 Delivery Settings
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/charts')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/charts'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    📈 Charts & Analytics
+                  </button>
+                </div>
+              </div>
+            </div>
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Assign Vouchers to Users</h1>
@@ -527,6 +589,9 @@ export default function AssignVouchersPage() {
             Back to Admin
           </button>
         </div>
+          </div>
+        </div>
+        )}
       </div>
     </div>
   );
