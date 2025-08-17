@@ -63,6 +63,7 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobileTipsOpen, setIsMobileTipsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [hasNewMessages, setHasNewMessages] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -270,6 +271,11 @@ export default function Navbar() {
     { name: "About", href: "/about" },
   ]
 
+  const tipsItems = [
+    { name: "Lost Pet Tips", href: "/lost-pet-tips" },
+    { name: "Found Pet Tips", href: "/found-pet-tips" },
+  ]
+
   return (
     <nav
       className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -301,7 +307,9 @@ export default function Navbar() {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center group cursor-pointer">
               <div className="relative transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                <img src="/logo.png" alt="Smartpet Love Lost" className="h-12 w-auto" />
+                <div className="h-10 w-10 sm:h-12 sm:w-12 bg-black rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm sm:text-base">SP</span>
+                </div>
               </div>
             </Link>
           </div>
@@ -313,7 +321,7 @@ export default function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="relative text-gray-600 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-blue-50 group"
+                  className="relative text-gray-600 hover:text-blue-600 px-3 lg:px-4 py-2 rounded-lg text-sm lg:text-base font-medium transition-all duration-300 hover:bg-blue-50 group"
                 >
                   {item.name}
                   <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
@@ -331,11 +339,6 @@ export default function Navbar() {
                 onClick={toggleNotifications}
               >
                 <Bell className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 border-2 border-white animate-pulse rounded-full text-white font-bold">
-                    {unreadCount}
-                  </span>
-                )}
               </button>
 
               {isNotificationsOpen && (
@@ -438,11 +441,6 @@ export default function Navbar() {
               onClick={() => router.push("/conversations")}
             >
               <MessageSquare className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 border-2 border-white animate-pulse rounded-full text-white font-bold">
-                  {unreadCount}
-                </span>
-              )}
             </button>
 
             <div className="relative">
@@ -623,13 +621,7 @@ export default function Navbar() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
                           />
                         </svg>
                       </div>
@@ -666,28 +658,113 @@ export default function Navbar() {
 
           {/* Mobile Right Section */}
           <div className="md:hidden flex items-center space-x-2">
-            <button
-              className="relative p-2 hover:bg-blue-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer"
-              onClick={toggleNotifications}
-            >
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 animate-pulse rounded-full text-white font-bold">
-                  {unreadCount}
-                </span>
+            <div className="relative">
+              <button
+                className="relative p-2 hover:bg-blue-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer z-40"
+                onClick={toggleNotifications}
+              >
+                <Bell className="h-5 w-5" />
+              </button>
+
+              {isNotificationsOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-72 sm:w-80 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-b flex justify-between items-center">
+                    <h3 className="font-bold text-gray-800">Notifications</h3>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation()
+                          try {
+                            await markAllAsRead()
+                          } catch (error) {
+                            alert(error.message)
+                          }
+                        }}
+                        className="text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors bg-transparent border-none cursor-pointer"
+                      >
+                        Mark All Read
+                      </button>
+                      <button
+                        onClick={() => setIsNotificationsOpen(false)}
+                        className="text-xs text-gray-500 hover:text-gray-700 transition-colors bg-transparent border-none cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {loadingNotifications ? (
+                      <div className="p-6 text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                      </div>
+                    ) : notificationError ? (
+                      <div className="p-4 text-center text-sm text-red-500 bg-red-50 m-2 rounded-lg">
+                        {notificationError}
+                      </div>
+                    ) : notifications?.length > 0 ? (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification?.id}
+                          className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${!notification?.is_read ? "bg-blue-50 border-l-4 border-l-blue-500" : ""}`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-800 text-sm">
+                                {notification?.title || "Notification"}
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">{notification?.message || ""}</p>
+                              <p className="text-xs text-gray-400 mt-2">
+                                {formatNotificationDate(notification?.created_at)}
+                              </p>
+                            </div>
+                            {!notification?.is_read && (
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation()
+                                  try {
+                                    await markAsRead(notification.id)
+                                  } catch (error) {
+                                    alert(error.message)
+                                  }
+                                }}
+                                className="text-xs text-blue-600 hover:text-blue-800 ml-3 px-2 py-1 bg-blue-100 rounded-full transition-colors border-none cursor-pointer"
+                              >
+                                Mark Read
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-6 text-center text-sm text-gray-500">
+                        <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                          <Bell className="w-6 h-6 text-gray-400" />
+                        </div>
+                        No notifications
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3 bg-gray-50 text-center border-t">
+                    <Link
+                      href="/notifications"
+                      className="text-sm text-purple-600 hover:text-purple-800 font-medium transition-colors"
+                      onClick={() => setIsNotificationsOpen(false)}
+                    >
+                      View All Notifications
+                    </Link>
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
 
             <button
               className="relative p-2 hover:bg-purple-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer"
               onClick={() => router.push("/conversations")}
             >
               <MessageSquare className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse rounded-full text-white font-bold">
-                  {unreadCount}
-                </span>
-              )}
             </button>
 
             <button
@@ -702,34 +779,64 @@ export default function Navbar() {
         </div>
 
         <div
-          className={`md:hidden absolute top-full left-0 right-0 transition-all duration-300 ease-in-out ${
+          className={`md:hidden absolute top-full left-0 right-0 transition-all duration-300 ease-in-out z-40 ${
             isMobileMenuOpen ? "max-h-screen opacity-100 visible" : "max-h-0 opacity-0 invisible overflow-hidden"
           }`}
         >
           <div className="bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-lg">
             <div className="px-4 py-4 space-y-2">
-              {/* Navigation Items */}
-              {navigationItems.map((item, index) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 transform hover:translate-x-1"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  style={{
-                    animationDelay: `${index * 50}ms`,
-                    transform: isMobileMenuOpen ? "translateY(0)" : "translateY(-10px)",
-                  }}
+              <div className="relative">
+                <button
+                  className="flex items-center justify-between w-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 bg-transparent border-none cursor-pointer"
+                  onClick={() => setIsMobileTipsOpen(!isMobileTipsOpen)}
                 >
-                  {item.name}
-                </Link>
-              ))}
+                  <span>Pet Tips</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform duration-300 ${isMobileTipsOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {isMobileTipsOpen && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {tipsItems.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className="flex items-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false)
+                          setIsMobileTipsOpen(false)
+                        }}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <Link
+                href="/how-to-help"
+                className="flex items-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 transform hover:translate-x-1"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                How to Help
+              </Link>
+
+              <Link
+                href="/about"
+                className="flex items-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 transform hover:translate-x-1"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                About
+              </Link>
 
               {/* Mobile User Section */}
               <div className="pt-4 border-t border-blue-100">
                 <div className="flex items-center px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg mb-3">
-                  <div className="h-10 w-10 ring-2 ring-blue-200 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <div className="h-8 w-8 ring-2 ring-transparent group-hover:ring-blue-300 transition-all duration-300 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                     <img
-                      src="/placeholder.svg?height=40&width=40"
+                      src="/placeholder.svg?height=32&width=32"
                       alt="User"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -750,7 +857,7 @@ export default function Navbar() {
                 <div className="space-y-1">
                   <Link
                     href="/pet_dashboard"
-                    className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
+                    className="flex items-center px-4 py-3 rounded-lg text-sm sm:text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <User className="mr-3 h-4 w-4 text-blue-500" />
@@ -759,7 +866,7 @@ export default function Navbar() {
 
                   <Link
                     href="/settings/account_information"
-                    className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
+                    className="flex items-center px-4 py-3 rounded-lg text-sm sm:text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <svg className="mr-3 h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -781,7 +888,7 @@ export default function Navbar() {
 
                   <Link
                     href="/adoption_application"
-                    className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 transition-all duration-300"
+                    className="flex items-center px-4 py-3 rounded-lg text-sm sm:text-base font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 transition-all duration-300"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <svg className="mr-3 h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -797,7 +904,7 @@ export default function Navbar() {
 
                   <Link
                     href="/rehome_pets"
-                    className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-300"
+                    className="flex items-center px-4 py-3 rounded-lg text-sm sm:text-base font-medium text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-300"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <svg className="mr-3 h-5 w-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -813,7 +920,7 @@ export default function Navbar() {
 
                   <Link
                     href="/adopted_pets"
-                    className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300"
+                    className="flex items-center px-4 py-3 rounded-lg text-sm sm:text-base font-medium text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <svg className="mr-3 h-5 w-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -829,7 +936,7 @@ export default function Navbar() {
 
                   <Link
                     href="/admin_dashboard"
-                    className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
+                    className="flex items-center px-4 py-3 rounded-lg text-sm sm:text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <svg className="mr-3 h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -844,7 +951,7 @@ export default function Navbar() {
                   </Link>
 
                   <button
-                    className="flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-300 bg-transparent border-none cursor-pointer"
+                    className="flex items-center w-full px-4 py-3 rounded-lg text-sm sm:text-base font-medium text-red-600 hover:bg-red-50 transition-all duration-300 bg-transparent border-none cursor-pointer"
                     onClick={() => {
                       setIsMobileMenuOpen(false)
                       handleLogout()
@@ -869,6 +976,7 @@ export default function Navbar() {
     </nav>
   )
 }
+
 
 
 
