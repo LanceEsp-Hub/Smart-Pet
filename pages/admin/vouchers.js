@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import CryptoJS from "crypto-js";
+import toast from "react-hot-toast";
 import AdminSidebar from "../../components/AdminSidebar";
 
 const SECRET_KEY = "asdasdasd";
@@ -129,9 +130,9 @@ export default function AdminVouchersPage() {
       setEditingVoucher(null);
       resetForm();
       fetchVouchers();
-      alert(editingVoucher ? 'Voucher updated successfully!' : 'Voucher created successfully!');
+      toast.success(editingVoucher ? 'Voucher updated successfully!' : 'Voucher created successfully!');
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     }
   };
 
@@ -164,9 +165,9 @@ export default function AdminVouchersPage() {
       }
 
       fetchVouchers();
-      alert('Voucher deleted successfully!');
+      toast.success('Voucher deleted successfully!');
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     }
   };
 
@@ -187,9 +188,9 @@ export default function AdminVouchersPage() {
       }
 
       fetchVouchers();
-      alert('Voucher deactivated successfully!');
+      toast.success('Voucher deactivated successfully!');
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     }
   };
 
