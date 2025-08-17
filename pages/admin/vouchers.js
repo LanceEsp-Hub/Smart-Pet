@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import CryptoJS from "crypto-js";
+import AdminSidebar from "../../components/AdminSidebar";
 
 const SECRET_KEY = "asdasdasd";
 
@@ -262,174 +263,232 @@ export default function AdminVouchersPage() {
     return 'Active';
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Authenticating...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   if (!isAuthenticated) {
     return null;
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading vouchers...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              <strong className="font-bold">Error:</strong>
-              <span className="block sm:inline"> {error}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Voucher Management</h1>
-              <p className="mt-2 text-gray-600">Create and manage discount vouchers</p>
+    <div className="min-h-screen bg-gray-50">
+      <AdminSidebar />
+      <div className="ml-64">
+        {loading ? (
+          <div className="py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading vouchers...</p>
+              </div>
             </div>
-            <button
-              onClick={() => {
-                setEditingVoucher(null);
-                resetForm();
-                setShowCreateModal(true);
-              }}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Create Voucher
-            </button>
           </div>
-        </div>
-
-        {/* Vouchers List */}
-        {vouchers.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="mx-auto h-12 w-12 text-gray-400">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-              </svg>
+        ) : error ? (
+          <div className="py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  <strong className="font-bold">Error:</strong>
+                  <span className="block sm:inline"> {error}</span>
+                </div>
+              </div>
             </div>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No vouchers found</h3>
-            <p className="mt-1 text-sm text-gray-500">Create your first voucher to get started.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {vouchers.map((voucher) => (
-              <div key={voucher.id} className="bg-white shadow rounded-lg overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">
-                        {voucher.name}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Code: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{voucher.code}</span>
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">{voucher.description}</p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(voucher)}`}>
-                        {getStatusText(voucher)}
-                      </span>
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-gray-900">
-                          {voucher.discount_type === 'percentage' ? `${voucher.discount_value}%` : `$${voucher.discount_value}`}
+        <div className="py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* E-Commerce Navigation Bar */}
+            <div className="bg-white shadow-md rounded-lg mb-8">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">E-Commerce Management</h2>
+                <p className="text-sm text-gray-600">Navigate between different e-commerce sections</p>
+              </div>
+              <div className="px-6 py-4">
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => router.push('/admin/product')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/product'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🛍️ Products
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/orders')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/orders'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    📦 Orders
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/vouchers')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/vouchers'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🎫 Vouchers
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/assign_vouchers')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/assign_vouchers'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🎁 Assign Vouchers
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/delivery_settings')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/delivery_settings'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🚚 Delivery Settings
+                  </button>
+                  <button
+                    onClick={() => router.push('/admin/charts')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      router.pathname === '/admin/charts'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    📈 Charts & Analytics
+                  </button>
+                </div>
+              </div>
+            </div>
+            {/* Header */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Voucher Management</h1>
+                  <p className="mt-2 text-gray-600">Create and manage discount vouchers</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingVoucher(null);
+                    resetForm();
+                    setShowCreateModal(true);
+                  }}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Create Voucher
+                </button>
+              </div>
+            </div>
+
+            {/* Vouchers List */}
+            {vouchers.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="mx-auto h-12 w-12 text-gray-400">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                  </svg>
+                </div>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No vouchers found</h3>
+                <p className="mt-1 text-sm text-gray-500">Create your first voucher to get started.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {vouchers.map((voucher) => (
+                  <div key={voucher.id} className="bg-white shadow rounded-lg overflow-hidden">
+                    <div className="px-6 py-4 border-b border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {voucher.name}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Code: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{voucher.code}</span>
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">{voucher.description}</p>
                         </div>
-                        {voucher.free_shipping && (
-                          <div className="text-sm text-green-600">Free Shipping</div>
-                        )}
+                        <div className="flex items-center space-x-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(voucher)}`}>
+                            {getStatusText(voucher)}
+                          </span>
+                          <div className="text-right">
+                            <div className="text-lg font-semibold text-gray-900">
+                              {voucher.discount_type === 'percentage' ? `${voucher.discount_value}%` : `$${voucher.discount_value}`}
+                            </div>
+                            {voucher.free_shipping && (
+                              <div className="text-sm text-green-600">Free Shipping</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-6 py-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-500">Valid Period:</span>
+                          <p className="text-gray-900">
+                            {formatDate(voucher.start_date)} - {formatDate(voucher.end_date)}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-500">Usage:</span>
+                          <p className="text-gray-900">
+                            {voucher.used_count} / {voucher.usage_limit || '∞'}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-500">Min Order:</span>
+                          <p className="text-gray-900">${voucher.min_order_amount}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-6 py-4 bg-gray-50">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-500">
+                          Created: {formatDate(voucher.created_at)}
+                        </div>
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={() => handleEdit(voucher)}
+                            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                          >
+                            Edit
+                          </button>
+                          {voucher.is_active && (
+                            <button
+                              onClick={() => handleDeactivate(voucher.id)}
+                              className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                            >
+                              Deactivate
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDelete(voucher.id)}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="px-6 py-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-gray-500">Valid Period:</span>
-                      <p className="text-gray-900">
-                        {formatDate(voucher.start_date)} - {formatDate(voucher.end_date)}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-500">Usage:</span>
-                      <p className="text-gray-900">
-                        {voucher.used_count} / {voucher.usage_limit || '∞'}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-500">Min Order:</span>
-                      <p className="text-gray-900">${voucher.min_order_amount}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="px-6 py-4 bg-gray-50">
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-500">
-                      Created: {formatDate(voucher.created_at)}
-                    </div>
-                    <div className="flex space-x-3">
-                      <button
-                        onClick={() => handleEdit(voucher)}
-                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                      >
-                        Edit
-                      </button>
-                      {voucher.is_active && (
-                        <button
-                          onClick={() => handleDeactivate(voucher.id)}
-                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                        >
-                          Deactivate
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleDelete(voucher.id)}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
+        </div>
         )}
-      </div>
 
       {/* Create/Edit Modal */}
       {showCreateModal && (
@@ -621,7 +680,8 @@ export default function AdminVouchersPage() {
             </form>
           </div>
         </div>
-      )}
+        )}
+      </div>
     </div>
   );
 } 
