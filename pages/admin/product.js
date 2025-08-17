@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import { getProductImageUrl } from "../../utils/supabase";
 import CryptoJS from "crypto-js";
+import toast from "react-hot-toast";
 import AdminSidebar from "../../components/AdminSidebar";
 
 const SECRET_KEY = "asdasdasd";
@@ -200,7 +201,7 @@ export default function ProductPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Category "${categoryFormData.name}" created successfully!`);
+        toast.success(`Category "${categoryFormData.name}" created successfully!`);
         
         // Reset form and close modal
         setCategoryFormData({
@@ -222,11 +223,11 @@ export default function ProductPage() {
       } else {
         const error = await response.json();
         console.error("Error:", error);
-        alert(`Failed to create category: ${error.detail || "Unknown error"}`);
+        toast.error(`Failed to create category: ${error.detail || "Unknown error"}`);
       }
     } catch (err) {
       console.error("Request failed:", err);
-      alert(`Failed to create category: ${err.message}`);
+      toast.error(`Failed to create category: ${err.message}`);
     }
   };
 
@@ -357,7 +358,7 @@ export default function ProductPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert("Product created successfully!");
+        toast.success("Product created successfully!");
         console.log(result);
         
         // Reset form and close modal
@@ -387,11 +388,11 @@ export default function ProductPage() {
       } else {
         const error = await response.json();
         console.error("Error:", error);
-        alert(`Failed to create product: ${error.detail || "Unknown error"}`);
+        toast.error(`Failed to create product: ${error.detail || "Unknown error"}`);
       }
     } catch (err) {
       console.error("Request failed:", err);
-      alert(`Failed to create product: ${err.message}`);
+      toast.error(`Failed to create product: ${err.message}`);
     }
   };
 
@@ -525,7 +526,7 @@ export default function ProductPage() {
                   });
                   const categoriesData = await categoriesRes.json();
                   setCategories(categoriesData);
-                  alert("Default categories created/refreshed!");
+                  toast.success("Default categories created/refreshed!");
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold flex items-center gap-2"
               >
