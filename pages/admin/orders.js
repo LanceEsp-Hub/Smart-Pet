@@ -4,6 +4,7 @@ import { getApiUrl } from "../../utils/apiUtils";
 import CryptoJS from "crypto-js";
 import toast from "react-hot-toast";
 import AdminSidebar from "../../components/AdminSidebar";
+import * as XLSX from 'xlsx';
 
 const SECRET_KEY = "asdasdasd";
 
@@ -239,7 +240,11 @@ export default function AdminOrdersPage() {
 
   const downloadOrdersReport = () => {
     try {
-      // Create CSV content with proper field mapping
+      // Create workbook and worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.aoa_to_sheet([]);
+
+      // Define headers
       const headers = [
         'Order ID',
         'Customer Name', 
@@ -253,56 +258,102 @@ export default function AdminOrdersPage() {
         'Admin Notes'
       ];
 
-      const csvRows = [];
-      
-      // Add title row (centered by adding empty cells to span all columns)
-      const titleRow = ['Smart Pet Orders Report'];
-      // Add empty cells to center the title (span across all columns)
-      for (let i = 1; i < headers.length; i++) {
-        titleRow.push('');
-      }
-      csvRows.push(titleRow);
-      
-      // Add empty row for spacing
-      csvRows.push(new Array(headers.length).fill(''));
-      
-      // Add headers
-      csvRows.push(headers);
-      
-             orders.forEach((order) => {
-         // Format date properly - use ISO string format that Excel recognizes
-         const orderDate = new Date(order.order_date);
-         const formattedDate = orderDate.toISOString().replace('T', ' ').substring(0, 19);
+      // Prepare data rows
+      const dataRows = [];
+      orders.forEach((order) => {
+        // Format date properly
+        const orderDate = new Date(order.order_date);
+        const formattedDate = orderDate.toISOString().replace('T', ' ').substring(0, 19);
 
-                   // Create row data in the same order as headers
-          const rowData = [
-            order.id,                                    // Order ID
-            order.user_name || `User ${order.user_id}`, // Customer Name
-            formattedDate,                              // Order Date
-            order.status,                               // Status
-            parseFloat(order.total_amount).toFixed(2),  // Total Amount
-            parseFloat(order.delivery_fee || 0).toFixed(2),  // Delivery Fee
-            order.payment_method,                       // Payment Method
-            order.delivery_type,                        // Delivery Type
-            order.items_count,                          // Items Count
-            order.admin_notes ? `"${order.admin_notes.replace(/"/g, '""')}"` : ''  // Admin Notes
-          ];
+        // Create row data in the same order as headers
+        const rowData = [
+          order.id,                                    // Order ID
+          order.user_name || `User ${order.user_id}`, // Customer Name
+          formattedDate,                              // Order Date
+          order.status,                               // Status
+          parseFloat(order.total_amount).toFixed(2),  // Total Amount
+          parseFloat(order.delivery_fee || 0).toFixed(2),  // Delivery Fee
+          order.payment_method,                       // Payment Method
+          order.delivery_type,                        // Delivery Type
+          order.items_count,                          // Items Count
+          order.admin_notes || ''                     // Admin Notes
+        ];
 
-         csvRows.push(rowData);
-       });
+        dataRows.push(rowData);
+      });
 
-      const csvContent = csvRows.map(row => row.join(',')).join('\n');
+      // Add title row (row 1)
+      XLSX.utils.sheet_add_aoa(worksheet, [['Smart Pet Orders Report']], { origin: 'A1' });
 
-      // Create and download file
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
+      // Add empty row for spacing (row 2)
+      XLSX.utils.sheet_add_aoa(worksheet, [new Array(headers.length).fill('')], { origin: 'A2' });
+
+      // Add headers (row 3)
+      XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: 'A3' });
+
+      // Add data rows (starting from row 4)
+      XLSX.utils.sheet_add_aoa(worksheet, dataRows, { origin: 'A4' });
+
+      // Set up styling and formatting
+      worksheet['!cols'] = [
+        { width: 10 }, // Order ID
+        { width: 20 }, // Customer Name
+        { width: 20 }, // Order Date
+        { width: 12 }, // Status
+        { width: 15 }, // Total Amount
+        { width: 15 }, // Delivery Fee
+        { width: 18 }, // Payment Method
+        { width: 15 }, // Delivery Type
+        { width: 12 }, // Items Count
+        { width: 30 }  // Admin Notes
+      ];
+
+      // Merge cells A1:K1 for the title
+      if (!worksheet['!merges']) worksheet['!merges'] = [];
+      worksheet['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } });
+
+      // Apply styles to cells
+      // Title cell (A1) - font size 26, bold, centered
+      if (!worksheet['A1']) worksheet['A1'] = {};
+      worksheet['A1'].s = {
+        font: { sz: 26, bold: true },
+        alignment: { horizontal: 'center', vertical: 'center' }
+      };
+
+      // Header row (A3:K3) - font size 14, bold
+      headers.forEach((_, index) => {
+        const cellRef = XLSX.utils.encode_cell({ r: 2, c: index });
+        if (!worksheet[cellRef]) worksheet[cellRef] = {};
+        worksheet[cellRef].s = {
+          font: { sz: 14, bold: true },
+          alignment: { horizontal: 'center', vertical: 'center' },
+          fill: { fgColor: { rgb: "E0E0E0" } }
+        };
+      });
+
+      // Data rows - font size 14
+      dataRows.forEach((_, rowIndex) => {
+        headers.forEach((_, colIndex) => {
+          const cellRef = XLSX.utils.encode_cell({ r: rowIndex + 3, c: colIndex });
+          if (worksheet[cellRef]) {
+            if (!worksheet[cellRef].s) worksheet[cellRef].s = {};
+            worksheet[cellRef].s.font = { sz: 14 };
+          }
+        });
+      });
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders Report');
+
+      // Generate and download file
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `orders_report_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_report_${new Date().toISOString().split('T')[0]}.xlsx`;
       link.click();
-      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       toast.success('Orders report downloaded successfully!');
     } catch (error) {
