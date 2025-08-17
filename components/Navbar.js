@@ -263,8 +263,129 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Mobile Menu Button */}
-            <div className="lg:hidden">
+            {/* Mobile Menu Button - moved to right side */}
+            <div className="flex items-center space-x-3 lg:hidden">
+              {/* Notification Icon */}
+              <div className="relative">
+                <div className="flex items-center">
+                  <div
+                    className="relative p-2 rounded-full hover:bg-emerald-50 transition-colors duration-200 cursor-pointer group"
+                    onClick={toggleNotifications}
+                  >
+                    <Bell className="h-5 w-5 text-gray-600 group-hover:text-emerald-600 transition-colors" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping"></span>
+                    )}
+                  </div>
+                </div>
+                {isNotificationsOpen && (
+                  <div
+                    className="absolute right-0 mt-3 w-72 sm:w-80 md:w-80 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="p-3 md:p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-b flex justify-between items-center">
+                      <h3 className="font-bold text-gray-800 text-sm md:text-base">Notifications</h3>
+                      <div className="flex space-x-2 md:space-x-3">
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            try {
+                              await markAllAsRead()
+                            } catch (error) {
+                              alert(error.message)
+                            }
+                          }}
+                          className="text-xs text-emerald-600 hover:text-emerald-800 font-medium transition-colors"
+                        >
+                          Mark All Read
+                        </button>
+                        <button
+                          onClick={() => setIsNotificationsOpen(false)}
+                          className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                    <div className="max-h-60 md:max-h-80 overflow-y-auto">
+                      {loadingNotifications ? (
+                        <div className="p-4 md:p-6 text-center">
+                          <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-emerald-600 mx-auto"></div>
+                        </div>
+                      ) : notificationError ? (
+                        <div className="p-3 md:p-4 text-center text-xs md:text-sm text-red-500 bg-red-50 m-2 rounded-lg">
+                          {notificationError}
+                        </div>
+                      ) : notifications?.length > 0 ? (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification?.id}
+                            className={`p-3 md:p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${!notification?.is_read ? "bg-blue-50 border-l-4 border-l-blue-500" : ""}`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <p className="font-semibold text-gray-800 text-xs md:text-sm">
+                                  {notification?.title || "Notification"}
+                                </p>
+                                <p className="text-xs text-gray-600 mt-1">{notification?.message || ""}</p>
+                                <p className="text-xs text-gray-400 mt-1 md:mt-2">
+                                  {formatNotificationDate(notification?.created_at)}
+                                </p>
+                              </div>
+                              {!notification?.is_read && (
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation()
+                                    try {
+                                      await markAsRead(notification.id)
+                                    } catch (error) {
+                                      alert(error.message)
+                                    }
+                                  }}
+                                  className="text-xs text-blue-600 hover:text-blue-800 ml-2 md:ml-3 px-2 py-1 bg-blue-100 rounded-full transition-colors"
+                                >
+                                  Mark Read
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-4 md:p-6 text-center text-xs md:text-sm text-gray-500">
+                          <div className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 md:mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                            <Bell className="w-5 h-5 md:w-6 md:h-6 text-gray-400" />
+                          </div>
+                          No notifications
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-2 md:p-3 bg-gray-50 text-center border-t">
+                      <Link
+                        href="/notifications"
+                        className="text-xs md:text-sm text-emerald-600 hover:text-emerald-800 font-medium transition-colors"
+                        onClick={() => setIsNotificationsOpen(false)}
+                      >
+                        View All Notifications
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Messages Icon */}
+              <div className="relative">
+                <div
+                  className="p-2 rounded-full hover:bg-emerald-50 transition-colors duration-200 cursor-pointer group"
+                  onClick={() => router.push("/conversations")}
+                >
+                  <MessageSquare className="h-5 w-5 text-gray-600 group-hover:text-emerald-600 transition-colors" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping"></span>
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="p-2 rounded-md text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
@@ -275,7 +396,6 @@ export default function Navbar() {
               </button>
             </div>
 
-            {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
               <Link
                 href="/lost-pet-tips"
@@ -315,7 +435,7 @@ export default function Navbar() {
               </Link>
             </div>
 
-            <div className="flex items-center space-x-3 lg:space-x-4 xl:space-x-6 relative">
+            <div className="hidden lg:flex items-center space-x-3 lg:space-x-4 xl:space-x-6 relative">
               {/* Notification Icon with Enhanced Dropdown */}
               <div className="relative">
                 <div className="flex items-center">
@@ -634,7 +754,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
       {isDropdownOpen && (
         <div className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsDropdownOpen(false)}>
           <div className="fixed top-0 right-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
@@ -655,46 +774,6 @@ export default function Navbar() {
                   </svg>
                 </button>
               </div>
-            </div>
-
-            {/* Mobile Navigation Links */}
-            <div className="p-4 border-b">
-              <Link
-                href="/lost-pet-tips"
-                className="block py-2 text-sm text-gray-700 hover:text-emerald-600 transition-colors"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-                Lost Pet Tips
-              </Link>
-              <Link
-                href="/found-pet-tips"
-                className="block py-2 text-sm text-gray-700 hover:text-emerald-600 transition-colors"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-                Found Pet Tips
-              </Link>
-
-              <Link
-                href="/shop"
-                className="block py-2 text-sm text-gray-700 hover:text-emerald-600 transition-colors"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-                Shop
-              </Link>
-              <Link
-                href="/how-to-help"
-                className="block py-2 text-sm text-gray-700 hover:text-emerald-600 transition-colors"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-                How to Help
-              </Link>
-              <Link
-                href="/about"
-                className="block py-2 text-sm text-gray-700 hover:text-emerald-600 transition-colors"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-                About
-              </Link>
             </div>
 
             {/* Mobile Menu Items */}
@@ -824,6 +903,7 @@ export default function Navbar() {
     </div>
   )
 }
+
 
 
 
