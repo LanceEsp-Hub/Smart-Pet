@@ -70,17 +70,44 @@ export default function AdminSidebar() {
       path: "/admin/security",
       description: "Security & login logs",
     },
-        {
+    {
       title: "Pet Tracker Management",
       icon: "🔒",
       path: "/admin/pet_tracker_management",
       description: "Security & login logs",
+    },
+    {
+      title: "E-Commerce",
+      icon: "🛒",
+      path: "/admin/product",
+      description: "Store management",
     },
   ]
 
   const isActive = (path) => {
     return router.pathname === path
   }
+
+  const renderMenuItem = (item) => (
+    <Link key={item.path} href={item.path}>
+      <div
+        className={`flex items-center p-3 rounded-xl transition-all duration-200 cursor-pointer group ${
+          isActive(item.path)
+            ? "bg-white/20 shadow-lg transform scale-105"
+            : "hover:bg-white/10 hover:transform hover:scale-105"
+        }`}
+      >
+        <div className="text-2xl mr-3 group-hover:scale-110 transition-transform">{item.icon}</div>
+        {!isCollapsed && (
+          <div className="flex-1">
+            <div className="font-medium text-white group-hover:text-purple-100">{item.title}</div>
+            <div className="text-xs text-purple-200 opacity-80">{item.description}</div>
+          </div>
+        )}
+        {isActive(item.path) && <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>}
+      </div>
+    </Link>
+  )
 
   return (
     <div
@@ -110,26 +137,7 @@ export default function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="p-4 space-y-2 overflow-y-auto h-full pb-20">
-        {menuItems.map((item) => (
-          <Link key={item.path} href={item.path}>
-            <div
-              className={`flex items-center p-3 rounded-xl transition-all duration-200 cursor-pointer group ${
-                isActive(item.path)
-                  ? "bg-white/20 shadow-lg transform scale-105"
-                  : "hover:bg-white/10 hover:transform hover:scale-105"
-              }`}
-            >
-              <div className="text-2xl mr-3 group-hover:scale-110 transition-transform">{item.icon}</div>
-              {!isCollapsed && (
-                <div className="flex-1">
-                  <div className="font-medium text-white group-hover:text-purple-100">{item.title}</div>
-                  <div className="text-xs text-purple-200 opacity-80">{item.description}</div>
-                </div>
-              )}
-              {isActive(item.path) && <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>}
-            </div>
-          </Link>
-        ))}
+        {menuItems.map((item) => renderMenuItem(item))}
       </nav>
 
       {/* Footer */}
