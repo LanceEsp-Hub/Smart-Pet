@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -7,9 +6,6 @@ import { Bell, MessageSquare, User, Menu, X, ChevronDown } from "lucide-react"
 import { useState, useEffect } from "react"
 import CryptoJS from "crypto-js"
 import { useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 
 const SECRET_KEY = "asdasdasd"
 
@@ -347,19 +343,17 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-3">
               {/* Enhanced Notifications */}
               <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 rounded-xl group"
+                <button
+                  className="relative p-2 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 rounded-xl group bg-transparent border-none cursor-pointer"
                   onClick={toggleNotifications}
                 >
                   <Bell className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
                   {unreadCount > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 border-2 border-white animate-pulse">
+                    <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 border-2 border-white animate-pulse rounded-full text-white font-bold">
                       {unreadCount}
-                    </Badge>
+                    </span>
                   )}
-                </Button>
+                </button>
 
                 {isNotificationsOpen && (
                   <div
@@ -378,13 +372,13 @@ export default function Navbar() {
                               alert(error.message)
                             }
                           }}
-                          className="text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors"
+                          className="text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors bg-transparent border-none cursor-pointer"
                         >
                           Mark All Read
                         </button>
                         <button
                           onClick={() => setIsNotificationsOpen(false)}
-                          className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                          className="text-xs text-gray-500 hover:text-gray-700 transition-colors bg-transparent border-none cursor-pointer"
                         >
                           ✕
                         </button>
@@ -425,7 +419,7 @@ export default function Navbar() {
                                       alert(error.message)
                                     }
                                   }}
-                                  className="text-xs text-blue-600 hover:text-blue-800 ml-3 px-2 py-1 bg-blue-100 rounded-full transition-colors"
+                                  className="text-xs text-blue-600 hover:text-blue-800 ml-3 px-2 py-1 bg-blue-100 rounded-full transition-colors border-none cursor-pointer"
                                 >
                                   Mark Read
                                 </button>
@@ -456,34 +450,39 @@ export default function Navbar() {
               </div>
 
               {/* Enhanced Messages */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative hover:bg-purple-50 hover:text-purple-600 transition-all duration-300 rounded-xl group"
+              <button
+                className="relative p-2 hover:bg-purple-50 hover:text-purple-600 transition-all duration-300 rounded-xl group bg-transparent border-none cursor-pointer"
                 onClick={() => router.push("/conversations")}
               >
                 <MessageSquare className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 border-2 border-white animate-pulse">
+                  <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 border-2 border-white animate-pulse rounded-full text-white font-bold">
                     {unreadCount}
-                  </Badge>
+                  </span>
                 )}
-              </Button>
+              </button>
 
               <div className="relative">
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 px-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 rounded-xl border border-transparent hover:border-blue-200 group"
+                <button
+                  className="flex items-center space-x-2 px-3 py-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 rounded-xl border border-transparent hover:border-blue-200 group bg-transparent cursor-pointer"
                   onClick={toggleDropdown}
                 >
-                  <Avatar className="h-8 w-8 ring-2 ring-transparent group-hover:ring-blue-300 transition-all duration-300">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                  <div className="h-8 w-8 ring-2 ring-transparent group-hover:ring-blue-300 transition-all duration-300 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <img
+                      src="/placeholder.svg?height=32&width=32"
+                      alt="User"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none"
+                        e.target.nextSibling.style.display = "flex"
+                      }}
+                    />
+                    <span className="text-white font-semibold text-sm hidden">
                       {userData?.name?.charAt(0)?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
+                    </span>
+                  </div>
                   <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180" />
-                </Button>
+                </button>
 
                 {isDropdownOpen && (
                   <div
@@ -493,12 +492,20 @@ export default function Navbar() {
                     {/* User Info Section */}
                     <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-b">
                       <div className="flex items-center space-x-3">
-                        <Avatar className="h-10 w-10 ring-2 ring-blue-200">
-                          <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                        <div className="h-10 w-10 ring-2 ring-blue-200 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                          <img
+                            src="/placeholder.svg?height=40&width=40"
+                            alt="User"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = "none"
+                              e.target.nextSibling.style.display = "flex"
+                            }}
+                          />
+                          <span className="text-white font-semibold hidden">
                             {userData?.name?.charAt(0)?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
+                          </span>
+                        </div>
                         <div>
                           <p className="font-bold text-gray-800">{userData?.name || "User"}</p>
                           <p className="text-xs text-gray-500">{userData?.email || ""}</p>
@@ -633,7 +640,7 @@ export default function Navbar() {
                     {/* Logout Button */}
                     <div className="border-t border-gray-100 p-2">
                       <button
-                        className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors group rounded-lg"
+                        className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors group rounded-lg bg-transparent border-none cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleLogout()
@@ -658,43 +665,37 @@ export default function Navbar() {
             </div>
 
             <div className="md:hidden flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative hover:bg-blue-50 transition-all duration-300 rounded-lg"
+              <button
+                className="relative p-2 hover:bg-blue-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer"
                 onClick={toggleNotifications}
               >
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 animate-pulse">
+                  <span className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 animate-pulse rounded-full text-white font-bold">
                     {unreadCount}
-                  </Badge>
+                  </span>
                 )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative hover:bg-purple-50 transition-all duration-300 rounded-lg"
+              </button>
+              <button
+                className="relative p-2 hover:bg-purple-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer"
                 onClick={() => router.push("/conversations")}
               >
                 <MessageSquare className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse">
+                  <span className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse rounded-full text-white font-bold">
                     {unreadCount}
-                  </Badge>
+                  </span>
                 )}
-              </Button>
+              </button>
 
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
+                className="p-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 rounded-lg"
               >
                 <div className="transition-transform duration-300">
                   {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                 </div>
-              </Button>
+              </button>
             </div>
           </div>
 
@@ -719,12 +720,20 @@ export default function Navbar() {
               {/* Mobile User Menu */}
               <div className="pt-4 pb-3 border-t border-blue-100 mt-4">
                 <div className="flex items-center px-4 mb-3 p-3 bg-white/70 rounded-lg">
-                  <Avatar className="h-12 w-12 ring-2 ring-blue-200">
-                    <AvatarImage src="/placeholder.svg?height=48&width=48" alt="User" />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                  <div className="h-12 w-12 ring-2 ring-blue-200 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <img
+                      src="/placeholder.svg?height=48&width=48"
+                      alt="User"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none"
+                        e.target.nextSibling.style.display = "flex"
+                      }}
+                    />
+                    <span className="text-white font-semibold hidden">
                       {userData?.name?.charAt(0)?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
+                    </span>
+                  </div>
                   <div className="ml-3">
                     <div className="text-base font-semibold text-gray-800">{userData?.name || "User"}</div>
                     <div className="text-sm text-gray-500">{userData?.email || ""}</div>
@@ -740,7 +749,7 @@ export default function Navbar() {
                     Pet Dashboard
                   </Link>
                   <button
-                    className="flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-red-600 hover:bg-white/70 transition-all duration-300 transform hover:translate-x-2"
+                    className="flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-red-600 hover:bg-white/70 transition-all duration-300 transform hover:translate-x-2 bg-transparent border-none cursor-pointer"
                     onClick={handleLogout}
                   >
                     <svg className="mr-3 h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -762,6 +771,7 @@ export default function Navbar() {
     </div>
   )
 }
+
 
 
 
