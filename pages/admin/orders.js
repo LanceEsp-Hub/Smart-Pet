@@ -242,8 +242,7 @@ export default function AdminOrdersPage() {
     try {
       // Create workbook and worksheet
       const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.aoa_to_sheet([]);
-
+      
       // Define headers
       const headers = [
         'Order ID',
@@ -282,19 +281,18 @@ export default function AdminOrdersPage() {
         dataRows.push(rowData);
       });
 
-      // Add title row (row 1)
-      XLSX.utils.sheet_add_aoa(worksheet, [['Smart Pet Orders Report']], { origin: 'A1' });
+      // Create the complete data array with title, spacing, headers, and data
+      const completeData = [
+        ['Smart Pet Orders Report'], // Title row
+        [], // Empty row for spacing
+        headers, // Headers row
+        ...dataRows // Data rows
+      ];
 
-      // Add empty row for spacing (row 2)
-      XLSX.utils.sheet_add_aoa(worksheet, [new Array(headers.length).fill('')], { origin: 'A2' });
+      // Create worksheet from the complete data
+      const worksheet = XLSX.utils.aoa_to_sheet(completeData);
 
-      // Add headers (row 3)
-      XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: 'A3' });
-
-      // Add data rows (starting from row 4)
-      XLSX.utils.sheet_add_aoa(worksheet, dataRows, { origin: 'A4' });
-
-      // Set up styling and formatting
+      // Set column widths
       worksheet['!cols'] = [
         { width: 10 }, // Order ID
         { width: 20 }, // Customer Name
@@ -308,36 +306,89 @@ export default function AdminOrdersPage() {
         { width: 30 }  // Admin Notes
       ];
 
+      // Set row heights
+      worksheet['!rows'] = [
+        { hpt: 40 }, // Title row height
+        { hpt: 20 }, // Spacing row height
+        { hpt: 25 }, // Header row height
+        ...dataRows.map(() => ({ hpt: 20 })) // Data row heights
+      ];
+
       // Merge cells A1:K1 for the title
       if (!worksheet['!merges']) worksheet['!merges'] = [];
       worksheet['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } });
 
-      // Apply styles to cells
-      // Title cell (A1) - font size 26, bold, centered
+      // Apply styles using a more compatible approach
+      // Title cell (A1) styling
       if (!worksheet['A1']) worksheet['A1'] = {};
       worksheet['A1'].s = {
-        font: { sz: 26, bold: true },
-        alignment: { horizontal: 'center', vertical: 'center' }
+        font: { 
+          name: 'Arial',
+          sz: 26, 
+          bold: true,
+          color: { rgb: "000000" }
+        },
+        alignment: { 
+          horizontal: 'center', 
+          vertical: 'center',
+          wrapText: true
+        },
+        fill: { 
+          fgColor: { rgb: "FFFFFF" }
+        }
       };
 
-      // Header row (A3:K3) - font size 14, bold
+      // Header row styling (row 3)
       headers.forEach((_, index) => {
         const cellRef = XLSX.utils.encode_cell({ r: 2, c: index });
         if (!worksheet[cellRef]) worksheet[cellRef] = {};
         worksheet[cellRef].s = {
-          font: { sz: 14, bold: true },
-          alignment: { horizontal: 'center', vertical: 'center' },
-          fill: { fgColor: { rgb: "E0E0E0" } }
+          font: { 
+            name: 'Arial',
+            sz: 14, 
+            bold: true,
+            color: { rgb: "000000" }
+          },
+          alignment: { 
+            horizontal: 'center', 
+            vertical: 'center',
+            wrapText: true
+          },
+          fill: { 
+            fgColor: { rgb: "E0E0E0" }
+          },
+          border: {
+            top: { style: 'thin', color: { rgb: "000000" } },
+            bottom: { style: 'thin', color: { rgb: "000000" } },
+            left: { style: 'thin', color: { rgb: "000000" } },
+            right: { style: 'thin', color: { rgb: "000000" } }
+          }
         };
       });
 
-      // Data rows - font size 14
+      // Data rows styling
       dataRows.forEach((_, rowIndex) => {
         headers.forEach((_, colIndex) => {
           const cellRef = XLSX.utils.encode_cell({ r: rowIndex + 3, c: colIndex });
           if (worksheet[cellRef]) {
             if (!worksheet[cellRef].s) worksheet[cellRef].s = {};
-            worksheet[cellRef].s.font = { sz: 14 };
+            worksheet[cellRef].s = {
+              font: { 
+                name: 'Arial',
+                sz: 14,
+                color: { rgb: "000000" }
+              },
+              alignment: { 
+                vertical: 'center',
+                wrapText: true
+              },
+              border: {
+                top: { style: 'thin', color: { rgb: "CCCCCC" } },
+                bottom: { style: 'thin', color: { rgb: "CCCCCC" } },
+                left: { style: 'thin', color: { rgb: "CCCCCC" } },
+                right: { style: 'thin', color: { rgb: "CCCCCC" } }
+              }
+            };
           }
         });
       });
@@ -345,9 +396,15 @@ export default function AdminOrdersPage() {
       // Add worksheet to workbook
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders Report');
 
-      // Generate and download file
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      // Generate and download file with better options
+      const excelBuffer = XLSX.write(workbook, { 
+        bookType: 'xlsx', 
+        type: 'array',
+        compression: true
+      });
+      const blob = new Blob([excelBuffer], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
