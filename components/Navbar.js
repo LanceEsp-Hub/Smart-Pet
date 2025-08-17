@@ -1,12 +1,15 @@
+
 "use client"
 
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { Bell, MessageSquare, User } from "react-feather"
+import { Bell, MessageSquare, User, Menu, X, ChevronDown } from "lucide-react"
 import { useState, useEffect } from "react"
 import CryptoJS from "crypto-js"
 import { useSearchParams } from "next/navigation"
-import { markAllNotificationsAsRead } from "../utils/api" // Add this import
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 
 const SECRET_KEY = "asdasdasd"
 
@@ -39,10 +42,32 @@ const markNotificationAsRead = async (token, notificationId) => {
   return await response.json()
 }
 
+const markAllNotificationsAsRead = async (token, userId) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/notifications/mark-all-read/${userId}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.detail || "Failed to mark all notifications as read")
+  }
+
+  return await response.json()
+}
+
 export default function Navbar() {
   const router = useRouter()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const [hasNewMessages, setHasNewMessages] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userData, setUserData] = useState(null)
@@ -52,6 +77,14 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState([])
   const [loadingNotifications, setLoadingNotifications] = useState(false)
   const [notificationError, setNotificationError] = useState(null)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const fetchNotifications = async () => {
     try {
@@ -65,7 +98,6 @@ export default function Navbar() {
         throw new Error("Authentication required")
       }
 
-      // Fetch recent notifications first
       const notifResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/notifications/user/${userId}`,
         {
@@ -76,7 +108,6 @@ export default function Navbar() {
       )
 
       if (!notifResponse.ok) {
-        // Try to get the actual error message from the response
         const errorData = await notifResponse.json().catch(() => ({}))
         const errorMessage = errorData.detail || "Failed to fetch notifications"
         console.error("Backend error:", errorMessage)
@@ -86,7 +117,6 @@ export default function Navbar() {
       const notifData = await notifResponse.json()
       setNotifications(notifData?.notifications || [])
 
-      // Only fetch unread count if notifications were successful
       const countResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/notifications/unread-count/${userId}`,
         {
@@ -211,12 +241,10 @@ export default function Navbar() {
 
       await markNotificationAsRead(token, notificationId)
 
-      // Update local state
       setNotifications((prevNotifications) =>
         prevNotifications.map((notif) => (notif.id === notificationId ? { ...notif, is_read: true } : notif)),
       )
 
-      // Update unread count
       setUnreadCount((prev) => Math.max(0, prev - 1))
     } catch (error) {
       console.error("Error marking notification as read:", error)
@@ -224,7 +252,6 @@ export default function Navbar() {
     }
   }
 
-  // components/Navbar.js
   const markAllAsRead = async () => {
     try {
       const token = sessionStorage.getItem("auth_token")
@@ -232,7 +259,6 @@ export default function Navbar() {
 
       await markAllNotificationsAsRead(token, userId)
 
-      // Update UI
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
       setUnreadCount(0)
     } catch (error) {
@@ -241,8 +267,15 @@ export default function Navbar() {
     }
   }
 
+  const navigationItems = [
+    { name: "Lost Pet Tips", href: "/lost-pet-tips" },
+    { name: "Found Pet Tips", href: "/found-pet-tips" },
+    { name: "How to Help", href: "/how-to-help" },
+    { name: "About", href: "/about" },
+  ]
+
   return (
-    <div className="bg-white/95 backdrop-blur-md shadow-lg border-b border-white/20 sticky top-0 z-50">
+    <div>
       <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 animate-gradient-x">
         <style jsx>{`
           @keyframes gradient-x {
@@ -279,65 +312,55 @@ export default function Navbar() {
         </div>
       </div>
 
-      <nav className="border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex justify-between items-center py-4">
-            {/* Logo */}
-            <div className="flex items-center">
-              <div className="relative">
-                <img
-                  src="/logo.png"
-                  alt="Smartpet Love Lost"
-                  className="h-16 w-auto transition-transform hover:scale-110 duration-300"
-                />
+      <nav
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "bg-white/80 backdrop-blur-md border-b border-blue-100 shadow-lg shadow-blue-500/10"
+            : "bg-gradient-to-r from-blue-50 via-white to-purple-50 border-b border-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex-shrink-0">
+              <div className="flex items-center group cursor-pointer">
+                <div className="relative transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  <img src="/logo.png" alt="Smartpet Love Lost" className="h-12 w-auto" />
+                </div>
               </div>
             </div>
 
-            <div className="hidden lg:flex items-center space-x-8">
-              <Link
-                href="/lost-pet-tips"
-                className="text-gray-700 hover:text-purple-600 font-medium transition-colors duration-200 relative group"
-              >
-                Lost Pet Tips
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 group-hover:w-full transition-all duration-200"></span>
-              </Link>
-              <Link
-                href="/found-pet-tips"
-                className="text-gray-700 hover:text-purple-600 font-medium transition-colors duration-200 relative group"
-              >
-                Found Pet Tips
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 group-hover:w-full transition-all duration-200"></span>
-              </Link>
-              <Link
-                href="/how-to-help"
-                className="text-gray-700 hover:text-purple-600 font-medium transition-colors duration-200 relative group"
-              >
-                How to Help
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 group-hover:w-full transition-all duration-200"></span>
-              </Link>
-              <Link
-                href="/about"
-                className="text-gray-700 hover:text-purple-600 font-medium transition-colors duration-200 relative group"
-              >
-                About
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 group-hover:w-full transition-all duration-200"></span>
-              </Link>
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-2">
+                {navigationItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="relative text-gray-600 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-blue-50 group"
+                  >
+                    {item.name}
+                    <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                  </Link>
+                ))}
+              </div>
             </div>
 
-            <div className="flex items-center space-x-6 relative">
-              {/* Notification Icon with Enhanced Dropdown */}
+            <div className="hidden md:flex items-center space-x-3">
+              {/* Enhanced Notifications */}
               <div className="relative">
-                <div className="flex items-center">
-                  <div
-                    className="relative p-2 rounded-full hover:bg-purple-50 transition-colors duration-200 cursor-pointer group"
-                    onClick={toggleNotifications}
-                  >
-                    <Bell className="h-6 w-6 text-gray-600 group-hover:text-purple-600 transition-colors" />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping"></span>
-                    )}
-                  </div>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 rounded-xl group"
+                  onClick={toggleNotifications}
+                >
+                  <Bell className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 border-2 border-white animate-pulse">
+                      {unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+
                 {isNotificationsOpen && (
                   <div
                     className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden"
@@ -432,25 +455,36 @@ export default function Navbar() {
                 )}
               </div>
 
-              <div className="relative">
-                <div
-                  className="p-2 rounded-full hover:bg-purple-50 transition-colors duration-200 cursor-pointer group"
-                  onClick={() => router.push("/conversations")}
-                >
-                  <MessageSquare className="h-6 w-6 text-gray-600 group-hover:text-purple-600 transition-colors" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping"></span>
-                  )}
-                </div>
-              </div>
+              {/* Enhanced Messages */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative hover:bg-purple-50 hover:text-purple-600 transition-all duration-300 rounded-xl group"
+                onClick={() => router.push("/conversations")}
+              >
+                <MessageSquare className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 border-2 border-white animate-pulse">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </Button>
 
               <div className="relative">
-                <div
-                  className="p-2 rounded-full hover:bg-purple-50 transition-colors duration-200 cursor-pointer group"
+                <Button
+                  variant="ghost"
+                  className="flex items-center space-x-2 px-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 rounded-xl border border-transparent hover:border-blue-200 group"
                   onClick={toggleDropdown}
                 >
-                  <User className="h-6 w-6 text-gray-600 group-hover:text-purple-600 transition-colors" />
-                </div>
+                  <Avatar className="h-8 w-8 ring-2 ring-transparent group-hover:ring-blue-300 transition-all duration-300">
+                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                      {userData?.name?.charAt(0)?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180" />
+                </Button>
+
                 {isDropdownOpen && (
                   <div
                     className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden"
@@ -459,9 +493,12 @@ export default function Navbar() {
                     {/* User Info Section */}
                     <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-b">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                          {userData?.name?.charAt(0)?.toUpperCase() || "U"}
-                        </div>
+                        <Avatar className="h-10 w-10 ring-2 ring-blue-200">
+                          <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                            {userData?.name?.charAt(0)?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
                           <p className="font-bold text-gray-800">{userData?.name || "User"}</p>
                           <p className="text-xs text-gray-500">{userData?.email || ""}</p>
@@ -497,10 +534,9 @@ export default function Navbar() {
                         Pet Dashboard
                       </Link>
 
-                      {/* ... existing code for other menu items with similar styling ... */}
                       <Link
                         href="/settings/account_information"
-                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors group"
+                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors group"
                         onClick={(e) => {
                           e.stopPropagation()
                           setIsDropdownOpen(false)
@@ -525,10 +561,9 @@ export default function Navbar() {
                         Account Settings
                       </Link>
 
-                      {/* ... existing code for other links ... */}
                       <Link
                         href="/adoption_application"
-                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors group"
+                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors group"
                         onClick={(e) => {
                           e.stopPropagation()
                           setIsDropdownOpen(false)
@@ -549,7 +584,7 @@ export default function Navbar() {
 
                       <Link
                         href="/rehome_pets"
-                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors group"
+                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors group"
                         onClick={(e) => {
                           e.stopPropagation()
                           setIsDropdownOpen(false)
@@ -575,7 +610,7 @@ export default function Navbar() {
 
                       <Link
                         href="/adopted_pets"
-                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors group"
+                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-700 transition-colors group"
                         onClick={(e) => {
                           e.stopPropagation()
                           setIsDropdownOpen(false)
@@ -621,21 +656,112 @@ export default function Navbar() {
                 )}
               </div>
             </div>
+
+            <div className="md:hidden flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative hover:bg-blue-50 transition-all duration-300 rounded-lg"
+                onClick={toggleNotifications}
+              >
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-pink-500 animate-pulse">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative hover:bg-purple-50 transition-all duration-300 rounded-lg"
+                onClick={() => router.push("/conversations")}
+              >
+                <MessageSquare className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 rounded-lg"
+              >
+                <div className="transition-transform duration-300">
+                  {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </div>
+              </Button>
+            </div>
+          </div>
+
+          <div
+            className={`md:hidden transition-all duration-300 ease-in-out ${
+              isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+            }`}
+          >
+            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-blue-100 bg-gradient-to-b from-blue-50/50 to-purple-50/50 backdrop-blur-sm">
+              {navigationItems.map((item, index) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-600 hover:text-blue-600 hover:bg-white/70 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 transform hover:translate-x-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {item.name}
+                </Link>
+              ))}
+
+              {/* Mobile User Menu */}
+              <div className="pt-4 pb-3 border-t border-blue-100 mt-4">
+                <div className="flex items-center px-4 mb-3 p-3 bg-white/70 rounded-lg">
+                  <Avatar className="h-12 w-12 ring-2 ring-blue-200">
+                    <AvatarImage src="/placeholder.svg?height=48&width=48" alt="User" />
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                      {userData?.name?.charAt(0)?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="ml-3">
+                    <div className="text-base font-semibold text-gray-800">{userData?.name || "User"}</div>
+                    <div className="text-sm text-gray-500">{userData?.email || ""}</div>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Link
+                    href="/pet_dashboard"
+                    className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-white/70 transition-all duration-300 transform hover:translate-x-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <User className="mr-3 h-5 w-5 text-blue-500" />
+                    Pet Dashboard
+                  </Link>
+                  <button
+                    className="flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-red-600 hover:bg-white/70 transition-all duration-300 transform hover:translate-x-2"
+                    onClick={handleLogout}
+                  >
+                    <svg className="mr-3 h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </nav>
     </div>
   )
 }
-
-
-
-
-
-
-
-
-
 
 
 
