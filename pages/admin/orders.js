@@ -253,7 +253,21 @@ export default function AdminOrdersPage() {
         'Admin Notes'
       ];
 
-      const csvRows = [headers];
+      const csvRows = [];
+      
+      // Add title row (centered by adding empty cells to span all columns)
+      const titleRow = ['Smart Pet Orders Report'];
+      // Add empty cells to center the title (span across all columns)
+      for (let i = 1; i < headers.length; i++) {
+        titleRow.push('');
+      }
+      csvRows.push(titleRow);
+      
+      // Add empty row for spacing
+      csvRows.push(new Array(headers.length).fill(''));
+      
+      // Add headers
+      csvRows.push(headers);
       
              orders.forEach((order) => {
          // Format date properly - use ISO string format that Excel recognizes
