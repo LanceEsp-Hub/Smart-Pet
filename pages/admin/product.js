@@ -395,19 +395,6 @@ export default function ProductPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Authenticating...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (!isAuthenticated) {
     return null;
   }
@@ -416,6 +403,16 @@ export default function ProductPage() {
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
       <div className="ml-64">
+        {isLoading ? (
+          <div className="p-8 bg-gray-100">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Authenticating...</p>
+              </div>
+            </div>
+          </div>
+        ) : (
         <div className="p-8 bg-gray-100">
           {/* E-Commerce Navigation Bar */}
           <div className="bg-white shadow-md rounded-lg mb-8">
@@ -919,6 +916,7 @@ export default function ProductPage() {
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );
