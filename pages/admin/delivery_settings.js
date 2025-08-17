@@ -1,7 +1,21 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { getApiUrl } from "../../utils/apiUtils";
+import CryptoJS from "crypto-js";
+
+const SECRET_KEY = "asdasdasd";
+
+const encryptData = (data) => {
+  return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+};
+
+const decryptData = (encryptedData) => {
+  const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+};
 
 export default function DeliverySettingsPage() {
+  const router = useRouter();
   const [settings, setSettings] = useState({
     delivery_fee: 50.00,
     free_shipping_threshold: null,
@@ -10,10 +24,38 @@ export default function DeliverySettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchSettings();
-  }, []);
+    const authenticate = () => {
+      try {
+        const storedToken = sessionStorage.getItem("auth_token");
+        const storedUserData = sessionStorage.getItem("user");
+        const storedUserId = sessionStorage.getItem("user_id");
+        const encryptedRoles = sessionStorage.getItem("roles");
+
+        if (!storedToken || !storedUserData || !storedUserId) {
+          throw new Error("Missing authentication data");
+        }
+
+        const storedRoles = decryptData(encryptedRoles);
+        if (storedRoles === "admin") {
+          setIsAuthenticated(true);
+          fetchSettings();
+        } else {
+          throw new Error("Access denied. Admin privileges required.");
+        }
+      } catch (error) {
+        console.error("Authentication error:", error);
+        router.push("/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    authenticate();
+  }, [router]);
 
   const fetchSettings = async () => {
     try {
@@ -77,6 +119,23 @@ export default function DeliverySettingsPage() {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Authenticating...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   if (loading) {
     return (
