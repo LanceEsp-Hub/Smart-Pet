@@ -63,8 +63,11 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [isMobileTipsOpen, setIsMobileTipsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isNavbarVisible, setIsNavbarVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
   const [hasNewMessages, setHasNewMessages] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userData, setUserData] = useState(null)
@@ -77,11 +80,23 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
+      const currentScrollY = window.scrollY
+
+      setIsScrolled(currentScrollY > 10)
+
+      // Hide navbar when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsNavbarVisible(false)
+      } else {
+        setIsNavbarVisible(true)
+      }
+
+      setLastScrollY(currentScrollY)
     }
-    window.addEventListener("scroll", handleScroll)
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [lastScrollY])
 
   const fetchNotifications = async () => {
     try {
@@ -279,6 +294,8 @@ export default function Navbar() {
   return (
     <nav
       className={`sticky top-0 z-50 transition-all duration-300 ${
+        isNavbarVisible ? "translate-y-0" : "-translate-y-full"
+      } ${
         isScrolled
           ? "bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-lg shadow-blue-500/10"
           : "bg-gradient-to-r from-blue-50 via-white to-purple-50 border-b border-transparent"
@@ -298,6 +315,14 @@ export default function Navbar() {
         .animate-gradient-x {
           background-size: 200% 200%;
           animation: gradient-x 4s ease infinite;
+        }
+        
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0.3; }
+        }
+        .animate-blink {
+          animation: blink 1.5s ease-in-out infinite;
         }
       `}</style>
 
@@ -332,13 +357,16 @@ export default function Navbar() {
 
           {/* Desktop Right Section */}
           <div className="hidden md:flex items-center space-x-3">
-            {/* Enhanced Notifications */}
+            {/* Enhanced Notifications with Blinking Light */}
             <div className="relative">
               <button
                 className="relative p-2 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 rounded-xl group bg-transparent border-none cursor-pointer"
                 onClick={toggleNotifications}
               >
                 <Bell className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                {unreadCount > 0 && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
+                )}
               </button>
 
               {isNotificationsOpen && (
@@ -435,13 +463,18 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Enhanced Messages */}
-            <button
-              className="relative p-2 hover:bg-purple-50 transition-all duration-300 rounded-xl group bg-transparent border-none cursor-pointer"
-              onClick={() => router.push("/conversations")}
-            >
-              <MessageSquare className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-            </button>
+            {/* Enhanced Messages with Blinking Light */}
+            <div className="relative">
+              <button
+                className="relative p-2 hover:bg-purple-50 transition-all duration-300 rounded-xl group bg-transparent border-none cursor-pointer"
+                onClick={() => router.push("/conversations")}
+              >
+                <MessageSquare className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                {hasNewMessages && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-blink"></div>
+                )}
+              </button>
+            </div>
 
             <div className="relative">
               <button
@@ -664,6 +697,9 @@ export default function Navbar() {
                 onClick={toggleNotifications}
               >
                 <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
+                )}
               </button>
 
               {isNotificationsOpen && (
@@ -760,12 +796,17 @@ export default function Navbar() {
               )}
             </div>
 
-            <button
-              className="relative p-2 hover:bg-purple-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer"
-              onClick={() => router.push("/conversations")}
-            >
-              <MessageSquare className="h-5 w-5" />
-            </button>
+            <div className="relative">
+              <button
+                className="relative p-2 hover:bg-purple-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer"
+                onClick={() => router.push("/conversations")}
+              >
+                <MessageSquare className="h-5 w-5" />
+                {hasNewMessages && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-blink"></div>
+                )}
+              </button>
+            </div>
 
             <button
               className="p-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer"
@@ -788,24 +829,24 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   className="flex items-center justify-between w-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 bg-transparent border-none cursor-pointer"
-                  onClick={() => setIsMobileTipsOpen(!isMobileTipsOpen)}
+                  onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
                 >
-                  <span>Pet Tips</span>
+                  <span>Navigation</span>
                   <ChevronDown
-                    className={`h-4 w-4 transition-transform duration-300 ${isMobileTipsOpen ? "rotate-180" : ""}`}
+                    className={`h-4 w-4 transition-transform duration-300 ${isMobileNavOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
-                {isMobileTipsOpen && (
+                {isMobileNavOpen && (
                   <div className="ml-4 mt-1 space-y-1">
-                    {tipsItems.map((item) => (
+                    {navigationItems.map((item) => (
                       <Link
                         key={item.name}
                         href={item.href}
                         className="flex items-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
                         onClick={() => {
                           setIsMobileMenuOpen(false)
-                          setIsMobileTipsOpen(false)
+                          setIsMobileNavOpen(false)
                         }}
                       >
                         {item.name}
@@ -814,22 +855,6 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-
-              <Link
-                href="/how-to-help"
-                className="flex items-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 transform hover:translate-x-1"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                How to Help
-              </Link>
-
-              <Link
-                href="/about"
-                className="flex items-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 transform hover:translate-x-1"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                About
-              </Link>
 
               {/* Mobile User Section */}
               <div className="pt-4 border-t border-blue-100">
@@ -976,7 +1001,6 @@ export default function Navbar() {
     </nav>
   )
 }
-
 
 
 
