@@ -2,6 +2,18 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { getProductImageUrl } from "../../utils/supabase";
+import CryptoJS from "crypto-js";
+
+const SECRET_KEY = "asdasdasd";
+
+const encryptData = (data) => {
+  return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+};
+
+const decryptData = (encryptedData) => {
+  const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+};
 
 export default function ProductPage() {
   const router = useRouter();
@@ -43,8 +55,36 @@ export default function ProductPage() {
     is_active: true,
     image: null,
   });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const authenticate = () => {
+      try {
+        const storedToken = sessionStorage.getItem("auth_token");
+        const storedUserData = sessionStorage.getItem("user");
+        const storedUserId = sessionStorage.getItem("user_id");
+        const encryptedRoles = sessionStorage.getItem("roles");
+
+        if (!storedToken || !storedUserData || !storedUserId) {
+          throw new Error("Missing authentication data");
+        }
+
+        const storedRoles = decryptData(encryptedRoles);
+        if (storedRoles === "admin") {
+          setIsAuthenticated(true);
+          initializeData();
+        } else {
+          throw new Error("Access denied. Admin privileges required.");
+        }
+      } catch (error) {
+        console.error("Authentication error:", error);
+        router.push("/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const initializeData = async () => {
       try {
         const token = sessionStorage.getItem("token");
@@ -97,7 +137,7 @@ export default function ProductPage() {
       }
     };
 
-    initializeData();
+    authenticate();
   }, []);
 
   // Helper function to create a category
@@ -353,6 +393,23 @@ export default function ProductPage() {
       alert(`Failed to create product: ${err.message}`);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Authenticating...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
