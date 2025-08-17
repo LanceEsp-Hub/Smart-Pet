@@ -329,55 +329,37 @@ export default function AdminOrdersPage() {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Authenticating...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (!isAuthenticated) {
     return null;
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading orders...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              <strong className="font-bold">Error:</strong>
-              <span className="block sm:inline"> {error}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
       <div className="ml-64">
+        {(isLoading || loading) ? (
+          <div className="py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
+                <p className="mt-4 text-gray-600">
+                  {isLoading ? "Authenticating..." : "Loading orders..."}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  <strong className="font-bold">Error:</strong>
+                  <span className="block sm:inline"> {error}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
         <div className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* E-Commerce Navigation Bar */}
@@ -615,7 +597,7 @@ export default function AdminOrdersPage() {
             )}
           </div>
         </div>
-      </div>
+        )}
 
       {/* Deny Modal */}
       {showDenyModal && (
@@ -831,7 +813,9 @@ export default function AdminOrdersPage() {
             </div>
           </div>
         </div>
-      )}
+        )}
+      </div>
     </div>
   );
 } 
+
