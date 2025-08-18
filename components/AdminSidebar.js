@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
 
@@ -9,25 +9,6 @@ export default function AdminSidebar() {
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [selectedMenu, setSelectedMenu] = useState("pet-adoption") // "pet-adoption" or "e-commerce"
-
-  // E-Commerce pages that should trigger E-Commerce menu selection
-  const ecommercePages = [
-    '/admin/product',
-    '/admin/orders', 
-    '/admin/vouchers',
-    '/admin/assign_vouchers',
-    '/admin/delivery_settings',
-    '/admin/charts'
-  ]
-
-  // Update selected menu based on current route
-  useEffect(() => {
-    if (ecommercePages.includes(router.pathname)) {
-      setSelectedMenu("e-commerce")
-    } else {
-      setSelectedMenu("pet-adoption")
-    }
-  }, [router.pathname])
 
   const petAdoptionMenuItems = [
     {
@@ -96,43 +77,49 @@ export default function AdminSidebar() {
       path: "/admin/pet_tracker_management",
       description: "Pet tracking system",
     },
+    {
+      title: "E-Commerce",
+      icon: "🛒",
+      path: "/admin/product",
+      description: "Store management",
+    },
   ]
 
   const ecommerceMenuItems = [
     {
       title: "Products",
-      icon: "🛍️",
-      path: "/admin/product",
+      icon: "📦",
+      path: "/admin/products",
       description: "Manage products",
     },
     {
       title: "Orders",
-      icon: "📦",
+      icon: "📋",
       path: "/admin/orders",
       description: "Order management",
     },
     {
-      title: "Vouchers",
-      icon: "🎫",
-      path: "/admin/vouchers",
-      description: "Discount vouchers",
+      title: "Inventory",
+      icon: "📊",
+      path: "/admin/inventory",
+      description: "Stock management",
     },
     {
-      title: "Assign Vouchers",
-      icon: "🎁",
-      path: "/admin/assign_vouchers",
-      description: "Assign vouchers to users",
+      title: "Categories",
+      icon: "🏷️",
+      path: "/admin/categories",
+      description: "Product categories",
     },
     {
-      title: "Delivery Settings",
-      icon: "🚚",
-      path: "/admin/delivery_settings",
-      description: "Shipping configuration",
+      title: "Customers",
+      icon: "👥",
+      path: "/admin/customers",
+      description: "Customer management",
     },
     {
-      title: "Charts & Analytics",
+      title: "Analytics",
       icon: "📈",
-      path: "/admin/charts",
+      path: "/admin/ecommerce-analytics",
       description: "Sales analytics",
     },
   ]
