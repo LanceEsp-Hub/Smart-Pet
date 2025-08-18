@@ -487,19 +487,6 @@ export default function ProductPage() {
             </div>
           </div>
 
-          <nav className="flex justify-between items-center p-4 bg-white shadow-md mb-8">
-            <div className="text-2xl font-bold text-purple-700">
-              Petco <span className="text-black">Love Care</span>
-            </div>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-600">Petco Love</a>
-              <a href="#" className="text-gray-600">Lost</a>
-              <a href="#" className="text-gray-600">Adopt</a>
-              <a href="#" className="text-gray-600">Care</a>
-            </div>
-            <button className="bg-purple-700 text-white px-6 py-2 rounded-full">Get Vaccines</button>
-          </nav>
-
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-4xl font-bold text-gray-800">All Products</h1>
             <div className="flex gap-3">
