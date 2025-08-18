@@ -13,12 +13,11 @@ export default function AdminSidebar() {
   const getSelectedMenu = () => {
     const ecommercePaths = [
       "/admin/product",
-      "/admin/products", 
       "/admin/orders",
-      "/admin/inventory",
-      "/admin/categories",
-      "/admin/customers",
-      "/admin/ecommerce-analytics"
+      "/admin/vouchers",
+      "/admin/assign_vouchers",
+      "/admin/delivery_settings",
+      "/admin/charts"
     ]
     
     if (ecommercePaths.includes(router.pathname)) {
@@ -106,39 +105,39 @@ export default function AdminSidebar() {
   const ecommerceMenuItems = [
     {
       title: "Products",
-      icon: "📦",
+      icon: "🛍️",
       path: "/admin/product",
       description: "Manage products",
     },
     {
       title: "Orders",
-      icon: "📋",
+      icon: "📦",
       path: "/admin/orders",
       description: "Order management",
     },
     {
-      title: "Inventory",
-      icon: "📊",
-      path: "/admin/inventory",
-      description: "Stock management",
+      title: "Vouchers",
+      icon: "🎫",
+      path: "/admin/vouchers",
+      description: "Manage vouchers",
     },
     {
-      title: "Categories",
-      icon: "🏷️",
-      path: "/admin/categories",
-      description: "Product categories",
+      title: "Assign Vouchers",
+      icon: "🎁",
+      path: "/admin/assign_vouchers",
+      description: "Assign vouchers to users",
     },
     {
-      title: "Customers",
-      icon: "👥",
-      path: "/admin/customers",
-      description: "Customer management",
+      title: "Delivery Settings",
+      icon: "🚚",
+      path: "/admin/delivery_settings",
+      description: "Manage delivery settings",
     },
     {
-      title: "Analytics",
+      title: "Charts & Analytics",
       icon: "📈",
-      path: "/admin/ecommerce-analytics",
-      description: "Sales analytics",
+      path: "/admin/charts",
+      description: "Order analytics & charts",
     },
   ]
 
