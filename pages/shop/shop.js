@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import { getProductImageUrl } from "../../utils/supabase";
 import toast from "react-hot-toast";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
 
 export default function UserProductPage() {
   const router = useRouter();
@@ -196,6 +198,7 @@ export default function UserProductPage() {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
+      <Navbar />
       <nav className="flex justify-between items-center p-4 bg-white shadow-md mb-8">
         <div className="text-2xl font-bold text-purple-700">
           Petco <span className="text-black">Love Care</span>
@@ -553,6 +556,7 @@ export default function UserProductPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
