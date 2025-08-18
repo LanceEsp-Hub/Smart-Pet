@@ -269,9 +269,9 @@ export default function AdminOrderDetailPage() {
       return `${API_URL}${imagePath}`;
     }
     
-    // If it's just a filename, construct the URL using the uploads path
+    // If it's just a filename, use the dedicated product image endpoint
     const API_URL = getApiUrl();
-    return `${API_URL}/uploads/products/${imagePath}`;
+    return `${API_URL}/api/ecommerce/product-image/${imagePath}`;
   };
 
   if (!isAuthenticated) {
