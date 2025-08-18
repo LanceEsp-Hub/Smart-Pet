@@ -77,12 +77,6 @@ export default function AdminSidebar() {
       path: "/admin/pet_tracker_management",
       description: "Pet tracking system",
     },
-    {
-      title: "E-Commerce",
-      icon: "🛒",
-      path: "/admin/product",
-      description: "Store management",
-    },
   ]
 
   const ecommerceMenuItems = [
