@@ -415,77 +415,7 @@ export default function ProductPage() {
           </div>
         ) : (
         <div className="p-8 bg-gray-100">
-          {/* E-Commerce Navigation Bar */}
-          <div className="bg-white shadow-md rounded-lg mb-8">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">E-Commerce Management</h2>
-              <p className="text-sm text-gray-600">Navigate between different e-commerce sections</p>
-            </div>
-            <div className="px-6 py-4">
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => router.push('/admin/product')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                    router.pathname === '/admin/product'
-                      ? 'bg-purple-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  🛍️ Products
-                </button>
-                <button
-                  onClick={() => router.push('/admin/orders')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                    router.pathname === '/admin/orders'
-                      ? 'bg-purple-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  📦 Orders
-                </button>
-                <button
-                  onClick={() => router.push('/admin/vouchers')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                    router.pathname === '/admin/vouchers'
-                      ? 'bg-purple-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  🎫 Vouchers
-                </button>
-                <button
-                  onClick={() => router.push('/admin/assign_vouchers')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                    router.pathname === '/admin/assign_vouchers'
-                      ? 'bg-purple-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  🎁 Assign Vouchers
-                </button>
-                <button
-                  onClick={() => router.push('/admin/delivery_settings')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                    router.pathname === '/admin/delivery_settings'
-                      ? 'bg-purple-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  🚚 Delivery Settings
-                </button>
-                <button
-                  onClick={() => router.push('/admin/charts')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                    router.pathname === '/admin/charts'
-                      ? 'bg-purple-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  📈 Charts & Analytics
-                </button>
-              </div>
-            </div>
-          </div>
+
 
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-4xl font-bold text-gray-800">All Products</h1>
