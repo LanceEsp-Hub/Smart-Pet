@@ -8,8 +8,9 @@ import Link from "next/link"
 export default function AdminSidebar() {
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [selectedMenu, setSelectedMenu] = useState("pet-adoption") // "pet-adoption" or "e-commerce"
 
-  const menuItems = [
+  const petAdoptionMenuItems = [
     {
       title: "Dashboard",
       icon: "📊",
@@ -72,15 +73,54 @@ export default function AdminSidebar() {
     },
     {
       title: "Pet Tracker Management",
-      icon: "🔒",
+      icon: "📍",
       path: "/admin/pet_tracker_management",
-      description: "Security & login logs",
+      description: "Pet tracking system",
     },
     {
       title: "E-Commerce",
       icon: "🛒",
       path: "/admin/product",
       description: "Store management",
+    },
+  ]
+
+  const ecommerceMenuItems = [
+    {
+      title: "Products",
+      icon: "📦",
+      path: "/admin/products",
+      description: "Manage products",
+    },
+    {
+      title: "Orders",
+      icon: "📋",
+      path: "/admin/orders",
+      description: "Order management",
+    },
+    {
+      title: "Inventory",
+      icon: "📊",
+      path: "/admin/inventory",
+      description: "Stock management",
+    },
+    {
+      title: "Categories",
+      icon: "🏷️",
+      path: "/admin/categories",
+      description: "Product categories",
+    },
+    {
+      title: "Customers",
+      icon: "👥",
+      path: "/admin/customers",
+      description: "Customer management",
+    },
+    {
+      title: "Analytics",
+      icon: "📈",
+      path: "/admin/ecommerce-analytics",
+      description: "Sales analytics",
     },
   ]
 
@@ -109,6 +149,37 @@ export default function AdminSidebar() {
     </Link>
   )
 
+  const renderMenuChoice = () => (
+    <div className="p-4 border-b border-white/20">
+      <div className="flex space-x-2">
+        <button
+          onClick={() => setSelectedMenu("pet-adoption")}
+          className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+            selectedMenu === "pet-adoption"
+              ? "bg-white/20 text-white shadow-lg"
+              : "bg-white/10 text-purple-200 hover:bg-white/15"
+          }`}
+        >
+          {!isCollapsed ? "Pet Adoption" : "🐾"}
+        </button>
+        <button
+          onClick={() => setSelectedMenu("e-commerce")}
+          className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+            selectedMenu === "e-commerce"
+              ? "bg-white/20 text-white shadow-lg"
+              : "bg-white/10 text-purple-200 hover:bg-white/15"
+          }`}
+        >
+          {!isCollapsed ? "E-Commerce" : "🛒"}
+        </button>
+      </div>
+    </div>
+  )
+
+  const getCurrentMenuItems = () => {
+    return selectedMenu === "pet-adoption" ? petAdoptionMenuItems : ecommerceMenuItems
+  }
+
   return (
     <div
       className={`fixed left-0 top-0 h-full bg-gradient-to-b from-purple-900 via-purple-800 to-blue-900 text-white shadow-2xl transition-all duration-300 z-40 ${
@@ -135,9 +206,12 @@ export default function AdminSidebar() {
         </div>
       </div>
 
+      {/* Menu Choice */}
+      {renderMenuChoice()}
+
       {/* Navigation */}
       <nav className="p-4 space-y-2 overflow-y-auto h-full pb-20">
-        {menuItems.map((item) => renderMenuItem(item))}
+        {getCurrentMenuItems().map((item) => renderMenuItem(item))}
       </nav>
 
       {/* Footer */}
