@@ -68,6 +68,26 @@ export default function OrderDetailPage() {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
+  // Helper function to get product image URL
+  const getProductImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    
+    // If it's already a full URL, return as is
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    
+    // If it's a relative path starting with /uploads, construct the full URL
+    if (imagePath.startsWith('/uploads/')) {
+      const API_URL = getApiUrl();
+      return `${API_URL}${imagePath}`;
+    }
+    
+    // If it's just a filename, use the dedicated product image endpoint
+    const API_URL = getApiUrl();
+    return `${API_URL}/api/ecommerce/product-image/${imagePath}`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
@@ -300,9 +320,12 @@ export default function OrderDetailPage() {
                     {item.product_image && (
                       <div className="flex-shrink-0">
                         <img
-                          src={item.product_image}
+                          src={getProductImageUrl(item.product_image)}
                           alt={item.product_name}
                           className="h-16 w-16 object-cover rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
                         />
                       </div>
                     )}
