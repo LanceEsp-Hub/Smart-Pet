@@ -20,7 +20,8 @@ export default function AdminSidebar() {
       "/admin/charts"
     ]
     
-    if (ecommercePaths.includes(router.pathname)) {
+    // Check if current path starts with any ecommerce path (for dynamic routes)
+    if (ecommercePaths.some(path => router.pathname.startsWith(path))) {
       return "e-commerce"
     }
     return "pet-adoption"
@@ -142,6 +143,10 @@ export default function AdminSidebar() {
   ]
 
   const isActive = (path) => {
+    // Special handling for dynamic routes
+    if (path === "/admin/orders") {
+      return router.pathname === "/admin/orders" || router.pathname.startsWith("/admin/orders/")
+    }
     return router.pathname === path
   }
 
