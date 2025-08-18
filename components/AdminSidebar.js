@@ -1,14 +1,38 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
 
 export default function AdminSidebar() {
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [selectedMenu, setSelectedMenu] = useState("pet-adoption") // "pet-adoption" or "e-commerce"
+  
+  // Determine the selected menu based on current route
+  const getSelectedMenu = () => {
+    const ecommercePaths = [
+      "/admin/product",
+      "/admin/products", 
+      "/admin/orders",
+      "/admin/inventory",
+      "/admin/categories",
+      "/admin/customers",
+      "/admin/ecommerce-analytics"
+    ]
+    
+    if (ecommercePaths.includes(router.pathname)) {
+      return "e-commerce"
+    }
+    return "pet-adoption"
+  }
+  
+  const [selectedMenu, setSelectedMenu] = useState(getSelectedMenu())
+  
+  // Update selected menu when route changes
+  useEffect(() => {
+    setSelectedMenu(getSelectedMenu())
+  }, [router.pathname])
 
   const petAdoptionMenuItems = [
     {
@@ -83,7 +107,7 @@ export default function AdminSidebar() {
     {
       title: "Products",
       icon: "📦",
-      path: "/admin/products",
+      path: "/admin/product",
       description: "Manage products",
     },
     {
