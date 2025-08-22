@@ -21,7 +21,10 @@ const fadeInKeyframes = `
 
 function getPetImageUrl(imageName) {
   if (!imageName) return "https://via.placeholder.com/400"
-  return `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/uploads/pet_images/${imageName}?t=${Date.now()}`
+  // Use Supabase URL construction for pet images
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://fkpimtcxncgwtdsfyrjb.supabase.co"
+  const petImagesBucket = process.env.NEXT_PUBLIC_SUPABASE_PET_BUCKET || "pet-images"
+  return `${supabaseUrl}/storage/v1/object/public/${petImagesBucket}/${imageName}`
 }
 
 // Updated LoadingSpinner with emerald color scheme
