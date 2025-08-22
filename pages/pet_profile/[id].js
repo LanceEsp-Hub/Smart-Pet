@@ -253,7 +253,7 @@ export default function PetProfile() {
         throw new Error("Authentication required")
       }
 
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/pets/${pet.id}/generate-fingerprint`
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/pets/${pet.id}/generate-fingerprint`
 
       const response = await fetch(apiUrl, {
         method: "POST",
