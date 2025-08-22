@@ -2821,7 +2821,7 @@ export const generateFingerprint = async (petId, status) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          status: status,
+          status: status, // Send the status as provided (should be "Lost" or "Pet I Found")
         }),
       },
     )
