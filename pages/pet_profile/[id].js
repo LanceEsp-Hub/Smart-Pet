@@ -243,6 +243,20 @@ export default function PetProfile() {
         throw new Error("Pet data not loaded")
       }
 
+      // Check if pet status allows fingerprint generation
+      const allowedStatuses = ["Lost", "Pet I Found"]
+      if (!allowedStatuses.includes(pet.status)) {
+        toast.error(`Fingerprint generation is only available for pets with 'Lost' or 'Pet I Found' status. Current status: ${pet.status}`)
+        return
+      }
+
+      // Check if pet type allows fingerprint generation
+      const allowedTypes = ["Dog", "Cat", "dog", "cat"]
+      if (!allowedTypes.includes(pet.type)) {
+        toast.error(`Fingerprint generation is only available for dogs and cats. Current type: ${pet.type}`)
+        return
+      }
+
       if (!checkRequiredImages()) {
         setShowMissingImagesModal(true)
         return
@@ -262,7 +276,7 @@ export default function PetProfile() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          status: pet.status.toLowerCase(), // Ensure status is lowercase
+          status: pet.status, // Send the status as stored in database
         }),
       })
 
