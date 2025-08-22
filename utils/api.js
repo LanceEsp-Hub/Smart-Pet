@@ -2810,7 +2810,7 @@ export async function removeAdditionalImage(petId, index) {
 
 export const generateFingerprint = async (petId, status) => {
   try {
-    const token = localStorage.getItem("token") // or however you store your auth token
+    const token = sessionStorage.getItem("auth_token")
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app"}/api/pets/${petId}/generate-fingerprint`,
