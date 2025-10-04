@@ -1833,6 +1833,36 @@ export async function createPet(petData) {
 
 
 
+// Utility function to check if pet has additional images
+export function hasAdditionalImages(pet) {
+  if (!pet) return false;
+  
+  // Check if additional_images exists and has content
+  const hasImages = pet.additional_images && 
+                   Array.isArray(pet.additional_images) && 
+                   pet.additional_images.length > 0;
+  
+  // Also check if any of the expected image types exist
+  const expectedTypes = ['face.jpg', 'side.jpg', 'fur.jpg'];
+  const hasRequiredImages = expectedTypes.some(type => 
+    pet.additional_images && pet.additional_images.includes(type)
+  );
+  
+  return hasImages || hasRequiredImages;
+}
+
+// Utility function to get missing image types
+export function getMissingImageTypes(pet) {
+  if (!pet) return ['face', 'side', 'fur'];
+  
+  const expectedTypes = ['face.jpg', 'side.jpg', 'fur.jpg'];
+  const existingImages = pet.additional_images || [];
+  
+  return expectedTypes
+    .filter(type => !existingImages.includes(type))
+    .map(type => type.replace('.jpg', ''));
+}
+
 
 
 export async function addDevice(unique_code) {
