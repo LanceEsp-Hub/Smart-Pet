@@ -65,6 +65,7 @@ export default function PetProfile() {
   const [isUpdateMode, setIsUpdateMode] = useState(false)
   const [deviceActivationLoading, setDeviceActivationLoading] = useState(false)
   const [showIncompleteInfoModal, setShowIncompleteInfoModal] = useState(false)
+  const [showCompleteImagesModal, setShowCompleteImagesModal] = useState(false)
 
   useEffect(() => {
     const token = sessionStorage.getItem("auth_token")
@@ -438,6 +439,27 @@ export default function PetProfile() {
     }
   }, [pet])
 
+  // Show complete images modal when pet has no additional images
+  useEffect(() => {
+    if (pet && !hasAdditionalImages(pet)) {
+      // Check if user has already been shown this modal for this pet
+      const imagesModalShownKey = `complete_images_modal_shown_${pet.id}`
+      const hasBeenShown = localStorage.getItem(imagesModalShownKey)
+      
+      // Only show if not shown before
+      if (!hasBeenShown) {
+        // Add a small delay to ensure the pet data is fully loaded
+        const timer = setTimeout(() => {
+          setShowCompleteImagesModal(true)
+          // Mark as shown for this pet
+          localStorage.setItem(imagesModalShownKey, 'true')
+        }, 1000) // Delay a bit more than incomplete info modal
+        
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [pet])
+
   // Loading state with a modern spinner
   if (loading)
     return (
@@ -759,6 +781,126 @@ export default function PetProfile() {
         </div>
       )}
 
+      {/* Complete Images Setup Modal */}
+      {showCompleteImagesModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          {/* Backdrop with animation - non-dismissible */}
+          <div 
+            className="fixed inset-0 bg-black transition-opacity duration-300 ease-in-out"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backdropFilter: 'blur(4px)',
+              animation: showCompleteImagesModal ? 'fadeIn 0.3s ease-in-out' : 'fadeOut 0.3s ease-in-out'
+            }}
+          />
+          
+          {/* Modal content with animation */}
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div 
+              className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full transform transition-all duration-300 ease-in-out"
+              style={{
+                animation: showCompleteImagesModal ? 'slideInUp 0.4s ease-out' : 'slideOutDown 0.4s ease-in',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header with gradient */}
+              <div className="bg-gradient-to-r from-blue-400 to-purple-500 px-6 py-4 rounded-t-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-white bg-opacity-20 rounded-full mr-3">
+                      <Camera size={24} className="text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white">Complete Your Pet Images Setup</h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-6">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-700 text-lg leading-relaxed">
+                    Help others identify {pet?.name} more easily by adding additional photos from different angles.
+                  </p>
+                </div>
+
+                {/* Image types checklist */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 font-medium">Face view - Clear shot of your pet's face</span>
+                  </div>
+                  <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 font-medium">Side view - Profile shot showing body shape</span>
+                  </div>
+                  <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 font-medium">Fur view - Close-up showing fur texture and color</span>
+                  </div>
+                </div>
+
+                {/* Benefits */}
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 mb-6">
+                  <h4 className="font-semibold text-purple-800 mb-2">Why add additional photos?</h4>
+                  <ul className="text-sm text-purple-700 space-y-1">
+                    <li>• Better search accuracy and matching</li>
+                    <li>• Helps others identify your pet more easily</li>
+                    <li>• Required for fingerprint generation (Lost/Found pets)</li>
+                    <li>• Increases chances of successful reunions</li>
+                  </ul>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex justify-center space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowCompleteImagesModal(false)
+                      // Clear the modal shown flag so it can show again if needed
+                      const imagesModalShownKey = `complete_images_modal_shown_${pet.id}`
+                      localStorage.removeItem(imagesModalShownKey)
+                    }}
+                    className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  >
+                    Maybe Later
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCompleteImagesModal(false)
+                      // Clear the modal shown flag so it can show again if needed
+                      const imagesModalShownKey = `complete_images_modal_shown_${pet.id}`
+                      localStorage.removeItem(imagesModalShownKey)
+                      router.push(`/edit_pet_details/${pet.id}`)
+                    }}
+                    className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
+                  >
+                    <Camera size={16} />
+                    Add Photos Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add CSS animations */}
       <style jsx>{`
         @keyframes fadeIn {
@@ -959,19 +1101,21 @@ export default function PetProfile() {
                 </h2>
                 
                 {!hasAdditionalImages(pet) ? (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                    <div className="flex flex-col items-center">
-                      <Camera size={48} className="text-blue-400 mb-3" />
-                      <h4 className="text-lg font-semibold text-blue-800 mb-2">No Additional Photos</h4>
-                      <p className="text-blue-600 mb-4 max-w-md">
-                        Add face, side, and fur views to help others identify your pet more easily.
-                      </p>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Camera size={24} className="text-gray-400 mr-3" />
+                        <div className="text-left">
+                          <p className="text-gray-700 font-medium">No additional photos added</p>
+                          <p className="text-sm text-gray-500">Help others identify your pet better</p>
+                        </div>
+                      </div>
                       <button
-                        onClick={() => router.push(`/edit_pet_details/${pet.id}`)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2"
+                        onClick={() => setShowCompleteImagesModal(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
                       >
                         <Camera size={16} />
-                        Add Photos Now
+                        Setup Photos
                       </button>
                     </div>
                   </div>
@@ -1235,6 +1379,8 @@ export default function PetProfile() {
     </div>
   )
 }
+
+
 
 
 
