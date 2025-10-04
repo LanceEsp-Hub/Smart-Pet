@@ -410,10 +410,12 @@ export default function PetProfile() {
     return missingFields.length > 0
   }
 
-  // Show incomplete info modal
-  const handleShowIncompleteInfo = () => {
-    setShowIncompleteInfoModal(true)
-  }
+  // Show incomplete info modal automatically when pet info is incomplete
+  useEffect(() => {
+    if (pet && isPetInfoIncomplete()) {
+      setShowIncompleteInfoModal(true)
+    }
+  }, [pet])
 
   // Loading state with a modern spinner
   if (loading)
@@ -638,51 +640,132 @@ export default function PetProfile() {
         </div>
       )}
 
-      {/* Incomplete Information Modal */}
+      {/* Animated Incomplete Information Modal */}
       {showIncompleteInfoModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-xl max-w-md w-full shadow-xl">
-            <div className="flex items-center mb-4 text-amber-600">
-              <Info size={24} className="mr-3" />
-              <h3 className="text-lg font-medium">Complete Pet Information</h3>
-            </div>
-            <p className="mb-6 text-gray-600">
-              In order to complete your pet's information and improve the chances of finding them, please click the "Edit Pet Details" button and fill out all the necessary information including:
-            </p>
-            <ul className="mb-6 text-sm text-gray-600 space-y-2">
-              <li className="flex items-center">
-                <div className="w-2 h-2 bg-amber-400 rounded-full mr-3"></div>
-                Detailed description of your pet
-              </li>
-              <li className="flex items-center">
-                <div className="w-2 h-2 bg-amber-400 rounded-full mr-3"></div>
-                Complete location information
-              </li>
-              <li className="flex items-center">
-                <div className="w-2 h-2 bg-amber-400 rounded-full mr-3"></div>
-                Additional photos (fur, face, side view)
-              </li>
-            </ul>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowIncompleteInfoModal(false)}
-                className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-gray-700"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => {
-                  setShowIncompleteInfoModal(false)
-                  router.push(`/edit_pet_details/${pet.id}`)
-                }}
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
-              >
-                Edit Pet Details
-              </button>
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          {/* Backdrop with animation - non-dismissible */}
+          <div 
+            className="fixed inset-0 bg-black transition-opacity duration-300 ease-in-out"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backdropFilter: 'blur(4px)',
+              animation: showIncompleteInfoModal ? 'fadeIn 0.3s ease-in-out' : 'fadeOut 0.3s ease-in-out'
+            }}
+          />
+          
+          {/* Modal content with animation */}
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div 
+              className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full transform transition-all duration-300 ease-in-out"
+              style={{
+                animation: showIncompleteInfoModal ? 'slideInUp 0.4s ease-out' : 'slideOutDown 0.4s ease-in',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header with gradient */}
+              <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-6 py-4 rounded-t-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-white bg-opacity-20 rounded-full mr-3">
+                      <Info size={24} className="text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white">Complete First the Pet Information</h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-6">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-700 text-lg leading-relaxed">
+                    You need to complete your pet's information first before you can access all features. Click "Edit Pet Details" to fill out all the necessary information.
+                  </p>
+                </div>
+
+                {/* Information checklist */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <div className="w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 font-medium">Detailed description of your pet</span>
+                  </div>
+                  <div className="flex items-center p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <div className="w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 font-medium">Complete location information</span>
+                  </div>
+                  <div className="flex items-center p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <div className="w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 font-medium">Additional photos (fur, face, side view)</span>
+                  </div>
+                </div>
+
+                {/* Action button */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      setShowIncompleteInfoModal(false)
+                      router.push(`/edit_pet_details/${pet.id}`)
+                    }}
+                    className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Edit Pet Details
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Add CSS animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+        @keyframes slideInUp {
+          from { 
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        @keyframes slideOutDown {
+          from { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+          to { 
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+          }
+        }
+      `}</style>
 
       <main className="container mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
@@ -942,16 +1025,6 @@ export default function PetProfile() {
                   Edit pet details
                 </button>
 
-                {/* Show incomplete info button if pet info is incomplete */}
-                {isPetInfoIncomplete() && (
-                  <button
-                    onClick={handleShowIncompleteInfo}
-                    className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors border border-amber-200"
-                  >
-                    <Info size={16} />
-                    Complete Pet Information
-                  </button>
-                )}
 
                 {pet.status === "Lost" && (
                   <button
@@ -1037,6 +1110,8 @@ export default function PetProfile() {
     </div>
   )
 }
+
+
 
 
 // // Pet profile page component will go here
