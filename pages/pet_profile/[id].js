@@ -32,6 +32,8 @@ import {
   getPetDeviceInfo,
   getPetCurrentLocation,
   toggleDeviceActivation,
+  hasAdditionalImages,
+  getMissingImageTypes,
 } from "../../utils/api"
 import { XCircle, Upload } from "lucide-react"
 
@@ -230,7 +232,7 @@ export default function PetProfile() {
 
   // Add this function before any handler that uses it
   const checkRequiredImages = () => {
-    if (!pet || !pet.additional_images) return false
+    if (!pet) return false
 
     const requiredImages = ["fur.jpg", "face.jpg", "side.jpg"]
     const currentImages = pet.additional_images || []
@@ -949,6 +951,107 @@ export default function PetProfile() {
                 </div>
               )}
 
+              {/* Additional Images Section */}
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                  <Camera size={18} className="mr-2 text-emerald-500" />
+                  Additional Photos
+                </h2>
+                
+                {!hasAdditionalImages(pet) ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                    <div className="flex flex-col items-center">
+                      <Camera size={48} className="text-blue-400 mb-3" />
+                      <h4 className="text-lg font-semibold text-blue-800 mb-2">No Additional Photos</h4>
+                      <p className="text-blue-600 mb-4 max-w-md">
+                        Add face, side, and fur views to help others identify your pet more easily.
+                      </p>
+                      <button
+                        onClick={() => router.push(`/edit_pet_details/${pet.id}`)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2"
+                      >
+                        <Camera size={16} />
+                        Add Photos Now
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {["face", "side", "fur"].map((type) => {
+                        const filename = `${type}.jpg`
+                        const hasImage = pet.additional_images?.includes(filename)
+                        const imageUrl = hasImage ? getPetImageUrl(`${pet.id}/${filename}`) : null
+
+                        return hasImage ? (
+                          <div
+                            key={type}
+                            className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm group"
+                          >
+                            <img
+                              src={imageUrl}
+                              alt={`${type} view of ${pet.name}`}
+                              className="object-cover w-full h-full"
+                              onError={(e) => {
+                                e.target.onerror = null
+                                e.target.src = "/default-pet.jpg"
+                                e.target.className = "object-contain w-full h-full bg-gray-100 p-4"
+                              }}
+                            />
+                            <div className="absolute top-2 left-2 bg-white/80 text-xs font-medium px-2 py-1 rounded-full capitalize backdrop-blur-sm">
+                              {type} View
+                            </div>
+                          </div>
+                        ) : (
+                          <div
+                            key={type}
+                            className="aspect-square rounded-lg bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center"
+                          >
+                            <Camera size={24} className="text-gray-400 mb-1" />
+                            <p className="text-sm text-gray-500 capitalize">{type} View</p>
+                            <p className="text-xs text-gray-400 mt-1">Not added</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Show missing image types if some exist but not all */}
+                    {getMissingImageTypes(pet).length > 0 && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Info size={16} className="text-yellow-600" />
+                          <h5 className="font-medium text-yellow-800">Missing Photos</h5>
+                        </div>
+                        <p className="text-sm text-yellow-700 mb-2">
+                          You're missing: <span className="font-medium">{getMissingImageTypes(pet).join(", ")}</span> photos
+                        </p>
+                        <p className="text-xs text-yellow-600 mb-3">
+                          Adding all three views (face, side, fur) will improve your pet's search accuracy.
+                        </p>
+                        <button
+                          onClick={() => router.push(`/edit_pet_details/${pet.id}`)}
+                          className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-2"
+                        >
+                          <Camera size={14} />
+                          Add Missing Photos
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Edit photos button when images exist */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => router.push(`/edit_pet_details/${pet.id}`)}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                      >
+                        <Edit size={16} />
+                        Edit Photos
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 mb-6">
                 {/* Safe at Home or Reunited status */}
@@ -1132,6 +1235,8 @@ export default function PetProfile() {
     </div>
   )
 }
+
+
 
 
 
