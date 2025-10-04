@@ -196,26 +196,12 @@ export default function PetLocation() {
     setIsUploading(true);
 
     try {
-      await toast.promise(
-        new Promise(async (resolve, reject) => {
-          try {
-            await saveToLocalStorage();
-            setTimeout(() => {
-              resolve();
-            }, 1000);
-          } catch (error) {
-            reject(error);
-          }
-        }),
-        {
-          loading: "Saving location...",
-          success: "Location saved successfully!",
-          error: "Failed to save location"
-        }
-      );
+      await saveToLocalStorage();
+      toast.success("Location saved successfully!", { position: "top-center" });
       router.push("/pet_description");
     } catch (error) {
       console.error("Error:", error);
+      toast.error("Failed to save location", { position: "top-center" });
     } finally {
       setIsUploading(false);
     }
@@ -520,10 +506,12 @@ export default function PetLocation() {
         </div>
       </div>
       <Footer />
-      <Toaster position="bottom-right" />
+      <Toaster position="top-center" />
     </div>
   );
 }
+
+
 // "use client";
 
 // import { useRouter } from "next/navigation";
