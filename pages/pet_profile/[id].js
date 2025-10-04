@@ -402,18 +402,37 @@ export default function PetProfile() {
   const isPetInfoIncomplete = () => {
     if (!pet) return false
     
-    const missingFields = []
-    if (!pet.description || pet.description.trim() === '') missingFields.push('description')
-    if (!pet.address || pet.address.trim() === '') missingFields.push('address')
-    if (!pet.additional_images || pet.additional_images.length === 0) missingFields.push('additional images')
+    // Check if essential fields are missing
+    const hasDescription = pet.description && pet.description.trim() !== ''
+    const hasAddress = pet.address && pet.address.trim() !== ''
+    const hasAdditionalImages = pet.additional_images && pet.additional_images.length > 0
     
-    return missingFields.length > 0
+    // Only show modal if ALL three are missing (very incomplete)
+    // Or if description and address are missing (critical info)
+    const isVeryIncomplete = !hasDescription && !hasAddress && !hasAdditionalImages
+    const isCriticalInfoMissing = !hasDescription && !hasAddress
+    
+    return isVeryIncomplete || isCriticalInfoMissing
   }
 
   // Show incomplete info modal automatically when pet info is incomplete
   useEffect(() => {
     if (pet && isPetInfoIncomplete()) {
-      setShowIncompleteInfoModal(true)
+      // Check if user has already been shown this modal for this pet
+      const modalShownKey = `incomplete_info_modal_shown_${pet.id}`
+      const hasBeenShown = localStorage.getItem(modalShownKey)
+      
+      // Only show if not shown before
+      if (!hasBeenShown) {
+        // Add a small delay to ensure the pet data is fully loaded
+        const timer = setTimeout(() => {
+          setShowIncompleteInfoModal(true)
+          // Mark as shown for this pet
+          localStorage.setItem(modalShownKey, 'true')
+        }, 500)
+        
+        return () => clearTimeout(timer)
+      }
     }
   }, [pet])
 
@@ -722,6 +741,9 @@ export default function PetProfile() {
                   <button
                     onClick={() => {
                       setShowIncompleteInfoModal(false)
+                      // Clear the modal shown flag so it can show again if needed
+                      const modalShownKey = `incomplete_info_modal_shown_${pet.id}`
+                      localStorage.removeItem(modalShownKey)
                       router.push(`/edit_pet_details/${pet.id}`)
                     }}
                     className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -1110,6 +1132,7 @@ export default function PetProfile() {
     </div>
   )
 }
+
 
 
 
