@@ -51,6 +51,7 @@ export default function RehomePets() {
             .catch((error) => {
               console.error("Error checking adoption application:", error)
               // Don't show modal on error, just log it
+              // This prevents the modal from showing if there are network issues
             })
         }
       }
