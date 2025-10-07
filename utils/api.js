@@ -1743,6 +1743,33 @@ export async function sendPasswordResetEmail(email) {
 //   return response.json();
 
 // }
+// Function to check if user has submitted an adoption application
+export async function checkUserAdoptionApplication(userId) {
+  try {
+    const token = sessionStorage.getItem('auth_token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${API_URL}/api/pets/check-adoption-application/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to check adoption application status');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error checking adoption application:', error);
+    throw error;
+  }
+}
 
 
 
