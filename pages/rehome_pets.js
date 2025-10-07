@@ -8,7 +8,7 @@ import { Search, Heart, MapPin, Calendar, Phone, MessageCircle, X, Filter, Star,
 import Navbar from "../components/Navbar"
 import Footer from "../components/Footer"
 import toast from "react-hot-toast"
-import { fetchRehomePets, checkAdoptionStatus, adoptPet } from "../utils/api"
+import { fetchRehomePets, checkAdoptionStatus, adoptPet, checkUserAdoptionApplication } from "../utils/api"
 
 export default function RehomePets() {
   const [pets, setPets] = useState([])
@@ -19,6 +19,7 @@ export default function RehomePets() {
   const [showModal, setShowModal] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
   const [showFilters, setShowFilters] = useState(false)
+  const [showAdoptionRequiredModal, setShowAdoptionRequiredModal] = useState(false)
 
   const [filters, setFilters] = useState({
     type: "all",
@@ -31,7 +32,28 @@ export default function RehomePets() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setCurrentUserId(Number.parseInt(window.sessionStorage.getItem("user_id")))
+      const userId = Number.parseInt(window.sessionStorage.getItem("user_id"))
+      setCurrentUserId(userId)
+      
+      // Check if user has adoption application
+      if (userId) {
+        // Check if user has already seen the modal in this session
+        const hasSeenModal = sessionStorage.getItem('adoption_modal_seen')
+        
+        if (!hasSeenModal) {
+          checkUserAdoptionApplication(userId)
+            .then((result) => {
+              if (!result.has_application) {
+                // Show modal if user doesn't have adoption application
+                setShowAdoptionRequiredModal(true)
+              }
+            })
+            .catch((error) => {
+              console.error("Error checking adoption application:", error)
+              // Don't show modal on error, just log it
+            })
+        }
+      }
     }
   }, [])
 
@@ -695,7 +717,157 @@ export default function RehomePets() {
             </div>
           </div>
         )}
+
+        {/* Adoption Application Required Modal */}
+        {showAdoptionRequiredModal && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            {/* Backdrop with animation - non-dismissible */}
+            <div 
+              className="fixed inset-0 bg-black transition-opacity duration-300 ease-in-out"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backdropFilter: 'blur(4px)',
+                animation: showAdoptionRequiredModal ? 'fadeIn 0.3s ease-in-out' : 'fadeOut 0.3s ease-in-out'
+              }}
+            />
+            
+            {/* Modal content with animation */}
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div 
+                className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full transform transition-all duration-300 ease-in-out"
+                style={{
+                  animation: showAdoptionRequiredModal ? 'slideInUp 0.4s ease-out' : 'slideOutDown 0.4s ease-in',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header with gradient */}
+                <div className="bg-gradient-to-r from-purple-400 to-pink-500 px-6 py-4 rounded-t-2xl">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="p-2 bg-white bg-opacity-20 rounded-full mr-3">
+                        <Heart size={24} className="text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">Adoption Application Required</h3>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="px-6 py-6">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-700 text-lg leading-relaxed">
+                      To adopt a pet, you need to complete an adoption application first. This helps us ensure that our pets go to loving, responsible homes.
+                    </p>
+                  </div>
+
+                  {/* Benefits */}
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="w-6 h-6 bg-purple-400 rounded-full flex items-center justify-center mr-3">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                        </svg>
+                      </div>
+                      <span className="text-gray-700 font-medium">Helps us match you with the right pet</span>
+                    </div>
+                    <div className="flex items-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="w-6 h-6 bg-purple-400 rounded-full flex items-center justify-center mr-3">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                        </svg>
+                      </div>
+                      <span className="text-gray-700 font-medium">Ensures responsible pet ownership</span>
+                    </div>
+                    <div className="flex items-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="w-6 h-6 bg-purple-400 rounded-full flex items-center justify-center mr-3">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                        </svg>
+                      </div>
+                      <span className="text-gray-700 font-medium">Required for all adoption requests</span>
+                    </div>
+                  </div>
+
+                  {/* Information */}
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
+                    <h4 className="font-semibold text-blue-800 mb-2">What's included in the application?</h4>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      <li>• Personal and contact information</li>
+                      <li>• Housing and living situation details</li>
+                      <li>• Pet care experience and plans</li>
+                      <li>• Household agreement and readiness</li>
+                    </ul>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex justify-center space-x-3">
+                    <button
+                      onClick={() => {
+                        setShowAdoptionRequiredModal(false)
+                        // Store that user has seen this modal to avoid showing it again in this session
+                        sessionStorage.setItem('adoption_modal_seen', 'true')
+                      }}
+                      className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                    >
+                      Maybe Later
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAdoptionRequiredModal(false)
+                        // Store that user has seen this modal
+                        sessionStorage.setItem('adoption_modal_seen', 'true')
+                        router.push('/adoption_application')
+                      }}
+                      className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2"
+                    >
+                      <Heart size={16} />
+                      Complete Application
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* Add CSS animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+        @keyframes slideInUp {
+          from { 
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        @keyframes slideOutDown {
+          from { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+          to { 
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+          }
+        }
+      `}</style>
 
       <Footer />
     </div>
