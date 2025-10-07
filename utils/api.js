@@ -1744,6 +1744,7 @@ export async function sendPasswordResetEmail(email) {
 
 // }
 // Function to check if user has submitted an adoption application
+// Function to check if user has submitted an adoption application
 export async function checkUserAdoptionApplication(userId) {
   try {
     const token = sessionStorage.getItem('auth_token');
@@ -1751,7 +1752,9 @@ export async function checkUserAdoptionApplication(userId) {
       throw new Error('Authentication required');
     }
 
-    const response = await fetch(`${API_URL}/api/pets/check-adoption-application/${userId}`, {
+    // Use environment variable directly to avoid import issues
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://newback-production-a0cc.up.railway.app";
+    const response = await fetch(`${apiUrl}/api/pets/check-adoption-application/${userId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
