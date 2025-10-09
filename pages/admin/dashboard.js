@@ -61,11 +61,22 @@ export default function DashboardContent() {
         setRecentActivity(activityData)
         setLoading(false) // Show main content immediately
 
-        // Fetch trend data in background (non-blocking)
-        Promise.allSettled([
-          getPetSimilarityTrends(30).then(setSimilarityTrends).catch(() => setSimilarityTrends([])),
-          getUserReportsTrends(30).then(setReportsTrends).catch(() => setReportsTrends([]))
-        ])
+        // Try to fetch trend data, but don't fail if it's not available
+        try {
+          const similarityData = await getPetSimilarityTrends(30)
+          setSimilarityTrends(similarityData)
+        } catch (err) {
+          console.warn("Pet similarity trends not available:", err.message)
+          setSimilarityTrends([]) // Set empty array as fallback
+        }
+
+        try {
+          const reportsData = await getUserReportsTrends(30)
+          setReportsTrends(reportsData)
+        } catch (err) {
+          console.warn("User reports trends not available:", err.message)
+          setReportsTrends([]) // Set empty array as fallback
+        }
 
         setError(null)
       } catch (err) {
