@@ -3576,22 +3576,22 @@ export const getPetSimilarityTrends = async (days = 30) => {
   }
 }
 
-export const testAdminConnection = async () => {
-  try {
-    const token = sessionStorage.getItem("auth_token")
-    const response = await fetch(`${API_URL}/admin/test`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-    return handleResponse(response)
-  } catch (error) {
-    console.error("Error testing admin connection:", error)
-    throw error
-  }
-}
+// export const testAdminConnection = async () => {
+//   try {
+//     const token = sessionStorage.getItem("auth_token")
+//     const response = await fetch(`${API_URL}/admin/test`, {
+//       method: "GET",
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         "Content-Type": "application/json",
+//       },
+//     })
+//     return handleResponse(response)
+//   } catch (error) {
+//     console.error("Error testing admin connection:", error)
+//     throw error
+//   }
+// }
 
 export const getStorageDetails = async () => {
   try {
