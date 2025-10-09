@@ -82,8 +82,16 @@ export default function DashboardContent() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full bg-gradient-to-br from-purple-50 to-blue-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+        <AdminSidebar />
+        <div className="flex-1 ml-64 container mx-auto px-6 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-pulse flex flex-col items-center space-y-4">
+              <div className="w-8 h-8 bg-purple-200 rounded-full animate-bounce"></div>
+              <div className="text-gray-500 text-sm">Loading dashboard...</div>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
