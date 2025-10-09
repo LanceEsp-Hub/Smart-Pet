@@ -37,42 +37,39 @@ export default function DashboardContent() {
   const router = useRouter()
 
   useEffect(() => {
-
-
     const fetchData = async () => {
       try {
         setLoading(true)
 
-        // Fetch core data first
-        const [statsData, activityData] = await Promise.all([
+        // Fetch core data first with timeout
+        const coreDataPromise = Promise.all([
           getAdminDashboardStats(timeRange),
           getAdminRecentActivity(),
         ])
 
+        // Set a timeout for core data
+        const coreDataTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Core data timeout')), 5000)
+        )
+
+        const [statsData, activityData] = await Promise.race([
+          coreDataPromise,
+          coreDataTimeout
+        ])
+
         setStats(statsData)
         setRecentActivity(activityData)
+        setLoading(false) // Show main content immediately
 
-        // Try to fetch trend data, but don't fail if it's not available
-        try {
-          const similarityData = await getPetSimilarityTrends(30)
-          setSimilarityTrends(similarityData)
-        } catch (err) {
-          console.warn("Pet similarity trends not available:", err.message)
-          setSimilarityTrends([]) // Set empty array as fallback
-        }
-
-        try {
-          const reportsData = await getUserReportsTrends(30)
-          setReportsTrends(reportsData)
-        } catch (err) {
-          console.warn("User reports trends not available:", err.message)
-          setReportsTrends([]) // Set empty array as fallback
-        }
+        // Fetch trend data in background (non-blocking)
+        Promise.allSettled([
+          getPetSimilarityTrends(30).then(setSimilarityTrends).catch(() => setSimilarityTrends([])),
+          getUserReportsTrends(30).then(setReportsTrends).catch(() => setReportsTrends([]))
+        ])
 
         setError(null)
       } catch (err) {
         setError(err.message)
-      } finally {
         setLoading(false)
       }
     }
@@ -338,7 +335,15 @@ const petTypeChartData = {
           <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Pet Similarity Search Trends (Last 30 Days)</h3>
             <div className="h-64">
-              <Line data={similarityTrendsData} options={chartOptions} />
+              {similarityTrends && similarityTrends.length > 0 ? (
+                <Line data={similarityTrendsData} options={chartOptions} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  <div className="text-center">
+                    <div className="animate-pulse text-sm">Loading trends...</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -346,7 +351,15 @@ const petTypeChartData = {
           <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">User Reports Trends (Last 30 Days)</h3>
             <div className="h-64">
-              <Bar data={reportsTrendsData} options={barChartOptions} />
+              {reportsTrends && reportsTrends.length > 0 ? (
+                <Bar data={reportsTrendsData} options={barChartOptions} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  <div className="text-center">
+                    <div className="animate-pulse text-sm">Loading trends...</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
